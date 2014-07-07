@@ -21,12 +21,12 @@ class TranslationRetrieveResource extends Tonic\Resource {
 			// get a reference to the site, user
 			$site = Site::GetBySiteId($token->SiteId);
             
-            $file = SITES_LOCATION.'/locales/'.$site['Language'].'/translation.json';
+            $file = SITES_LOCATION.'/'.$site['FriendlyId'].'/locales/'.$site['Language'].'/translation.json';
             $json = '{}';
             
            	// retrieve default file if it exists, if not the translation is empty 
             if(file_exists($file)){
-	            $json = file_get_contents($fragment);
+	            $json = file_get_contents($file);
             }
            
             // return a json response
@@ -70,7 +70,7 @@ class TranslationSaveResource extends Tonic\Resource {
 			$content = $request['content'];
             
 			// set directory an filename
-            $dir = SITES_LOCATION.'/locales/'.$site['Language'].'/';
+            $dir = SITES_LOCATION.'/'.$site['FriendlyId'].'/locales/'.$site['Language'].'/';
             $filename = 'translation.json';
             
            	// save content
