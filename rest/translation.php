@@ -27,6 +27,11 @@ class TranslationRetrieveResource extends Tonic\Resource {
            	// retrieve default file if it exists, if not the translation is empty 
             if(file_exists($file)){
 	            $json = file_get_contents($file);
+	            
+	            // initialize a blank file
+	            if($json == ''){
+		            $json = '{}';
+	            }
             }
            
             // return a json response
@@ -68,10 +73,16 @@ class TranslationSaveResource extends Tonic\Resource {
 		          
 		    // get content      
 			$content = $request['content'];
+			
+			// make it pretty
+			$json = json_decode($content);
+			$content = json_encode($json, JSON_PRETTY_PRINT);
             
 			// set directory an filename
-            $dir = SITES_LOCATION.'/'.$site['FriendlyId'].'/locales/'.$site['Language'].'/';
-            $filename = 'translation.json';
+			$dir = SITES_LOCATION.'/'.$site['FriendlyId'].'/locales/'.$site['Language'].'/';
+			$filename = 'translation.json';
+           
+           //file_put_contents
             
            	// save content
 		   	Utilities::SaveContent($dir, $filename, $content);
