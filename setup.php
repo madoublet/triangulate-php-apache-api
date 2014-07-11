@@ -7,16 +7,16 @@
 	define('DB_PASSWORD', 'dbpass');
 	
 	// URL of the application
-	define('APP_URL', 'http://path.totriangulate.com');
+	define('APP_URL', 'http://app.path-to-triangulate.com');
 	
 	// location of the app folder
 	define('APP_LOCATION', '../app');
 	
 	// URL of the API
-	define('API_URL', 'http://path.totriangulate.com/api');
+	define('API_URL', 'http://api.path-to-triangulate.com');
 	
 	// URL of sites produced by the app
-	define('SITES_URL', 'http://path.totriangulate.com/sites');
+	define('SITES_URL', 'http://sites.path-to-triangulate.com');
 	
 	// location of the sites folder
 	define('SITES_LOCATION', '../sites');
@@ -38,9 +38,6 @@
 	    'http://path.totriangulate.com'
 	    )));
 	    
-	// Google Maps API Key for use within the App
-	define('GOOGLE_MAPS_API_KEY', 'YOUR GOOGLE MAPS API KEY');
-    
     // set what emails should be sent out and a reply-to email address
 	define('REPLY_TO', '');
 	define('REPLY_TO_NAME', '');
@@ -53,11 +50,4 @@
 	
 	// set the default theme (directory name: themes/simple => simple)
 	define('DEFAULT_THEME', 'simple');
-
-	// the brand of your app
-    define('BRAND', 'Respond CMS');
-    define('BRAND_LOGO', 'images/respond-brand.png');
-    define('BRAND_ICON', 'images/respond-icon.png');
-    define('COPY', '<a href="http://respondcms.com">Respond CMS</a> version '.VERSION.'.  Made by Matthew Smith in Manchester, MO');
-
 ?>
