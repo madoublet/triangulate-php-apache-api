@@ -83,6 +83,36 @@ CREATE TABLE IF NOT EXISTS `Sites` (
   UNIQUE KEY `Domain` (`Domain`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
+CREATE TABLE IF NOT EXISTS `Sites` (
+  `SiteId` int(11) NOT NULL AUTO_INCREMENT,
+  `FriendlyId` varchar(50) DEFAULT NULL,
+  `Domain` varchar(255) NOT NULL,
+  `Name` varchar(255) NOT NULL,
+  `LogoUrl` varchar(512) DEFAULT NULL,
+  `IconUrl` varchar(512) DEFAULT NULL,
+  `IconBg` varchar(10) DEFAULT '#FFFFFF',
+  `Theme` varchar(50) DEFAULT NULL,
+  `PrimaryEmail` varchar(255) DEFAULT NULL,
+  `TimeZone` varchar(100) DEFAULT NULL,
+  `Language` varchar(10) NOT NULL DEFAULT 'en',
+  `Currency` varchar(10) NOT NULL DEFAULT 'USD',
+  `WeightUnit` varchar(10) NOT NULL DEFAULT 'kgs',
+  `ShippingCalculation` VARCHAR(10) NOT NULL DEFAULT  'free',
+  `ShippingRate` DECIMAL(15,2) NOT NULL DEFAULT  '0.00',
+  `ShippingTiers` TEXT,
+  `TaxRate` DECIMAL(5, 5) NOT NULL DEFAULT '0',
+  `PayPalId` VARCHAR(255) DEFAULT '',
+  `PayPalUseSandbox` INT NOT NULL DEFAULT '0',
+  `FormPrivateId` VARCHAR(240) DEFAULT '',
+  `FormPublicId` VARCHAR(240) DEFAULT '',
+  `SubscriptionId` varchar(256) DEFAULT '',
+  `CustomerId` varchar(256) DEFAULT '',
+  `LastLogin` datetime DEFAULT NULL,
+  `Created` datetime NOT NULL,
+  PRIMARY KEY (`SiteId`),
+  UNIQUE KEY `Domain` (`Domain`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `Users` (
   `UserID` varchar(50) NOT NULL,
   `Email` varchar(255) NOT NULL,

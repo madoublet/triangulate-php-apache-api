@@ -480,8 +480,21 @@ class SiteSaveResource extends Tonic\Resource {
             $primaryEmail = $request['primaryEmail'];
             $timeZone = $request['timeZone'];
             $language = $request['language'];
-            
-            Site::Edit($token->SiteId, $name, $domain, $primaryEmail, $timeZone, $language);
+            $currency = $request['currency'];
+            $weightUnit = $request['weightUnit'];
+            $shippingCalculation = $request['shippingCalculation'];
+            $shippingRate = $request['shippingRate'];
+            $shippingTiers = $request['shippingTiers'];
+            $taxRate = $request['taxRate'];
+            $payPalId = $request['payPalId'];
+            $payPalUseSandbox = $request['payPalUseSandbox'];
+            $formPublicId = $request['formPublicId'];
+            $formPrivateId = $request['formPrivateId'];
+
+            Site::Edit($token->SiteId, $name, $domain, $primaryEmail, $timeZone, $language, 
+            	$currency, $weightUnit, $shippingCalculation, $shippingRate, $shippingTiers, 
+            	$taxRate, $payPalId, $payPalUseSandbox, 
+            	$formPublicId, $formPrivateId);
  
             return new Tonic\Response(Tonic\Response::OK);
         

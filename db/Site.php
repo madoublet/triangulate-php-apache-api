@@ -55,7 +55,7 @@ class Site{
 	
 	
 	// edits the site information
-	public static function Edit($siteId, $name, $domain, $primaryEmail, $timeZone, $language){
+	public static function Edit($siteId, $name, $domain, $primaryEmail, $timeZone, $language, $currency, $weightUnit, $shippingCalculation, $shippingRate, $shippingTiers, $taxRate, $payPalId, $payPalUseSandbox, $formPublicId, $formPrivateId){
 
 		try{
             
@@ -66,7 +66,17 @@ class Site{
                     Domain= ?, 
         			PrimaryEmail = ?,
         			TimeZone = ?,
-        			Language = ?
+        			Language = ?,
+        			Currency = ?,
+        			WeightUnit = ?,
+        			ShippingCalculation = ?, 
+        			ShippingRate = ?,
+        			ShippingTiers = ?,
+        			TaxRate = ?,
+        			PayPalId = ?,
+        			PayPalUseSandbox = ?,
+            		FormPublicId=?,
+            		FormPrivateId=?
         			WHERE SiteId = ?";
      
             $s = $db->prepare($q);
@@ -75,7 +85,17 @@ class Site{
             $s->bindParam(3, $primaryEmail);
             $s->bindParam(4, $timeZone);
             $s->bindParam(5, $language);
-            $s->bindParam(6, $siteId);
+            $s->bindParam(6, $currency);
+            $s->bindParam(7, $weightUnit);
+            $s->bindParam(8, $shippingCalculation);
+            $s->bindValue(9, strval($shippingRate), PDO::PARAM_STR);
+            $s->bindParam(10, $shippingTiers);
+            $s->bindParam(11, $taxRate);
+            $s->bindParam(12, $payPalId);
+            $s->bindParam(13, $payPalUseSandbox);
+            $s->bindParam(14, $formPublicId);
+            $s->bindParam(15, $formPrivateId);
+            $s->bindParam(16, $siteId);
             
             $s->execute();
             
@@ -83,8 +103,8 @@ class Site{
             die('[Site::Edit] PDO Error: '.$e->getMessage());
         }
         
-	}
-    
+	}    
+	
     // edits the theme
     public static function EditTheme($siteId, $theme){
         
@@ -279,7 +299,11 @@ class Site{
             $db = DB::get();
             
             $q = "SELECT SiteId, FriendlyId, Domain, Name, LogoUrl, IconUrl, IconBg, Theme,
-    						PrimaryEmail, TimeZone, Language, Created
+    						PrimaryEmail, TimeZone, Language, Currency, WeightUnit, 
+							ShippingCalculation, ShippingRate, ShippingTiers, TaxRate, 
+							PayPalId, PayPalUseSandbox, PayPalLogoUrl,
+							FormPublicId, FormPrivateId,
+							LastLogin, CustomerId, Created
 							FROM Sites ORDER BY Name ASC";
                     
             $s = $db->prepare($q);
@@ -356,8 +380,13 @@ class Site{
     		$db = DB::get();
             
             $q = "SELECT SiteId, FriendlyId, Domain, Name, LogoUrl, IconUrl, IconBg, Theme,
-    						PrimaryEmail, TimeZone, Language, LastLogin, Created
-							FROM Sites WHERE Domain = ?";
+    						PrimaryEmail, TimeZone, Language, Currency, WeightUnit, 
+							ShippingCalculation, ShippingRate, ShippingTiers, TaxRate, 
+							PayPalId, PayPalUseSandbox,
+							FormPrivateId, FormPublicId,
+							SubscriptionId, CustomerId,
+							LastLogin, Created		
+    						FROM Sites WHERE Domain = ?";
                     
             $s = $db->prepare($q);
             $s->bindParam(1, $domain);
@@ -384,7 +413,12 @@ class Site{
         	$db = DB::get();
             
             $q = "SELECT SiteId, FriendlyId, Domain, Name, LogoUrl, IconUrl, IconBg, Theme,
-    						PrimaryEmail, TimeZone, Language, LastLogin, Created
+    						PrimaryEmail, TimeZone, Language, Currency, WeightUnit, 
+							ShippingCalculation, ShippingRate, ShippingTiers, TaxRate, 
+							PayPalId, PayPalUseSandbox,
+							FormPrivateId, FormPublicId,
+							SubscriptionId, CustomerId,
+							LastLogin, Created
 							FROM Sites WHERE FriendlyId = ?";
                     
             $s = $db->prepare($q);
@@ -412,7 +446,12 @@ class Site{
             $db = DB::get();
             
             $q = "SELECT SiteId, FriendlyId, Domain, Name, LogoUrl, IconUrl, IconBg, Theme,
-    						PrimaryEmail, TimeZone, Language, LastLogin, Created
+    						PrimaryEmail, TimeZone, Language, Currency, WeightUnit, 
+							ShippingCalculation, ShippingRate, ShippingTiers, TaxRate, 
+							PayPalId, PayPalUseSandbox,
+							FormPrivateId, FormPublicId,
+							SubscriptionId, CustomerId,
+							LastLogin, Created
 							FROM Sites WHERE Siteid = ?";
                     
             $s = $db->prepare($q);
