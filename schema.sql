@@ -64,27 +64,8 @@ CREATE TABLE IF NOT EXISTS `PageTypes` (
   KEY `SiteId` (`SiteId`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
-
 CREATE TABLE IF NOT EXISTS `Sites` (
   `SiteId` varchar(50) NOT NULL,
-  `FriendlyId` varchar(50) DEFAULT NULL,
-  `Domain` varchar(255) NOT NULL,
-  `Name` varchar(255) NOT NULL,
-  `LogoUrl` varchar(512) DEFAULT NULL,
-  `IconUrl` VARCHAR(512) DEFAULT NULL,
-  `IconBg` VARCHAR(10) DEFAULT '#FFFFFF',
-  `Theme` varchar(50) DEFAULT NULL,
-  `PrimaryEmail` varchar(255) DEFAULT NULL,
-  `TimeZone` varchar(100) DEFAULT NULL,
-  `Language` varchar(10) NOT NULL DEFAULT 'en',
-  `LastLogin` datetime DEFAULT NULL,
-  `Created` datetime NOT NULL,
-  PRIMARY KEY (`SiteId`),
-  UNIQUE KEY `Domain` (`Domain`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS `Sites` (
-  `SiteId` int(11) NOT NULL AUTO_INCREMENT,
   `FriendlyId` varchar(50) DEFAULT NULL,
   `Domain` varchar(255) NOT NULL,
   `Name` varchar(255) NOT NULL,
