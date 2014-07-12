@@ -283,6 +283,49 @@ class UserAddResource extends Tonic\Resource {
 }
 
 /**
+ * A protected API call to add a user
+ * @uri /user/add/member
+ */
+class UserAddMemberResource extends Tonic\Resource {
+
+    /**
+     * @method POST
+     */
+    function post() {
+
+        parse_str($this->request->data, $request); // parse request
+
+		$siteId = $request['siteId'];
+        $email = $request['email'];
+        $password = $request['password'];
+        $firstName = $request['firstName'];
+        $lastName = $request['lastName'];
+        $role = 'Member';
+        
+        // get a reference to the site
+        $site = Site::GetById($siteId);
+        
+        // set default language
+        $language = $site['Language'];
+        $isActive = 0;
+
+        $user = User::Add($email, $password, $firstName, $lastName, $role, $language, $isActive, $token->SiteId);
+
+        // return a json response
+        $response = new Tonic\Response(Tonic\Response::OK);
+        $response->contentType = 'application/json';
+        $response->body = json_encode($user);
+
+        return $response;
+        
+   
+    }
+
+}
+
+
+
+/**
  * A protected API call to get the current user
  * @uri /user/current
  */
