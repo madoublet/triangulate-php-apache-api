@@ -28,24 +28,36 @@ class FormResource extends Tonic\Resource {
             $content =  '<h3>Site Information</h3>'.
                         '<table>'.
                         '<tr>'.
-                        '<td style="padding: 5px 25px 5px 0;">Site:</td>'.
+                        '<td style="width: 125px; padding: 5px 25px 5px 0;">Site</td>'.
                         '<td style="padding: 5px 0">'.$site['Name'].'</td>'.
                         '</tr>'.
-                         '<tr>'.
-                        '<td style="padding: 5px 25px 5px 0;">Page:</td>'.
+                        '<tr>'.
+                        '<td style="width: 125px; padding: 5px 25px 5px 0;">Page</td>'.
                         '<td style="padding: 5px 0">'.$page['Name'].'</td>'.
                         '</tr>'.
                         '</table>'.
                         '<h3>Form Details</h3>'.
-                        $body;
-            
-            
-            // send an email
-            $headers  = 'MIME-Version: 1.0' . "\r\n";
-            $headers .= 'Content-type: text/html; charset=utf-8' . "\r\n";
-            $headers .= 'From: ' . $site['PrimaryEmail'] . "\r\n" .
-                		'Reply-To: ' . $site['PrimaryEmail'] . "\r\n";
-            
+                        '<table>';
+         	
+         	foreach($request as $key => $value){
+         	
+         		if($key != 'siteId' && $key != 'pageId'){
+         	
+	         		$title = preg_replace('/(?!^)[A-Z]{2,}(?=[A-Z][a-z])|[A-Z][a-z]|[0-9]{1,}/', ' $0', $key);
+		         	
+		         	$title = ucwords($title);
+		         	
+		         	$content .= '<tr>'.
+	                        '<td style="width: 125px; padding: 5px 25px 5px 0;">'.$title.'</td>'.
+	                        '<td style="padding: 5px 0">'.$value.'</td>'.
+	                        '</tr>';
+                        
+				}
+	         	
+         	}     
+         	
+         	$content .= '</table>';          
+                    
             // sends the email
             $to = $site['PrimaryEmail'];
             $from = $site['PrimaryEmail'];

@@ -1,5 +1,8 @@
 <?php
 
+	// define brand
+	define('BRAND', 'Triangulate');
+
 	// DB connection parameters
 	define('DB_HOST', 'localhost');
 	define('DB_NAME', 'triangulate');
