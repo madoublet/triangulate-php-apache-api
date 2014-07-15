@@ -303,13 +303,13 @@ class UserAddMemberResource extends Tonic\Resource {
         $role = 'Member';
         
         // get a reference to the site
-        $site = Site::GetById($siteId);
+        $site = Site::GetBySiteId($siteId);
         
         // set default language
         $language = $site['Language'];
         $isActive = 0;
 
-        $user = User::Add($email, $password, $firstName, $lastName, $role, $language, $isActive, $token->SiteId);
+        $user = User::Add($email, $password, $firstName, $lastName, $role, $language, $isActive, $siteId);
 
         // return a json response
         $response = new Tonic\Response(Tonic\Response::OK);

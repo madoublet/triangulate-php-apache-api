@@ -320,6 +320,18 @@ class Publish
 			$iconUrl = 'files/'.$site['IconUrl'];
 		}
 		
+		// set display
+		$showCart = false;
+		$showSettings = false;
+		
+		if($site['ShowCart'] == 1){
+			$showCart = true;
+		}
+		
+		if($site['ShowSettings'] == 1){
+			$showSettings = true;
+		}
+		
 		// setup sites array
 		$site_arr = array(
 					'SiteId' => $site['SiteId'],
@@ -331,7 +343,18 @@ class Publish
 					'IconBg' => $site['IconBg'],
 					'Theme' => $site['Theme'],
 					'PrimaryEmail' => $site['PrimaryEmail'],
-					'Language' => $site['Language']
+					'Language' => $site['Language'],
+					'ShowCart' => $showCart,
+					'ShowSettings' => $showSettings,
+					'Currency' => $site['Currency'],
+					'WeightUnit' => $site['WeightUnit'],
+					'ShippingCalculation' => $site['ShippingCalculation'],
+					'ShippingRate' => $site['ShippingRate'],
+					'ShippingTiers' => $site['ShippingTiers'],
+					'TaxRate' => $site['TaxRate'],
+					'PayPalId' => $site['PayPalId'],
+					'PayPalUseSandbox' => $site['PayPalUseSandbox'],
+					'FormPublicId' => $site['FormPublicId']
 				);
 		
 		// encode to json
@@ -378,57 +401,101 @@ class Publish
 		
 		$site = Site::GetBySiteId($siteId);
 		
-		$list = MenuItem::GetMenuItems($site['SiteId']);
+		$types = MenuType::GetMenuTypes($site['SiteId']);
 		
-		$menu = array();
-		$count = 0;
+		// create types for primary, footer
+		$primary = array(
+			'MenuTypeId' => -1,
+		    'FriendlyId'  => 'primary'
+		);
 		
-		foreach ($list as $row){
+		$footer = array(
+			'MenuTypeId' => -1,
+		    'FriendlyId'  => 'footer'
+		);
 		
-			$isInternal = false;
-			$state = '';
-			$url = '';
-
-			if($row['PageId'] != -1){
+		// push default types
+		array_push($types, $primary);
+		array_push($types, $footer);
+		
+		// walk through types
+		foreach($types as $type){
+		
+			echo $type['FriendlyId'];
+		
+			// get items for type
+			$list = MenuItem::GetMenuItemsForType($site['SiteId'], $type['FriendlyId']);
 			
-				$page = Page::GetByPageId($row['PageId']);
-
-				if($page != NULL){
-					$pageId = $page['PageId'];
-					$state = $page['FriendlyId'];
-					$isInternal = true;
+			// create array for menu
+			$menu = array();
+			
+			// walk through menu items
+			foreach($list as $row){
+			
+				$isInternal = false;
+				$state = '';
+				$url = '';
+	
+				// push non nested items onto the array
+				if($row['IsNested'] == 0){
 					
+					// create an array item
+					$item = array(
+						'MenuItemId' => $row['MenuItemId'],
+					    'Name'  => $row['Name'],
+					    'CssClass'  => $row['CssClass'],
+					    'Url' => $row['Url'],
+						'PageId' => $row['PageId'],
+						'HasChildren' => false,
+						'Children' => array()
+					);
+					
+					// push item onto the array
+					array_push($menu, $item);
 					
 				}
 				else{
-					$pageId = -1;
+					
+					// create an array item
+					$item = array(
+						'MenuItemId' => $row['MenuItemId'],
+					    'Name'  => $row['Name'],
+					    'CssClass'  => $row['CssClass'],
+					    'Url' => $row['Url'],
+						'PageId' => $row['PageId']
+					);
+					
+					// get a reference to the parent
+					$parent = array_pop($menu);
+					
+					// make sure the parent exists
+					if($parent != NULL){
+						
+						// push item to the children array
+						array_push($parent['Children'], $item);
+						
+						// set that it has children
+						$parent['HasChildren'] = true;
+						
+						// push item onto the array
+						array_push($menu, $parent);
+						
+					}
+					
 				}
+		
 			}
-			else{
-				$pageId = -1;
-			}
-
-			$item = array(
-					'MenuItemId' => $row['MenuItemId'],
-				    'Name'  => $row['Name'],
-				    'CssClass'  => $row['CssClass'],
-				    'Type' => $row['Type'],
-					'Url' => $row['Url'],
-					'IsNested' => $row['IsNested'],
-					'IsInternal' => $isInternal,
-					'PageId' => $pageId
-				);
-				
-			$menu[$count] = $item;	
-			$count = $count + 1;
+			
+			// encode to json
+			$encoded = json_encode($menu);
+	
+			$dest = SITES_LOCATION.'/'.$site['FriendlyId'].'/data/';
+			
+			echo $dest.'menu-'.$type['FriendlyId'].'.json';
+			
+			Utilities::SaveContent($dest, 'menu-'.$type['FriendlyId'].'.json', $encoded);
 		}
 		
-		// encode to json
-		$encoded = json_encode($menu);
-
-		$dest = SITES_LOCATION.'/'.$site['FriendlyId'].'/data/';
-		
-		Utilities::SaveContent($dest, 'menu.json', $encoded);
 	}
 		
 	// publish rss for all page types

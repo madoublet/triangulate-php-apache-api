@@ -53,9 +53,8 @@ class Site{
         }
 	}
 	
-	
 	// edits the site information
-	public static function Edit($siteId, $name, $domain, $primaryEmail, $timeZone, $language, $currency, $weightUnit, $shippingCalculation, $shippingRate, $shippingTiers, $taxRate, $payPalId, $payPalUseSandbox, $formPublicId, $formPrivateId){
+	public static function Edit($siteId, $name, $domain, $primaryEmail, $timeZone, $language, $showCart, $showSettings, $currency, $weightUnit, $shippingCalculation, $shippingRate, $shippingTiers, $taxRate, $payPalId, $payPalUseSandbox, $formPublicId, $formPrivateId){
 
 		try{
             
@@ -68,6 +67,8 @@ class Site{
         			TimeZone = ?,
         			Language = ?,
         			Currency = ?,
+        			ShowCart = ?,
+        			ShowSettings = ?,
         			WeightUnit = ?,
         			ShippingCalculation = ?, 
         			ShippingRate = ?,
@@ -86,16 +87,18 @@ class Site{
             $s->bindParam(4, $timeZone);
             $s->bindParam(5, $language);
             $s->bindParam(6, $currency);
-            $s->bindParam(7, $weightUnit);
-            $s->bindParam(8, $shippingCalculation);
-            $s->bindValue(9, strval($shippingRate), PDO::PARAM_STR);
-            $s->bindParam(10, $shippingTiers);
-            $s->bindParam(11, $taxRate);
-            $s->bindParam(12, $payPalId);
-            $s->bindParam(13, $payPalUseSandbox);
-            $s->bindParam(14, $formPublicId);
-            $s->bindParam(15, $formPrivateId);
-            $s->bindParam(16, $siteId);
+            $s->bindParam(7, $showCart);
+            $s->bindParam(8, $showSettings);
+            $s->bindParam(9, $weightUnit);
+            $s->bindParam(10, $shippingCalculation);
+            $s->bindValue(11, strval($shippingRate), PDO::PARAM_STR);
+            $s->bindParam(12, $shippingTiers);
+            $s->bindParam(13, $taxRate);
+            $s->bindParam(14, $payPalId);
+            $s->bindParam(15, $payPalUseSandbox);
+            $s->bindParam(16, $formPublicId);
+            $s->bindParam(17, $formPrivateId);
+            $s->bindParam(18, $siteId);
             
             $s->execute();
             
@@ -299,9 +302,10 @@ class Site{
             $db = DB::get();
             
             $q = "SELECT SiteId, FriendlyId, Domain, Name, LogoUrl, IconUrl, IconBg, Theme,
-    						PrimaryEmail, TimeZone, Language, Currency, WeightUnit, 
-							ShippingCalculation, ShippingRate, ShippingTiers, TaxRate, 
-							PayPalId, PayPalUseSandbox, PayPalLogoUrl,
+    						PrimaryEmail, TimeZone, Language, Currency, 
+    						ShowCart, ShowSettings,
+    						WeightUnit, ShippingCalculation, ShippingRate, ShippingTiers, TaxRate, 
+							PayPalId, PayPalUseSandbox,
 							FormPublicId, FormPrivateId,
 							LastLogin, CustomerId, Created
 							FROM Sites ORDER BY Name ASC";
@@ -380,12 +384,12 @@ class Site{
     		$db = DB::get();
             
             $q = "SELECT SiteId, FriendlyId, Domain, Name, LogoUrl, IconUrl, IconBg, Theme,
-    						PrimaryEmail, TimeZone, Language, Currency, WeightUnit, 
-							ShippingCalculation, ShippingRate, ShippingTiers, TaxRate, 
+    						PrimaryEmail, TimeZone, Language, Currency, 
+    						ShowCart, ShowSettings,
+    						WeightUnit, ShippingCalculation, ShippingRate, ShippingTiers, TaxRate, 
 							PayPalId, PayPalUseSandbox,
-							FormPrivateId, FormPublicId,
-							SubscriptionId, CustomerId,
-							LastLogin, Created		
+							FormPublicId, FormPrivateId,
+							LastLogin, CustomerId, Created	
     						FROM Sites WHERE Domain = ?";
                     
             $s = $db->prepare($q);
@@ -413,12 +417,12 @@ class Site{
         	$db = DB::get();
             
             $q = "SELECT SiteId, FriendlyId, Domain, Name, LogoUrl, IconUrl, IconBg, Theme,
-    						PrimaryEmail, TimeZone, Language, Currency, WeightUnit, 
-							ShippingCalculation, ShippingRate, ShippingTiers, TaxRate, 
+    						PrimaryEmail, TimeZone, Language, Currency, 
+    						ShowCart, ShowSettings,
+    						WeightUnit, ShippingCalculation, ShippingRate, ShippingTiers, TaxRate, 
 							PayPalId, PayPalUseSandbox,
-							FormPrivateId, FormPublicId,
-							SubscriptionId, CustomerId,
-							LastLogin, Created
+							FormPublicId, FormPrivateId,
+							LastLogin, CustomerId, Created
 							FROM Sites WHERE FriendlyId = ?";
                     
             $s = $db->prepare($q);
@@ -446,12 +450,12 @@ class Site{
             $db = DB::get();
             
             $q = "SELECT SiteId, FriendlyId, Domain, Name, LogoUrl, IconUrl, IconBg, Theme,
-    						PrimaryEmail, TimeZone, Language, Currency, WeightUnit, 
-							ShippingCalculation, ShippingRate, ShippingTiers, TaxRate, 
+    						PrimaryEmail, TimeZone, Language, Currency, 
+    						ShowCart, ShowSettings,
+    						WeightUnit, ShippingCalculation, ShippingRate, ShippingTiers, TaxRate, 
 							PayPalId, PayPalUseSandbox,
-							FormPrivateId, FormPublicId,
-							SubscriptionId, CustomerId,
-							LastLogin, Created
+							FormPublicId, FormPrivateId,
+							LastLogin, CustomerId, Created
 							FROM Sites WHERE Siteid = ?";
                     
             $s = $db->prepare($q);
