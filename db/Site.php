@@ -327,13 +327,13 @@ class Site{
         }   
 	}
 	
-	// gets all domains
+	// gets all domains for CORS auth
 	public static function GetDomains(){
 		
         try{
             $db = DB::get();
             
-            $q = "SELECT Domain FROM Sites";
+            $q = "SELECT Domain, FriendlyId FROM Sites";
                     
             $s = $db->prepare($q);
             
@@ -344,9 +344,11 @@ class Site{
         	while($row = $s->fetch(PDO::FETCH_ASSOC)) { 
         		$domain = 'http://'.$row['Domain'];
         		$www = 'http://www.'.$row['Domain'];
-        	
+        		$s3 = str_replace('{{site}}', $row['FriendlyId'], S3_URL);
+        		        	
                 array_push($arr, $domain);
                 array_push($arr, $www);
+                array_push($arr, $s3);
             } 
             
             return $arr;

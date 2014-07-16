@@ -28,15 +28,16 @@
 	$valid_cors = false;
     
     // check to see if the domain has been setup for a site
-    //$domains = Site::GetDomains();
+    $domains = Site::GetDomains();
     
-    //if(in_array($request->origin, $domains)){
-	//	$valid_cors = true;
-    //}
+    if(in_array($request->origin, $domains)){
+		$valid_cors = true;
+    }
     
     // check for domains specified in setup.php
 	$cors = unserialize(CORS);
-    
+	
+	// check cors
     if(in_array($request->origin, $cors)){
         $valid_cors = true;
     }

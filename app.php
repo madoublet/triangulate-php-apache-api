@@ -54,22 +54,20 @@
 	require_once 'db/SearchIndex.php';
 	require_once 'db/Transaction.php';
 	
-	// include external libs
-    require_once 'libs/phpmailer/PHPMailerAutoload.php';
-	require_once 'libs/lessc.inc.php';
+	// include external libs (via composer)
+	require 'vendor/autoload.php';
+
+    // include non-composer external libs
 	require_once 'libs/PasswordHash.php';
 	require_once 'libs/class-php-ico.php';
-	require_once 'libs/JWT.php';
 	
 	// include libs
 	require_once 'libs/Utilities.php';
 	require_once 'libs/Validator.php';
 	require_once 'libs/Image.php';
-	require_once 'libs/AuthUser.php';
 	require_once 'libs/Publish.php';
 	
 	// include rest objects
-	require_once 'libs/Tonic/Autoloader.php';
 	require_once 'rest/page.php';
 	require_once 'rest/pageType.php';
 	require_once 'rest/theme.php';
@@ -83,6 +81,5 @@
     require_once 'rest/stylesheet.php';
     require_once 'rest/layout.php';
     require_once 'rest/translation.php';
-    
-	
+   
 ?>

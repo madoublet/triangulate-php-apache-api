@@ -400,6 +400,35 @@ class SitePublishResource extends Tonic\Resource {
 }
 
 /**
+ * A protected API call to publish the site
+ * @uri /site/deploy
+ */
+class SiteDeployResource extends Tonic\Resource {
+
+    /**
+     * @method GET
+     */
+    function get() {
+        
+        // get token
+		$token = Utilities::ValidateJWTToken(apache_request_headers());
+
+		// check if token is not null
+        if($token != NULL){ 
+
+            Publish::DeploySite($token->SiteId);
+
+            $response = new Tonic\Response(Tonic\Response::OK);
+       
+            return $response;
+        }
+        else{
+            return new Tonic\Response(Tonic\Response::UNAUTHORIZED);
+        }
+    }
+}
+
+/**
  * A protected API call to view, edit, and delete a site
  * @uri /site/remove
  */

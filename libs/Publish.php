@@ -698,6 +698,84 @@ class Publish
             return $dest.$file;
 		}
 	}
+	
+	// deploys the site to Amazon S3
+	public static function DeploySite($siteId){
+		
+		// get a reference to the site
+		$site = Site::GetBySiteId($siteId);
+		
+		// create AWS client
+		$client = Aws\S3\S3Client::factory(array(
+		    'key'    => S3_KEY,
+		    'secret' => S3_SECRET
+		));
+		
+		// create a bucket name, TODO: bucket needs to be in the form sample.com, www.sample.com
+		$bucket = 'sample.com';
+		$bucket_www = 'www.sample.com';
+		
+		// check to see if bucket exists
+		$doesExist = $client->doesBucketExist($bucket);
+		
+		// create a bucket for the site if it does not exists
+		if($doesExist == false){
+		
+			// #ref: http://docs.aws.amazon.com/aws-sdk-php/latest/class-Aws.S3.S3Client.html#_createBucket
+			$result = $client->createBucket(array(
+			    'Bucket' => $bucket,
+			    'ACL'	 => 'public-read'		
+			));
+			
+			// enable hosting for the bucket
+			$result = $client->putBucketWebsite(array(
+			    // Bucket is required
+			    'Bucket' => $bucket,
+			    'ErrorDocument' => array(
+			        // Key is required
+			        'Key' => '#/page/error',
+			    ),
+			    'IndexDocument' => array(
+			        // Suffix is required
+			        'Suffix' => 'index.html',
+			    )));
+			    
+			    
+			// #ref: http://docs.aws.amazon.com/aws-sdk-php/latest/class-Aws.S3.S3Client.html#_createBucket
+			$result = $client->createBucket(array(
+			    'Bucket' => $bucket_www,
+			    'ACL'	 => 'public-read'		
+			));
+			
+			// enable hosting for the bucket
+			$result = $client->putBucketWebsite(array(
+			    // Bucket is required
+			    'Bucket' => $bucket_www,
+			    'RedirectAllRequestsTo' => array(
+			        'HostName' => $bucket
+			    )));
+			
+		
+		}
+		
+		// set local director
+		$local_dir = SITES_LOCATION.'/'.$site['FriendlyId'];
+		
+		// prefix
+		$keyPrefix = '';
+		
+		// set permissions
+		$options = array(
+		    'params'      => array('ACL' => 'public-read'),
+		    'concurrency' => 20,
+		    'debug'       => true
+		);
+		
+		// sync folders, #ref: http://blogs.aws.amazon.com/php/post/Tx2W9JAA7RXVOXA/Syncing-Data-with-Amazon-S3
+		$client->uploadDirectory($local_dir, $bucket, $keyPrefix, $options);
+		
+	}
+	
 }
 
 ?>

@@ -9,6 +9,14 @@
 	define('DB_USER', 'dbuser');
 	define('DB_PASSWORD', 'dbpass');
 	
+	// S3 deployment options
+	define('ENABLE_S3_DEPLOYMENT', false);
+	define('BUCKET_NAME', '{{site}}.triangulate.io');
+	define('S3_LOCATION', 'us-east-1',
+	define('S3_URL', 'http://{{site}}.triangulate.io.s3-website-us-east-1.amazonaws.com');
+	define('S3_KEY', 'AWS ACCESS KEY');
+	define('S3_SECRET', 'AWS SECRET KEY');
+	
 	// URL of the application
 	define('APP_URL', 'http://app.path-to-triangulate.com');
 	

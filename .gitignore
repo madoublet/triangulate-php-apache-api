@@ -3,6 +3,10 @@
 #################
 
 setup.local.php
+vendor/
+vendor/*
+composer.phar
+composer.lock
 
 #################
 ## Eclipse
