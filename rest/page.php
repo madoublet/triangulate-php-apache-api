@@ -501,6 +501,9 @@ class PageRetrieveResource extends Tonic\Resource {
 	            return new Tonic\Response(Tonic\Response::UNAUTHORIZED);
             }
             
+            // get site
+            $site = Site::GetBySiteId($page['SiteId']);
+            
             // url
             $page['Url'] = $page['FriendlyId'];
             
@@ -525,6 +528,17 @@ class PageRetrieveResource extends Tonic\Resource {
 	            $canPublish = Utilities::CanPerformAction('root', $access['CanPublish']);
 	            $canRemove = Utilities::CanPerformAction('root', $access['CanRemove']);
             }
+            
+            // determine if the page has a draft
+            $draft = SITES_LOCATION.'/'.$site['FriendlyId'].'/fragments/draft/'.$page['FriendlyId'].'.html';;
+            
+            $hasDraft = false;
+            
+            if(file_exists($draft)){
+            	$hasDraft = true;
+            }
+            
+            $page['HasDraft'] = $hasDraft;
 
 			// set permissions            
             $page['CanEdit'] = $canEdit;
@@ -798,6 +812,63 @@ class PageContentSaveResource extends Tonic\Resource {
             $response->body = $url;
 
             return $response;
+        
+        } else{ // unauthorized access
+
+            return new Tonic\Response(Tonic\Response::UNAUTHORIZED);
+        }
+    }
+}
+
+/**
+ * A protected API call to get and save content for a page
+ * @uri /page/content/revert
+ */
+class PageContentRevert extends Tonic\Resource {
+
+    /**
+     * @method POST
+     */
+
+    function post() {
+
+        // get token
+		$token = Utilities::ValidateJWTToken(apache_request_headers());
+
+		// check if token is not null
+        if($token != NULL){ 
+			
+            $site = Site::GetBySiteId($token->SiteId);
+			$user = User::GetByUserId($token->UserId);
+			
+			// creates an access object
+			$access = Utilities::SetAccess($user);
+
+            parse_str($this->request->data, $request); // parse request
+
+			// get page id
+			$pageId  = $request['pageId'];
+            
+			// get page and site
+            $page = Page::GetByPageId($pageId);
+            
+            // default is root
+    		$pageTypeId = $page['PageTypeId'];
+    		
+    		// get permissions
+            $canEdit = Utilities::CanPerformAction($pageTypeId, $access['CanEdit']);
+            $canPublish = Utilities::CanPerformAction($pageTypeId, $access['CanPublish']);
+            
+            // check permissions
+			if($canEdit == false && $canPublish == false){
+				return new Tonic\Response(Tonic\Response::UNAUTHORIZED);
+			}
+			
+			 // removes the draft for the page
+            Publish::RemoveDraft($pageId);
+			
+			// return successful response
+            return new Tonic\Response(Tonic\Response::OK);
         
         } else{ // unauthorized access
 

@@ -699,6 +699,41 @@ class Publish
 		}
 	}
 	
+	// removes a draft of the page
+	public static function RemoveDraft($pageId){
+	
+		$page = Page::GetByPageId($pageId);
+        
+		if($page!=null){
+			
+			// get site
+			$site = Site::GetBySiteId($page['SiteId']);
+			
+			// remove any drafts associated with the page
+			
+			// set file
+			$file = $page['FriendlyId'].'.html';
+			
+			// set file
+			if($page['PageTypeId'] != -1){
+				if($pageType != NULL){
+	    			$file = $pageType['FriendlyId'].'.'.$page['FriendlyId'].'.html';
+	    		}
+			}
+		
+		
+			$draft = SITES_LOCATION.'/'.$site['FriendlyId'].'/fragments/draft/'.$file;
+				
+			if(file_exists($draft)){
+				unlink($draft);
+			}
+			
+            return true;
+		}
+		
+		return false;
+	}
+	
 	// deploys the site to Amazon S3
 	public static function DeploySite($siteId){
 		
