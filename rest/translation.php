@@ -13,41 +13,49 @@ class TranslationRetrieveResource extends Tonic\Resource {
     
        	// get token
 		$token = Utilities::ValidateJWTToken(apache_request_headers());
+		
+		$siteId = -1;
+		parse_str($this->request->data, $request); // parse request
 
 		// check if token is not null
         if($token != NULL){ 
-			
-			parse_str($this->request->data, $request); // parse request
-
-			$locale = $request['locale'];
-			
-			// get a reference to the site, user
-			$site = Site::GetBySiteId($token->SiteId);
-            
-            $file = SITES_LOCATION.'/'.$site['FriendlyId'].'/locales/'.$locale.'/translation.json';
-            $json = '{}';
-            
-           	// retrieve default file if it exists, if not the translation is empty 
-            if(file_exists($file)){
-	            $json = file_get_contents($file);
-	            
-	            // initialize a blank file
-	            if($json == ''){
-		            $json = '{}';
-	            }
-            }
-           
-            // return a json response
-            $response = new Tonic\Response(Tonic\Response::OK);
-            $response->contentType = 'application/json';
-            $response->body = $json;
-
-            return $response;
+        	$siteId = $token->SiteId;
+        }
+        else if(isset($request['siteId'])){
+	        $siteId = $request['siteId'];
         }
         else{
-            // return an unauthorized exception (401)
+	        // return an unauthorized exception (401)
             return new Tonic\Response(Tonic\Response::UNAUTHORIZED);
         }
+
+		parse_str($this->request->data, $request); // parse request
+
+		$locale = $request['locale'];
+		
+		// get a reference to the site, user
+		$site = Site::GetBySiteId($siteId);
+        
+        $file = SITES_LOCATION.'/'.$site['FriendlyId'].'/locales/'.$locale.'/translation.json';
+        $json = '{}';
+        
+       	// retrieve default file if it exists, if not the translation is empty 
+        if(file_exists($file)){
+            $json = file_get_contents($file);
+            
+            // initialize a blank file
+            if($json == ''){
+	            $json = '{}';
+            }
+        }
+       
+        // return a json response
+        $response = new Tonic\Response(Tonic\Response::OK);
+        $response->contentType = 'application/json';
+        $response->body = $json;
+
+        return $response;
+        
     }
     
 } 
@@ -258,46 +266,54 @@ class TranslationSaveResource extends Tonic\Resource {
 class TranslationListResource extends Tonic\Resource {
 
     /**
-     * @method GET
+     * @method POST
      */
-    function get() {
+    function post() {
     
        	// get token
 		$token = Utilities::ValidateJWTToken(apache_request_headers());
 
+		$siteId = -1;
+		parse_str($this->request->data, $request); // parse request
+
 		// check if token is not null
         if($token != NULL){ 
-			
-			// get a reference to the site, user
-			$site = Site::GetBySiteId($token->SiteId);
-            
-			// set directory an filename
-			$dir = SITES_LOCATION.'/'.$site['FriendlyId'].'/locales/';
-			
-			// array to store directories
-			$list = array();
-			
-			if($handle = opendir($dir)){
-			    $blacklist = array('.', '..');
-			    while (false !== ($file = readdir($handle))) {
-			        if (!in_array($file, $blacklist)) {
-			            array_push($list, $file);
-			        }
-			    }
-			    closedir($handle);
-			}
-           
-            // return a json response
-            $response = new Tonic\Response(Tonic\Response::OK);
-            $response->contentType = 'application/json';
-            $response->body = json_encode($list);
-
-            return $response;
+        	$siteId = $token->SiteId;
+        }
+        else if(isset($request['siteId'])){
+	        $siteId = $request['siteId'];
         }
         else{
-            // return an unauthorized exception (401)
+	        // return an unauthorized exception (401)
             return new Tonic\Response(Tonic\Response::UNAUTHORIZED);
         }
+        	
+		// get a reference to the site
+		$site = Site::GetBySiteId($siteId);
+        
+		// set directory an filename
+		$dir = SITES_LOCATION.'/'.$site['FriendlyId'].'/locales/';
+		
+		// array to store directories
+		$list = array();
+		
+		if($handle = opendir($dir)){
+		    $blacklist = array('.', '..');
+		    while (false !== ($file = readdir($handle))) {
+		        if (!in_array($file, $blacklist)) {
+		            array_push($list, $file);
+		        }
+		    }
+		    closedir($handle);
+		}
+       
+        // return a json response
+        $response = new Tonic\Response(Tonic\Response::OK);
+        $response->contentType = 'application/json';
+        $response->body = json_encode($list);
+
+        return $response;
+        
     }
     
 }

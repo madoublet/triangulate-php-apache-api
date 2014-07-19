@@ -51,7 +51,6 @@
 	require_once 'db/Page.php';
 	require_once 'db/Role.php';
 	require_once 'db/MenuItem.php';
-	require_once 'db/SearchIndex.php';
 	require_once 'db/Transaction.php';
 	
 	// include external libs (via composer)

@@ -122,12 +122,10 @@ CREATE TABLE IF NOT EXISTS `SearchIndex` (
   `Name` varchar(255) NOT NULL,
   `Image` varchar(256) DEFAULT NULL,
   `IsSecure` INT NOT NULL DEFAULT '0',
-  `h1s` text,
-  `h2s` text,
-  `h3s` text,
+  `Headlines` text,
   `Description` text,
   `Content` text,
-  FULLTEXT INDEX(Name, H1s, H2s, H3s, Description, Content)
+  FULLTEXT INDEX(Name, Headlines, Description, Content)
   ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `Transactions` (
