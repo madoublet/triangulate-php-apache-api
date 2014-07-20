@@ -716,6 +716,9 @@ class Publish
 			
 			// set file
 			if($page['PageTypeId'] != -1){
+			
+				$pageType = PageType::GetByPageTypeId($page['PageTypeId']);
+			
 				if($pageType != NULL){
 	    			$file = $pageType['FriendlyId'].'.'.$page['FriendlyId'].'.html';
 	    		}

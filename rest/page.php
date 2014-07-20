@@ -511,11 +511,15 @@ class PageRetrieveResource extends Tonic\Resource {
 			$canEdit = false;
 			$canPublish = false;
 			$canRemove = false;
+			
+			// set file
+			$file = $page['FriendlyId'];
 
 			// get the page type            
             if($page['PageTypeId']!=-1){
 	            $pageType = PageType::GetByPageTypeId($page['PageTypeId']);
 	            $page['Url'] = $pageType['FriendlyId'].'/'.$page['FriendlyId'];
+	            $file = $pageType['FriendlyId'].'.'.$page['FriendlyId'];
 	            
 				// get permissions for the page
 	            $canEdit = Utilities::CanPerformAction($pageType['PageTypeId'], $access['CanEdit']);
@@ -530,7 +534,7 @@ class PageRetrieveResource extends Tonic\Resource {
             }
             
             // determine if the page has a draft
-            $draft = SITES_LOCATION.'/'.$site['FriendlyId'].'/fragments/draft/'.$page['FriendlyId'].'.html';;
+            $draft = SITES_LOCATION.'/'.$site['FriendlyId'].'/fragments/draft/'.$file.'.html';
             
             $hasDraft = false;
             
