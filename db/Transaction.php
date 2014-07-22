@@ -56,7 +56,7 @@ class Transaction{
                 );
                 
         } catch(PDOException $e){
-            //die('[Transaction::Add] PDO Error: '.$e->getMessage());
+            die('[Transaction::Add] PDO Error: '.$e->getMessage());
         }
 	}
 	

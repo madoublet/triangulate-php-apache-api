@@ -114,20 +114,6 @@ CREATE TABLE IF NOT EXISTS `Users` (
   KEY `SiteId` (`SiteId`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `SearchIndex` (
-  `PageId` varchar(50) NOT NULL,
-  `SiteId` varchar(50) NOT NULL,
-  `Language` varchar(10) DEFAULT NULL,
-  `Url` varchar(255) DEFAULT NULL,
-  `Name` varchar(255) NOT NULL,
-  `Image` varchar(256) DEFAULT NULL,
-  `IsSecure` INT NOT NULL DEFAULT '0',
-  `Headlines` text,
-  `Description` text,
-  `Content` text,
-  FULLTEXT INDEX(Name, Headlines, Description, Content)
-  ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
-
 CREATE TABLE IF NOT EXISTS `Transactions` (
   `TransactionId` varchar(50) NOT NULL,
   `SiteId` varchar(50) NOT NULL,

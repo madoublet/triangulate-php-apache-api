@@ -59,6 +59,7 @@
     // include non-composer external libs
 	require_once 'libs/PasswordHash.php';
 	require_once 'libs/class-php-ico.php';
+	require_once 'libs/IpnListener.php';
 	
 	// include libs
 	require_once 'libs/Utilities.php';
@@ -80,5 +81,6 @@
     require_once 'rest/stylesheet.php';
     require_once 'rest/layout.php';
     require_once 'rest/translation.php';
+    require_once 'rest/transaction.php';
    
 ?>
