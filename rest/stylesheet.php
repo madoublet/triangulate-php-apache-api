@@ -22,7 +22,7 @@ class StylesheetAddResource extends Tonic\Resource {
             
             $site = Site::GetBySiteId($token->SiteId);
 
-            $directory = '../sites/'.$site['FriendlyId'].'/themes/'.$site['Theme'].'/styles/';
+            $directory = SITES_LOCATION.'/'.$site['FriendlyId'].'/themes/'.$site['Theme'].'/styles/';
             
             $file = $directory.$name.'.less';
 
@@ -65,7 +65,7 @@ class StylesheetRetrieveResource extends Tonic\Resource {
             
             $site = Site::GetBySiteId($token->SiteId);
 
-            $directory = '../sites/'.$site['FriendlyId'].'/themes/'.$site['Theme'].'/styles/';
+            $directory = SITES_LOCATION.'/'.$site['FriendlyId'].'/themes/'.$site['Theme'].'/styles/';
 
             $content = html_entity_decode(file_get_contents($directory.$name.'.less'));
 
@@ -109,7 +109,7 @@ class StylesheetPublishResource extends Tonic\Resource {
             
             $site = Site::GetBySiteId($token->SiteId);
 
-            $directory = '../sites/'.$site['FriendlyId'].'/themes/'.$site['Theme'].'/styles/';
+            $directory = SITES_LOCATION.'/'.$site['FriendlyId'].'/themes/'.$site['Theme'].'/styles/';
             
             $f = $directory.$name.'.less';
 
@@ -156,7 +156,7 @@ class StylesheetRemoveResource extends Tonic\Resource {
             
             $site = Site::GetBySiteId($token->SiteId);
 
-            $directory = '../sites/'.$site['FriendlyId'].'/themes/'.$site['Theme'].'/styles/';
+            $directory = SITES_LOCATION.'/'.$site['FriendlyId'].'/themes/'.$site['Theme'].'/styles/';
             
             $f = $directory.$name.'.less';
             
@@ -193,7 +193,7 @@ class StylehseetListResource extends Tonic\Resource {
             
             $site = Site::GetBySiteId($token->SiteId);
 
-            $directory = '../sites/'.$site['FriendlyId'].'/themes/'.$site['Theme'].'/styles/';
+            $directory = SITES_LOCATION.'/'.$site['FriendlyId'].'/themes/'.$site['Theme'].'/styles/';
 
             //get all image files with a .less ext
             $files = glob($directory . "*.less");

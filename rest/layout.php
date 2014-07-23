@@ -22,7 +22,7 @@ class LayoutAddResource extends Tonic\Resource {
             
             $site = Site::GetBySiteId($token->SiteId);
 
-            $directory = '../sites/'.$site['FriendlyId'].'/themes/'.$site['Theme'].'/layouts/';
+            $directory = SITES_LOCATION.'/'.$site['FriendlyId'].'/themes/'.$site['Theme'].'/layouts/';
             
             $file = $directory.$name.'.html';
 
@@ -65,7 +65,7 @@ class LayoutRetrieveResource extends Tonic\Resource {
             
             $site = Site::GetBySiteId($token->SiteId);
 
-            $directory = '../sites/'.$site['FriendlyId'].'/themes/'.$site['Theme'].'/layouts/';
+            $directory = SITES_LOCATION.'/'.$site['FriendlyId'].'/themes/'.$site['Theme'].'/layouts/';
 
             $content = html_entity_decode(file_get_contents($directory.$name.'.html'));
 
@@ -109,7 +109,7 @@ class LayoutPublishResource extends Tonic\Resource {
             
             $site = Site::GetBySiteId($token->SiteId);
 
-            $directory = '../sites/'.$site['FriendlyId'].'/themes/'.$site['Theme'].'/layouts/';
+            $directory = SITES_LOCATION.'/'.$site['FriendlyId'].'/themes/'.$site['Theme'].'/layouts/';
             
             $file = $directory.$name.'.html';
 
@@ -158,7 +158,7 @@ class LayoutRemoveResource extends Tonic\Resource {
             
             $site = Site::GetBySiteId($token->SiteId);
 
-            $directory = '../sites/'.$site['FriendlyId'].'/themes/'.$site['Theme'].'/layouts/';
+            $directory = SITES_LOCATION.'/'.$site['FriendlyId'].'/themes/'.$site['Theme'].'/layouts/';
             
             $file = $directory.$name.'.html';
             
@@ -195,7 +195,7 @@ class LayoutListResource extends Tonic\Resource {
             
             $site = Site::GetBySiteId($token->SiteId);
 
-            $directory = '../sites/'.$site['FriendlyId'].'/themes/'.$site['Theme'].'/layouts/';
+            $directory = SITES_LOCATION.'/'.$site['FriendlyId'].'/themes/'.$site['Theme'].'/layouts/';
 
             //get all image files with a .html ext
             $files = glob($directory . "*.html");
