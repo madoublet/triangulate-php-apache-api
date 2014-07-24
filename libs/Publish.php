@@ -52,28 +52,6 @@ class Publish
 			Utilities::CopyDirectory($templates_src, $templates_dest);
 		}
 		
-		// copy emails directory
-		$emails_src = APP_LOCATION.'/site/emails/';
-		$emails_dir = SITES_LOCATION.'/'.$site['FriendlyId'].'/emails';
-		
-		// create emails directory if it does not exist
-		if(!file_exists($emails_dir)){
-			mkdir($emails_dir, 0755, true);	
-		}
-		
-		// copy emails directory
-		if(file_exists($emails_dir)){
-			Utilities::CopyDirectory($emails_src, $emails_dir);
-		}
-		
-		// deny access to draft
-		$dir = SITES_LOCATION.'/'.$site['FriendlyId'].'/fragments/draft/';
-		Publish::CreateDeny($dir);
-		
-		// deny access to publish
-		$dir = SITES_LOCATION.'/'.$site['FriendlyId'].'/fragments/publish/';
-		Publish::CreateDeny($dir);
-		
 	}
 	
 	// creates .htaccess to deny access to a specific directory
@@ -595,6 +573,8 @@ class Publish
 
 	}
 
+	/*
+
 	// publishes a fragment
 	public static function PublishFragment($siteFriendlyId, $file, $status, $content){
 
@@ -611,6 +591,8 @@ class Publish
 		$fragment = SITES_LOCATION.'/'.$siteFriendlyId.'/fragments/'.$status.'/'.$file;
 		file_put_contents($fragment, $content); // save to file
 	}
+	
+	*/
 
 	// publishes a page
 	// live 	-> 	/site/{{site.FriendlyId}}/templates/page/{{pageType.FriendlyId}}.{{page.FriendlyId}}.html
@@ -666,27 +648,21 @@ class Publish
 			}
 		
 			// generate default
-			$html = Utilities::GeneratePage($site, $page, $pageType, $siteurl, $imageurl, $preview);
+			$html = '';
+			
+			if($preview == true){
+				$html = $page['Draft'];
+			}
+			else{
+				$html = $page['Content'];
+			}
 			
 			// remove any drafts associated with the page
 			if($remove_draft==true){
 			
-				// set file
-				$file = $page['FriendlyId'].'.html';
-				
-				// set file
-				if($page['PageTypeId'] != -1){
-					if($pageType != NULL){
-		    			$file = $pageType['FriendlyId'].'.'.$page['FriendlyId'].'.html';
-		    		}
-				}
+				// remove a draft from the page
+				Page::RemoveDraft($page['PageId']);
 			
-			
-				$draft = SITES_LOCATION.'/'.$site['FriendlyId'].'/fragments/draft/'.$file;
-					
-				if(file_exists($draft)){
-					unlink($draft);
-				}
 			}
 
 			// save the content to the published file
@@ -702,37 +678,8 @@ class Publish
 	// removes a draft of the page
 	public static function RemoveDraft($pageId){
 	
-		$page = Page::GetByPageId($pageId);
-        
-		if($page!=null){
-			
-			// get site
-			$site = Site::GetBySiteId($page['SiteId']);
-			
-			// remove any drafts associated with the page
-			
-			// set file
-			$file = $page['FriendlyId'].'.html';
-			
-			// set file
-			if($page['PageTypeId'] != -1){
-			
-				$pageType = PageType::GetByPageTypeId($page['PageTypeId']);
-			
-				if($pageType != NULL){
-	    			$file = $pageType['FriendlyId'].'.'.$page['FriendlyId'].'.html';
-	    		}
-			}
-		
-		
-			$draft = SITES_LOCATION.'/'.$site['FriendlyId'].'/fragments/draft/'.$file;
-				
-			if(file_exists($draft)){
-				unlink($draft);
-			}
-			
-            return true;
-		}
+		// remove a draft from the page
+		Page::RemoveDraft($page['PageId']);
 		
 		return false;
 	}

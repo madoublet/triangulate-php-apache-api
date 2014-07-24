@@ -288,41 +288,7 @@ class Utilities
         
         return $xml;
     }
-      
-    // generates a page
-    public static function GeneratePage($site, $page, $pageType, $siteurl, $imageurl, $preview){
-        
-		// content
-        $content = '';
-        $status = 'publish';
-    
-        if($preview==true){
-            $status = 'draft';
-        }
-        
-        // set file
-		$file = $page['FriendlyId'].'.html';
-		
-		// set file
-		if($page['PageTypeId'] != -1){
-			if($pageType != NULL){
-    			$file = $pageType['FriendlyId'].'.'.$page['FriendlyId'].'.html';
-    		}
-		}
-    
-        $fragment = SITES_LOCATION.'/'.$site['FriendlyId'].'/fragments/'.$status.'/'.$file;
-        
-        if(file_exists($fragment)){
-          $content = file_get_contents($fragment);
-        }
-
-		// update images with sites/[name] to a relative URL
-        $content = str_replace('src="sites/'.$site['FriendlyId'].'/', 'src="', $content);
-        
-        return $content;
-        
-    }
-        
+            
     // send welcome email
     public static function SendEmailFromFile($to, $from, $fromName, $subject, $replace, $file){
     

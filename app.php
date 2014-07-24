@@ -23,14 +23,6 @@
 	define('THUMB_MAX_WIDTH', 200);
 	define('THUMB_MAX_HEIGHT', 200);
 	
-	// advanced SMTP settings (see https://github.com/Synchro/PHPMailer)
-	define('IS_SMTP', false);
-	define('SMTP_HOST', 'smtp.mailserver.com');
-	define('SMTP_AUTH', true);
-	define('SMTP_USERNAME', '');
-	define('SMTP_PASSWORD', '');
-	define('SMTP_SECURE', 'tls');
-	
 	// set default as UTC
 	date_default_timezone_set('UTC');
 	

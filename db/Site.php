@@ -4,7 +4,7 @@
 class Site{
 	
 	// adds a Site
-	public static function Add($domain, $name, $friendlyId, $logoUrl, $theme, $primaryEmail, $timeZone, $language){
+	public static function Add($domain, $name, $friendlyId, $logoUrl, $theme, $primaryEmail, $timeZone, $language, $welcomeEmail, $receiptEmail){
         
         try{
             
@@ -18,8 +18,8 @@ class Site{
   
     		$timestamp = gmdate("Y-m-d H:i:s", time());
 
-            $q = "INSERT INTO Sites (SiteId, FriendlyId, Domain, Name, LogoUrl, Theme, PrimaryEmail, TimeZone, Language, Created) 
-    			    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            $q = "INSERT INTO Sites (SiteId, FriendlyId, Domain, Name, LogoUrl, Theme, PrimaryEmail, TimeZone, Language, WelcomeEmail, ReceiptEmail, Created) 
+    			    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
      
             $s = $db->prepare($q);
             $s->bindParam(1, $siteId);
@@ -31,7 +31,9 @@ class Site{
             $s->bindParam(7, $primaryEmail);
             $s->bindParam(8, $timeZone);
             $s->bindParam(9, $language);
-            $s->bindParam(10, $timestamp);
+            $s->bindParam(10, $welcomeEmail);
+            $s->bindParam(11, $receiptEmail);
+            $s->bindParam(12, $timestamp);
             
             $s->execute();
             
@@ -45,6 +47,8 @@ class Site{
                 'PrimaryEmail' => $primaryEmail,
                 'TimeZone' => $timeZone,
                 'Language' => $language,
+                'WelcomeEmail' => $welcomeEmail,
+                'ReceiptEmail' => $receiptEmail,
                 'Created' => $timestamp
                 );
                 
@@ -54,7 +58,12 @@ class Site{
 	}
 	
 	// edits the site information
-	public static function Edit($siteId, $name, $domain, $primaryEmail, $timeZone, $language, $showCart, $showSettings, $currency, $weightUnit, $shippingCalculation, $shippingRate, $shippingTiers, $taxRate, $payPalId, $payPalUseSandbox, $formPublicId, $formPrivateId){
+	public static function Edit($siteId, $name, $domain, $primaryEmail, $timeZone, $language, 
+		$showCart, $showSettings, 
+		$currency, $weightUnit, $shippingCalculation, $shippingRate, $shippingTiers, $taxRate, $payPalId, $payPalUseSandbox,
+		$welcomeEmail, $receiptEmail,
+		$isSMTP, $SMTPHost, $SMTPAuth, $SMTPUsername, $SMTPPassword, $SMTPSecure, 
+		$formPublicId, $formPrivateId){
 
 		try{
             
@@ -76,6 +85,14 @@ class Site{
         			TaxRate = ?,
         			PayPalId = ?,
         			PayPalUseSandbox = ?,
+        			WelcomeEmail = ?, 
+        			ReceiptEmail = ?,
+					IsSMTP = ?, 
+					SMTPHost = ?, 
+					SMTPAuth = ?, 
+					SMTPUsername = ?, 
+					SMTPPassword = ?, 
+					SMTPSecure = ?,
             		FormPublicId=?,
             		FormPrivateId=?
         			WHERE SiteId = ?";
@@ -96,9 +113,17 @@ class Site{
             $s->bindParam(13, $taxRate);
             $s->bindParam(14, $payPalId);
             $s->bindParam(15, $payPalUseSandbox);
-            $s->bindParam(16, $formPublicId);
-            $s->bindParam(17, $formPrivateId);
-            $s->bindParam(18, $siteId);
+            $s->bindParam(16, $welcomeEmail); 
+            $s->bindParam(17, $receiptEmail);
+			$s->bindParam(18, $isSMTP); 
+			$s->bindParam(19, $SMTPHost); 
+			$s->bindParam(20, $SMTPAuth); 
+			$s->bindParam(21, $SMTPUsername); 
+			$s->bindParam(22, $SMTPPassword); 
+			$s->bindParam(23, $SMTPSecure); 
+            $s->bindParam(24, $formPublicId);
+            $s->bindParam(25, $formPrivateId);
+            $s->bindParam(26, $siteId);
             
             $s->execute();
             
@@ -306,6 +331,8 @@ class Site{
     						ShowCart, ShowSettings,
     						WeightUnit, ShippingCalculation, ShippingRate, ShippingTiers, TaxRate, 
 							PayPalId, PayPalUseSandbox,
+							WelcomeEmail, ReceiptEmail,
+							IsSMTP, SMTPHost, SMTPAuth, SMTPUsername, SMTPPassword, SMTPSecure,
 							FormPublicId, FormPrivateId,
 							LastLogin, CustomerId, Created
 							FROM Sites ORDER BY Name ASC";
@@ -390,6 +417,8 @@ class Site{
     						ShowCart, ShowSettings,
     						WeightUnit, ShippingCalculation, ShippingRate, ShippingTiers, TaxRate, 
 							PayPalId, PayPalUseSandbox,
+							WelcomeEmail, ReceiptEmail,
+							IsSMTP, SMTPHost, SMTPAuth, SMTPUsername, SMTPPassword, SMTPSecure,
 							FormPublicId, FormPrivateId,
 							LastLogin, CustomerId, Created	
     						FROM Sites WHERE Domain = ?";
@@ -423,6 +452,8 @@ class Site{
     						ShowCart, ShowSettings,
     						WeightUnit, ShippingCalculation, ShippingRate, ShippingTiers, TaxRate, 
 							PayPalId, PayPalUseSandbox,
+							WelcomeEmail, ReceiptEmail,
+							IsSMTP, SMTPHost, SMTPAuth, SMTPUsername, SMTPPassword, SMTPSecure,
 							FormPublicId, FormPrivateId,
 							LastLogin, CustomerId, Created
 							FROM Sites WHERE FriendlyId = ?";
@@ -456,6 +487,8 @@ class Site{
     						ShowCart, ShowSettings,
     						WeightUnit, ShippingCalculation, ShippingRate, ShippingTiers, TaxRate, 
 							PayPalId, PayPalUseSandbox,
+							WelcomeEmail, ReceiptEmail,
+							IsSMTP, SMTPHost, SMTPAuth, SMTPUsername, SMTPPassword, SMTPSecure,
 							FormPublicId, FormPrivateId,
 							LastLogin, CustomerId, Created
 							FROM Sites WHERE Siteid = ?";

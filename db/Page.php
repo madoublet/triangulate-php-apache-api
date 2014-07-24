@@ -164,6 +164,62 @@ class Page{
         }
 	}
 	
+	// edits content for a page
+	public static function EditContent($pageId, $content, $lastModifiedBy){
+		
+        try{
+            
+            $db = DB::get();
+            
+    	    $timestamp = gmdate("Y-m-d H:i:s", time());
+            
+            $q = "UPDATE Pages SET
+    				Content = ?,
+					LastModifiedBy = ?,
+					LastModifiedDate = ?
+					WHERE PageId = ?";
+     
+            $s = $db->prepare($q);
+            $s->bindParam(1, $content);
+            $s->bindParam(2, $lastModifiedBy);
+            $s->bindParam(3, $timestamp);
+            $s->bindParam(4, $pageId);
+            
+            $s->execute();
+            
+		} catch(PDOException $e){
+            die('[Page::EditContent] PDO Error: '.$e->getMessage());
+        }
+	}
+	
+	// edits draft for a page
+	public static function EditDraft($pageId, $draft, $lastModifiedBy){
+		
+        try{
+            
+            $db = DB::get();
+            
+    	    $timestamp = gmdate("Y-m-d H:i:s", time());
+            
+            $q = "UPDATE Pages SET
+    				Draft = ?,
+					LastModifiedBy = ?,
+					LastModifiedDate = ?
+					WHERE PageId = ?";
+     
+            $s = $db->prepare($q);
+            $s->bindParam(1, $draft);
+            $s->bindParam(2, $lastModifiedBy);
+            $s->bindParam(3, $timestamp);
+            $s->bindParam(4, $pageId);
+            
+            $s->execute();
+            
+		} catch(PDOException $e){
+            die('[Page::EditDraft] PDO Error: '.$e->getMessage());
+        }
+	}
+	
 	// edits the timestamp for a page
 	public static function EditTimestamp($pageId, $lastModifiedBy){
 		
@@ -332,6 +388,27 @@ class Page{
         
 	}
 	
+	// remove draft
+	public static function RemoveDraft($pageId){
+	
+        try{
+            
+            $db = DB::get();
+            
+            $q = "UPDATE Pages 
+            		SET Draft = NULL 
+					WHERE PageId = ?";
+     
+            $s = $db->prepare($q);
+            $s->bindParam(1, $pageId);
+            
+            $s->execute();
+            
+		} catch(PDOException $e){
+            die('[Page::RemoveDraft] PDO Error: '.$e->getMessage());
+        }
+	}
+	
 	// gets all pages
 	public static function GetPages($siteId, $pageTypeId, $pageSize, $pageNo, $orderBy, $activeOnly = false){
 		
@@ -348,7 +425,8 @@ class Page{
     		$next = $pageSize * $pageNo;
     
             $q = "SELECT Pages.PageId, Pages.FriendlyId, Pages.Name, 
-            		Pages.Description, Pages.Keywords, Pages.Callout,
+            		Pages.Description, Pages.Keywords, 
+            		Pages.Content, Pages.Draft, Pages.Callout, 
             		Pages.BeginDate, Pages.EndDate, Pages.Location, AsText(Pages.LatLong),
         			Pages.Layout, Pages.Stylesheet,
         			Pages.SiteId,
@@ -396,7 +474,8 @@ class Page{
     		$next = $pageSize * $pageNo;
     
             $q = "SELECT Pages.PageId, Pages.FriendlyId, Pages.Name, 
-            		Pages.Description, Pages.Keywords, Pages.Callout,
+            		Pages.Description, Pages.Keywords, 
+            		Pages.Content, Pages.Draft, Pages.Callout,
             		Pages.BeginDate, Pages.EndDate, Pages.Location, AsText(Pages.LatLong),
         			Pages.Layout, Pages.Stylesheet,
         			Pages.SiteId,
@@ -481,7 +560,8 @@ class Page{
     		}
     		
             $q = "SELECT Pages.PageId, Pages.FriendlyId, Pages.Name, 
-            		Pages.Description, Pages.Keywords, Pages.Tags, Pages.Callout,
+            		Pages.Description, Pages.Keywords, Pages.Tags,
+            		Pages.Content, Pages.Draft, Pages.Callout, 
             		Pages.BeginDate, Pages.EndDate, Pages.Location, AsText(Pages.LatLong) AS LatLong,
         			Pages.Layout, Pages.Stylesheet,
         			Pages.SiteId, 
@@ -520,7 +600,8 @@ class Page{
 
             $db = DB::get();
 		    
-            $q = "SELECT Pages.PageId, Pages.FriendlyId, Pages.Name, Pages.Description, Pages.Callout,
+            $q = "SELECT Pages.PageId, Pages.FriendlyId, Pages.Name, Pages.Description, Pages.Keywords, Pages.Tags,
+            		Pages.Content, Pages.Draft, Pages.Callout, 
             		Pages.BeginDate, Pages.EndDate, Pages.Location, AsText(Pages.LatLong) AS LatLong,
             		Pages.SiteId,
         			Pages.LastModifiedBy, Pages.LastModifiedDate, 
@@ -594,7 +675,7 @@ class Page{
             $db = DB::get();
             
             $q = "SELECT Pages.PageId, Pages.FriendlyId, Pages.Name, Pages.Description, Pages.Keywords, Pages.Tags,
-            		Pages.Callout, 
+            		Pages.Content, Pages.Draft, Pages.Callout, 
             		Pages.BeginDate, Pages.EndDate, Pages.Location, AsText(Pages.LatLong) AS LatLong,
         			Pages.Layout, Pages.Stylesheet,
         			Pages.PageTypeId, Pages.SiteId, Pages.LastModifiedBy, Pages.LastModifiedDate,  
@@ -653,7 +734,7 @@ class Page{
             $db = DB::get();
             
             $q = "SELECT Pages.PageId, Pages.FriendlyId, Pages.Name, Pages.Description, Pages.Keywords, Pages.Tags,
-            		Pages.Callout, 
+            		Pages.Content, Pages.Draft, Pages.Callout, 
             		Pages.BeginDate, Pages.EndDate, Pages.Location, AsText(Pages.LatLong) AS LatLong,
         			Pages.Layout, Pages.Stylesheet,
         			Pages.PageTypeId, Pages.SiteId, Pages.LastModifiedBy, Pages.LastModifiedDate,  

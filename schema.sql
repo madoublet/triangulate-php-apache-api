@@ -32,7 +32,8 @@ CREATE TABLE IF NOT EXISTS `Pages` (
   `Description` text,
   `Keywords` text,
   `Tags` text,
-  `Categories` text,
+  `Content` text,
+  `Draft` text,
   `Callout` varchar(100) DEFAULT NULL,
   `BeginDate` DATETIME,
   `EndDate` DATETIME,
@@ -86,6 +87,14 @@ CREATE TABLE IF NOT EXISTS `Sites` (
   `TaxRate` DECIMAL(5, 5) NOT NULL DEFAULT '0',
   `PayPalId` VARCHAR(255) DEFAULT '',
   `PayPalUseSandbox` INT NOT NULL DEFAULT '0',
+  `WelcomeEmail` TEXT DEFAULT '',
+  `ReceiptEmail` TEXT DEFAULT '',
+  `IsSMTP` INT NOT NULL DEFAULT '0',
+  `SMTPHost` varchar(512) DEFAULT '',
+  `SMTPAuth` INT NOT NULL DEFAULT '0',
+  `SMTPUsername` varchar(255) DEFAULT '',
+  `SMTPPassword` varchar(255) DEFAULT '',
+  `SMTPSecure` varchar(255) DEFAULT 'tls',
   `FormPrivateId` VARCHAR(240) DEFAULT '',
   `FormPublicId` VARCHAR(240) DEFAULT '',
   `SubscriptionId` varchar(256) DEFAULT '',
@@ -95,6 +104,17 @@ CREATE TABLE IF NOT EXISTS `Sites` (
   PRIMARY KEY (`SiteId`),
   UNIQUE KEY `Domain` (`Domain`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+/* email update 
+ALTER TABLE  `Sites` ADD `WelcomeEmail` TEXT DEFAULT '' AFTER `PayPalUseSandbox`;
+ALTER TABLE  `Sites` ADD `ReceiptEmail` TEXT DEFAULT '' AFTER `WelcomeEmail`;
+ALTER TABLE  `Sites` ADD `IsSMTP` INT NOT NULL DEFAULT '0' AFTER `ReceiptEmail`;
+ALTER TABLE  `Sites` ADD `SMTPHost` varchar(512) DEFAULT '' AFTER `IsSMTP`;
+ALTER TABLE  `Sites` ADD `SMTPAuth` INT NOT NULL DEFAULT '0' AFTER `SMTPHost`;
+ALTER TABLE  `Sites` ADD `SMTPUsername` varchar(255) DEFAULT '' AFTER `SMTPAuth`;
+ALTER TABLE  `Sites` ADD `SMTPPassword` varchar(255) DEFAULT '' AFTER `SMTPUsername`;
+ALTER TABLE  `Sites` ADD `SMTPSecure` varchar(255) DEFAULT 'tls' AFTER `SMTPPassword`;
+*/
 
 CREATE TABLE IF NOT EXISTS `Users` (
   `UserID` varchar(50) NOT NULL,

@@ -132,27 +132,9 @@ class PageAddResource extends Tonic\Resource {
 
 			// set url
             $page['Url'] = $url;
-            
-            // get file
-			$file = $page['FriendlyId'].'.html';
-			
-			// set file
-			if($page['PageTypeId'] != -1){
-				if($pageType != NULL){
-	    			$file = $pageType['FriendlyId'].'.'.$page['FriendlyId'].'.html';
-	    		}
-			}
-            
-            // determine if the page has a draft
-            $draft = '../sites/'.$site['FriendlyId'].'/fragments/draft/'.$file;
-            
-            $hasDraft = false;
-            
-            if(file_exists($draft)){
-            	$hasDraft = true;
-            }
-            
-            $page['HasDraft'] = $hasDraft;
+                        
+            // no drafts on new page
+            $page['HasDraft'] = false;
             
             // return a json response
             $response = new Tonic\Response(Tonic\Response::OK);
@@ -277,10 +259,6 @@ class PageRemoveResource extends Tonic\Resource {
 		    		}
 				}
         		
-        		// set draft, publish, render locations
-        		$draft = $path .'fragments/draft/'.$file;
-        		$publish = $path .'fragments/publish/'.$file;
-        		
 		        // check permissions
 				if(Utilities::CanPerformAction($pageTypeId, $access['CanRemove']) == false){
 					return new Tonic\Response(Tonic\Response::UNAUTHORIZED);
@@ -293,17 +271,7 @@ class PageRemoveResource extends Tonic\Resource {
 		        if(file_exists($template)){
 		        	unlink($template);
 		        }
-		        
-		        // remove draft
-		        if(file_exists($draft)){
-		        	unlink($draft);
-		        }
-		        
-				// remove publish
-		        if(file_exists($publish)){
-		        	unlink($publish);
-		        }
-		        
+		        		        
 		        // remove page from the DB
 		        Page::Remove($pageId);
 		        
@@ -533,12 +501,9 @@ class PageRetrieveResource extends Tonic\Resource {
 	            $canRemove = Utilities::CanPerformAction('root', $access['CanRemove']);
             }
             
-            // determine if the page has a draft
-            $draft = SITES_LOCATION.'/'.$site['FriendlyId'].'/fragments/draft/'.$file.'.html';
-            
             $hasDraft = false;
             
-            if(file_exists($draft)){
+            if($page['Draft'] != NULL){
             	$hasDraft = true;
             }
             
@@ -695,25 +660,20 @@ class PageContentRetrieveResource extends Tonic\Resource {
 	    			$file = $pageType['FriendlyId'].'.'.$page['FriendlyId'].'.html';
 	    		}
 			}
-            
-			// set draft and publish files
-			$draft = '../sites/'.$site['FriendlyId'].'/fragments/draft/'.$file;
-            $publish = '../sites/'.$site['FriendlyId'].'/fragments/publish/'.$file;
-            
-            $content = '';
-            
-			// (1) try to get a draft, (2) else get a published version
-            if(file_exists($draft)){
-            	$content = file_get_contents($draft);
-            }
-            else if(file_exists($publish)){
-            	$content = file_get_contents($publish);
-            }
-            else{ // create default content for the page
-                
-                $content = '<div id="block-1" class="block row"><div class="col col-md-12"><h1>'.strip_tags(html_entity_decode($page['Name'])).'</h1><p>'.strip_tags(html_entity_decode($page['Description'])).'</p></div></div>';
-            }
-
+			
+			// retrieve a draft if available, if not retrieve the content or default content
+			$content = '';
+			
+			if($page['Draft'] != NULL){
+				$content = $page['Draft'];
+			}
+			else if($page['Content'] != NULL){
+				$content = $page['Content'];
+			}
+			else{
+				$content = '<div id="block-1" class="block row"><div class="col col-md-12"><h1>'.strip_tags(html_entity_decode($page['Name'])).'</h1><p>'.strip_tags(html_entity_decode($page['Description'])).'</p></div></div>';
+			}
+           
             $response = new Tonic\Response(Tonic\Response::OK);
             $response->contentType = 'text/html';
             $response->body = $content;
@@ -783,24 +743,16 @@ class PageContentSaveResource extends Tonic\Resource {
 				return new Tonic\Response(Tonic\Response::UNAUTHORIZED);
 			}
 			
-			// set file
-			$file = $page['FriendlyId'].'.html';
-			
-			// set file
-			if($page['PageTypeId'] != -1){
-				if($pageType != NULL){
-	    			$file = $pageType['FriendlyId'].'.'.$page['FriendlyId'].'.html';
-	    		}
-			}
-
-			// publish fragment
-            Publish::PublishFragment($site['FriendlyId'], $file, $status, $content);
+            // save content
+            if($status=='publish'){
+	            Page::EditContent($pageId, $content, $token->UserId);
+            }
+            else{ // save draft
+	            Page::EditDraft($pageId, $content, $token->UserId);
+            }
             
             $url = '';
-            
-            // edit timestamp
-			Page::EditTimestamp($page['PageId'], $token->UserId);
-			
+          
 			// publish if status is set to publish and the user can publish
             if($status=='publish' && $canPublish == true){
             
@@ -939,22 +891,12 @@ class PageContentPreviewResource extends Tonic\Resource {
             // check permissions to save a draft
 			if($canEdit == true || $canPublish == true){
 			
-				// set file
-				$file = $page['FriendlyId'].'.html';
-				
-				// set file
-				if($page['PageTypeId'] != -1){
-					if($pageType != NULL){
-		    			$file = $pageType['FriendlyId'].'.'.$page['FriendlyId'].'.html';
-		    		}
-				}
+				// create a preview
+				$url = Publish::PublishPage($page['PageId'], true);
 			
-				Publish::PublishFragment($site['FriendlyId'], $file, $status, $content);
 			}
-           
-            // create a preview
-            $url = Publish::PublishPage($page['PageId'], true);
-            
+			
+			
             // strip leading '../' from string
             $url = str_replace('../', '', $url);
 
@@ -1221,23 +1163,10 @@ class PageListAllowed extends Tonic\Resource {
 
 				// set url
                 $row['Url'] = $url;
-                
-                // set file
-				$file = $row['FriendlyId'].'.html';
-				
-				// set file
-				if($row['PageTypeId'] != -1){
-					if($pageType != NULL){
-		    			$file = $pageType['FriendlyId'].'.'.$row['FriendlyId'].'.html';
-		    		}
-				}
-                
-                // determine if the page has a draft
-                $draft = SITES_LOCATION.'/'.$site['FriendlyId'].'/fragments/draft/'.$file;
-                
+               
                 $hasDraft = false;
                 
-                if(file_exists($draft)){
+                if($row['Draft'] != NULL){
                 	$hasDraft = true;
                 }
                 
@@ -1410,23 +1339,10 @@ class PageListSortedResource extends Tonic\Resource {
                 $page['CanRemove'] = $canRemove;
 
                 $page['Url'] = $url;
-                
-                // set file
-				$file = $page['FriendlyId'].'.html';
-				
-				// set file
-				if($page['PageTypeId'] != -1){
-					if($pageType != NULL){
-		    			$file = $pageType['FriendlyId'].'.'.$page['FriendlyId'].'.html';
-		    		}
-				}
-                
-                // determine if the page has a draft
-                $draft = '../sites/'.$site['FriendlyId'].'/fragments/draft/'.$file;
-                
+             
                 $hasDraft = false;
                 
-                if(file_exists($draft)){
+                if($page['Draft'] != NULL){
                 	$hasDraft = true;
                 }
                 

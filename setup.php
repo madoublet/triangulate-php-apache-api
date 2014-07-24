@@ -49,6 +49,14 @@
 	    'http://path.totriangulate.com'
 	    )));
 	    
+	// advanced SMTP settings (see https://github.com/Synchro/PHPMailer)
+	define('IS_SMTP', false);
+	define('SMTP_HOST', 'smtp.mailserver.com');
+	define('SMTP_AUTH', true);
+	define('SMTP_USERNAME', '');
+	define('SMTP_PASSWORD', '');
+	define('SMTP_SECURE', 'tls');
+	    
     // set what emails should be sent out and a reply-to email address
 	define('REPLY_TO', '');
 	define('REPLY_TO_NAME', '');

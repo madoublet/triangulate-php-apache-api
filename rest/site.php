@@ -160,8 +160,32 @@ class SiteCreateResource extends Tonic\Resource {
                 return new Tonic\Response(Tonic\Response::CONFLICT);
             }
             
+            // default is blank
+            $welcomeEmail = '';
+            $receiptEmail = '';
+            
+            // files for emails
+            $welcome_file = APP_LOCATION.'/site/emails/welcome.html';
+            $receipt_file = APP_LOCATION.'/site/emails/receipt.html';
+            
+            // make sure the welcome email exists
+            if(file_exists($welcome_file)){
+    			
+    			// get default email file
+    			$welcomeEmail = file_get_contents($welcome_file);
+    			
+    		}
+    		
+    		// make sure the receipt email exists
+            if(file_exists($receipt_file)){
+    			
+    			// get default email file
+    			$receiptEmail = file_get_contents($receipt_file);
+    			
+    		}
+            
             // add the site
-    	    $site = Site::Add($domain, $name, $friendlyId, $logoUrl, $theme, $email, $timeZone, $language); // add the site
+    	    $site = Site::Add($domain, $name, $friendlyId, $logoUrl, $theme, $email, $timeZone, $language, $welcomeEmail, $receiptEmail); // add the site
             
             // add the admin
             if($email != ''){
@@ -253,16 +277,8 @@ class SiteCreateResource extends Tonic\Resource {
 		    			// fix images
 		    			$content = str_replace('{{site-dir}}', '//'.$site['Domain'], $content);
 		    		}
-		    		
-		    		// set file
-		    		$file = $page['FriendlyId'].'.html';
-		    		
-		    		if($pageType != NULL){
-			    		$file = $pageType['FriendlyId'].'.'.$page['FriendlyId'].'.html';
-		    		}
-		    	
-					// publish the fragment
-					Publish::PublishFragment($site['FriendlyId'], $file, 'publish', $content);
+					
+					Page::EditContent($page['PageId'], $content, $userId);
 					
 					// build the primary menu
 					if($primaryMenu == true){
@@ -509,8 +525,10 @@ class SiteSaveResource extends Tonic\Resource {
             $primaryEmail = $request['primaryEmail'];
             $timeZone = $request['timeZone'];
             $language = $request['language'];
+            
             $currency = $request['currency'];
             $showCart = $request['showCart'];
+            
             $showSettings = $request['showSettings'];
             $weightUnit = $request['weightUnit'];
             $shippingCalculation = $request['shippingCalculation'];
@@ -519,12 +537,24 @@ class SiteSaveResource extends Tonic\Resource {
             $taxRate = $request['taxRate'];
             $payPalId = $request['payPalId'];
             $payPalUseSandbox = $request['payPalUseSandbox'];
+            
+            $welcomeEmail = $request['welcomeEmail']; 
+            $receiptEmail = $request['receiptEmail'];
+			$isSMTP = $request['isSMTP']; 
+			$SMTPHost = $request['SMTPHost'];
+			$SMTPAuth = $request['SMTPAuth'];
+			$SMTPUsername = $request['SMTPUsername'];
+			$SMTPPassword = $request['SMTPPassword']; 
+			$SMTPSecure = $request['SMTPSecure'];
+            
             $formPublicId = $request['formPublicId'];
             $formPrivateId = $request['formPrivateId'];
 
             Site::Edit($token->SiteId, $name, $domain, $primaryEmail, $timeZone, $language, 
             	$showCart, $showSettings, $currency, $weightUnit, $shippingCalculation, $shippingRate, $shippingTiers, 
             	$taxRate, $payPalId, $payPalUseSandbox, 
+            	$welcomeEmail, $receiptEmail,
+				$isSMTP, $SMTPHost, $SMTPAuth, $SMTPUsername, $SMTPPassword, $SMTPSecure,
             	$formPublicId, $formPrivateId);
             	
             
