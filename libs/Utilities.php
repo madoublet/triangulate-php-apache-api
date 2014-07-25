@@ -505,6 +505,37 @@ class Utilities
 			return NULL;
 		}
     }
+    
+    // gets content type from extensiont
+    public static function GetContentTypeFromExtension($ext){
+	    
+	    // default
+	    $default = 'application/octet-stream';   
+	    
+	    // known
+	    $map = array(
+            'pdf'   => 'application/pdf',
+            'zip'   => 'application/zip',
+            'gif'   => 'image/gif',
+            'jpg'   => 'image/jpeg',
+            'png'   => 'image/png',
+            'svg'	=> 'image/svg+xml',
+            'css'   => 'text/css',
+            'html'  => 'text/html',
+            'js'   	=> 'text/javascript',
+            'txt'   => 'text/plain',
+            'xml'   => 'text/xml',
+        );
+	    
+	    // return content-type
+		if(isset($map[$ext])){
+            return $map[$ext];
+        }
+        else{
+	        return $default;
+        }
+	 	
+    }
 
 }
 	

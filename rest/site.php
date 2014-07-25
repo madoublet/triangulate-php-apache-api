@@ -363,6 +363,17 @@ class SiteRetrieveResource extends Tonic\Resource {
 
             $site = Site::GetBySiteId($token->SiteId);
             
+            // set images URL
+			if(FILES_ON_S3 == true){
+				$imagesURL = str_replace('{{site}}', $site['FriendlyId'], S3_URL).'/';
+			}
+			else{
+				$imagesURL = '//'.$site['Domain'].'/';
+			}
+			
+			// set the ImagesURL
+			$site['ImagesURL'] = $imagesURL;
+            
             // determine offset for timezone
             $zone = new DateTimeZone($site['TimeZone']);
 			$now = new DateTime("now", $zone);
@@ -432,7 +443,7 @@ class SiteDeployResource extends Tonic\Resource {
 		// check if token is not null
         if($token != NULL){ 
 
-            Publish::DeploySite($token->SiteId);
+            S3::DeploySite($token->SiteId);
 
             $response = new Tonic\Response(Tonic\Response::OK);
        

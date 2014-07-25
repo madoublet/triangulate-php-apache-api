@@ -10,10 +10,17 @@
 	define('DB_PASSWORD', 'dbpass');
 	
 	// S3 deployment options
+	
+	// enables copying site to S3 for deployment
 	define('ENABLE_S3_DEPLOYMENT', false);
-	define('BUCKET_NAME', '{{site}}.triangulate.io');
+	
+	// stores all uploaded files on S3
+	define('FILES_ON_S3', false);
+	
+	// bucket, location etc.
+	define('BUCKET_NAME', '{{site}}.yourdomain.com');
 	define('S3_LOCATION', 'us-east-1',
-	define('S3_URL', 'http://{{site}}.triangulate.io.s3-website-us-east-1.amazonaws.com');
+	define('S3_URL', 'http://{{site}}.yourdomain.com.s3-website-us-east-1.amazonaws.com');
 	define('S3_KEY', 'AWS ACCESS KEY');
 	define('S3_SECRET', 'AWS SECRET KEY');
 	

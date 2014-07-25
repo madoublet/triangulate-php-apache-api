@@ -21,6 +21,7 @@ class Publish
 		// publish menu
 		Publish::PublishMenuJSON($siteId);
 		
+		// publish site json
 		Publish::PublishSiteJSON($siteId);
 		
 		// publish common js
@@ -135,12 +136,22 @@ class Publish
 		}
 		
 		// copy files
-		$files_src = APP_LOCATION.'/themes/'.$theme.'/files/';
+		if(FILES_ON_S3 == true){  // copy files to S3
 		
-		if(file_exists($files_src)){
-			$files_dest = SITES_LOCATION.'/'.$site['FriendlyId'].'/files/';
-
-			Utilities::CopyDirectory($files_src, $files_dest);
+			$files_src = APP_LOCATION.'/themes/'.$theme.'/files/';
+			
+			// deploy directory to S3
+			S3::DeployDirectory($site, $files_src, 'files/');
+		
+		}
+		else{ // copy files locally
+			$files_src = APP_LOCATION.'/themes/'.$theme.'/files/';
+			
+			if(file_exists($files_src)){
+				$files_dest = SITES_LOCATION.'/'.$site['FriendlyId'].'/files/';
+	
+				Utilities::CopyDirectory($files_src, $files_dest);
+			}
 		}
 		
 		// copy resources
@@ -278,17 +289,29 @@ class Publish
 		
 	}
 	
-	
-	// publish site
-	public static function PublishSiteJSON($siteId){
-		
-		$site = Site::GetBySiteId($siteId);
+	// creates site JSON
+	public static function CreateSiteJSON($site, $env = 'local'){
 		
 		// set logoUrl
 		$logoUrl = '';
 		
 		if($site['LogoUrl'] != ''){
 			$logoUrl = 'files/'.$site['LogoUrl'];
+		}
+		
+		// set imagesURL
+		if($env == 'local'){  // if it is locally deployed
+		
+			$imagesURL = '';
+			
+			// if files are stored on S3
+			if(FILES_ON_S3 == true){
+				$imagesURL = str_replace('{{site}}', $site['FriendlyId'], S3_URL).'/';
+			}
+			
+		}
+		else{ // if the deployment is on S3
+			$imagesURL = '';
 		}
 		
 		// set iconUrl
@@ -311,32 +334,42 @@ class Publish
 		}
 		
 		// setup sites array
-		$site_arr = array(
-					'SiteId' => $site['SiteId'],
-					'Domain' => $site['Domain'],
-					'API' => API_URL,
-					'Name' => $site['Name'],
-					'LogoUrl' => $logoUrl,
-					'IconUrl' => $iconUrl,
-					'IconBg' => $site['IconBg'],
-					'Theme' => $site['Theme'],
-					'PrimaryEmail' => $site['PrimaryEmail'],
-					'Language' => $site['Language'],
-					'ShowCart' => $showCart,
-					'ShowSettings' => $showSettings,
-					'Currency' => $site['Currency'],
-					'WeightUnit' => $site['WeightUnit'],
-					'ShippingCalculation' => $site['ShippingCalculation'],
-					'ShippingRate' => $site['ShippingRate'],
-					'ShippingTiers' => $site['ShippingTiers'],
-					'TaxRate' => $site['TaxRate'],
-					'PayPalId' => $site['PayPalId'],
-					'PayPalUseSandbox' => $site['PayPalUseSandbox'],
-					'FormPublicId' => $site['FormPublicId']
-				);
+		return array(
+			'SiteId' => $site['SiteId'],
+			'Domain' => $site['Domain'],
+			'API' => API_URL,
+			'Name' => $site['Name'],
+			'ImagesURL' => $imagesURL,
+			'LogoUrl' => $logoUrl,
+			'IconUrl' => $iconUrl,
+			'IconBg' => $site['IconBg'],
+			'Theme' => $site['Theme'],
+			'PrimaryEmail' => $site['PrimaryEmail'],
+			'Language' => $site['Language'],
+			'ShowCart' => $showCart,
+			'ShowSettings' => $showSettings,
+			'Currency' => $site['Currency'],
+			'WeightUnit' => $site['WeightUnit'],
+			'ShippingCalculation' => $site['ShippingCalculation'],
+			'ShippingRate' => $site['ShippingRate'],
+			'ShippingTiers' => $site['ShippingTiers'],
+			'TaxRate' => $site['TaxRate'],
+			'PayPalId' => $site['PayPalId'],
+			'PayPalUseSandbox' => $site['PayPalUseSandbox'],
+			'FormPublicId' => $site['FormPublicId']
+		);
+		
+	}
+	
+	// publish site
+	public static function PublishSiteJSON($siteId){
+		
+		$site = Site::GetBySiteId($siteId);
+		
+		$arr = Publish::CreateSiteJSON($site);
 		
 		// encode to json
-		$encoded = json_encode($site_arr);
+		$encoded = json_encode($arr);
 
 		$dest = SITES_LOCATION.'/'.$site['FriendlyId'].'/data/';
 		
@@ -683,84 +716,7 @@ class Publish
 		
 		return false;
 	}
-	
-	// deploys the site to Amazon S3
-	public static function DeploySite($siteId){
 		
-		// get a reference to the site
-		$site = Site::GetBySiteId($siteId);
-		
-		// create AWS client
-		$client = Aws\S3\S3Client::factory(array(
-		    'key'    => S3_KEY,
-		    'secret' => S3_SECRET
-		));
-		
-		// create a bucket name, TODO: bucket needs to be in the form sample.com, www.sample.com
-		$bucket = 'sample.com';
-		$bucket_www = 'www.sample.com';
-		
-		// check to see if bucket exists
-		$doesExist = $client->doesBucketExist($bucket);
-		
-		// create a bucket for the site if it does not exists
-		if($doesExist == false){
-		
-			// #ref: http://docs.aws.amazon.com/aws-sdk-php/latest/class-Aws.S3.S3Client.html#_createBucket
-			$result = $client->createBucket(array(
-			    'Bucket' => $bucket,
-			    'ACL'	 => 'public-read'		
-			));
-			
-			// enable hosting for the bucket
-			$result = $client->putBucketWebsite(array(
-			    // Bucket is required
-			    'Bucket' => $bucket,
-			    'ErrorDocument' => array(
-			        // Key is required
-			        'Key' => '#/page/error',
-			    ),
-			    'IndexDocument' => array(
-			        // Suffix is required
-			        'Suffix' => 'index.html',
-			    )));
-			    
-			    
-			// #ref: http://docs.aws.amazon.com/aws-sdk-php/latest/class-Aws.S3.S3Client.html#_createBucket
-			$result = $client->createBucket(array(
-			    'Bucket' => $bucket_www,
-			    'ACL'	 => 'public-read'		
-			));
-			
-			// enable hosting for the bucket
-			$result = $client->putBucketWebsite(array(
-			    // Bucket is required
-			    'Bucket' => $bucket_www,
-			    'RedirectAllRequestsTo' => array(
-			        'HostName' => $bucket
-			    )));
-			
-		
-		}
-		
-		// set local director
-		$local_dir = SITES_LOCATION.'/'.$site['FriendlyId'];
-		
-		// prefix
-		$keyPrefix = '';
-		
-		// set permissions
-		$options = array(
-		    'params'      => array('ACL' => 'public-read'),
-		    'concurrency' => 20,
-		    'debug'       => true
-		);
-		
-		// sync folders, #ref: http://blogs.aws.amazon.com/php/post/Tx2W9JAA7RXVOXA/Syncing-Data-with-Amazon-S3
-		$client->uploadDirectory($local_dir, $bucket, $keyPrefix, $options);
-		
-	}
-	
 }
 
 ?>

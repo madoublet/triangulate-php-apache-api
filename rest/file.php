@@ -1,90 +1,4 @@
 <?php 
-    
-/**
- * A protected API call to retrieve images from the site
- * @uri /image/list/all
- */
-class ImageListResource extends Tonic\Resource {
-
-    /**
-     * @method GET
-     */
-    function get() {
-    
-        // get token
-		$token = Utilities::ValidateJWTToken(apache_request_headers());
-
-		// check if token is not null
-        if($token != NULL){ 
-			
-			// get a reference to the site, user
-			$site = Site::GetBySiteId($token->SiteId);
-            
-            $arr = array();
-            
-            $directory = SITES_LOCATION.'/'.$site['FriendlyId'].'/files/';
-            
-            //get all image files with a .html ext
-            $files = glob($directory . "*.*");
-
-            $arr = array();
-            
-            $image_exts = array('gif', 'png', 'jpg', 'svg');
-            
-            //print each file name
-            foreach($files as $file){
-                $f_arr = explode("/",$file);
-                $count = count($f_arr);
-                $filename = $f_arr[$count-1];
-                
-                // get extension
-                $parts = explode(".", $filename); 
-            	$ext = end($parts); // get extension
-        		$ext = strtolower($ext); // convert to lowercase
-                
-                // is image
-                $is_image = in_array($ext, $image_exts);
-                
-                // is thumb
-                $is_thumb = false;
-                
-                if(substr($filename, 0, 2)=='t-'){
-                    $is_thumb = true;
-                }
-                
-                if($is_thumb==false && $is_image==true){
-                    
-                    list($width, $height, $type, $attr) = Image::getImageInfo($directory.$filename);
-                    
-                    $file = array(
-                        'filename' => $filename,
-                        'fullUrl' => '//'.$site['Domain'].'/files/'.$filename,
-                        'thumbUrl' => '//'.$site['Domain'].'/files/t-'.$filename,
-                        'extension' => $ext,
-						'isImage' => $is_image,
-                        'width' => $width,
-                        'height' => $height
-                    );
-                    
-                    array_push($arr, $file); 
-                }    
-
-            }
-            
-            // return a json response
-            $response = new Tonic\Response(Tonic\Response::OK);
-            $response->contentType = 'application/json';
-            $response->body = json_encode($arr);
-
-            return $response;
-        }
-        else{
-            // return an unauthorized exception (401)
-            return new Tonic\Response(Tonic\Response::UNAUTHORIZED);
-        }
-    }
-    
-}
 
 /**
  * A protected API call to retrieve the current site
@@ -132,7 +46,6 @@ class FilePostResource extends Tonic\Resource {
     		$ext = strtolower($ext); // convert to lowercase
             
             $thumbnail = 't-'.$filename;
-            $directory = SITES_LOCATION.'/'.$site['FriendlyId'].'/files/';
             
             // allowed filetypes
             $allowed = explode(',', ALLOWED_FILETYPES);
@@ -140,41 +53,90 @@ class FilePostResource extends Tonic\Resource {
          	// trim and lowercase all items in the aray   
 			$allowed = array_map('trim', $allowed);
 			$allowed = array_map('strtolower', $allowed);
+			
+			/*
+			// save to file or S3
+    		if(FILES_ON_S3 == true){
+	    		
+	    		// save file on S3
+	    		S3::SaveFile($site, $contentType, $filename, $file);
+	    		
+	    		// set url
+	    		$url = str_replace('{{site}}', $site['FriendlyId'], S3_URL);
+	    		
+	    		// return new file
+	    		$arr = array(
+                    'filename' => $filename,
+                    'fullUrl' => $url.'/files/'.$filename,
+                    'extension' => $ext,
+                    'isImage' => true,
+                    'contentType' => $contentType
+                );
+	    		
+	    		
+    		}
+    		else{
+	    		
+	    		// save file locally
+    			Utilities::SaveFile($directory, $filename, $file);
+                
+                // return new file
+                $arr = array(
+                    'filename' => $filename,
+                    'fullUrl' => '//'.$site['Domain'].'/files/'.$filename,
+                    'extension' => $ext,
+                    'isImage' => true,
+                    'contentType' => $contentType
+                );
+	    		
+    		}*/
         
             // save image
             if($ext=='png' || $ext=='jpg' || $ext=='gif' || $ext == 'svg'){ // upload image
             
-    			$size = Image::SaveImageWithThumb($directory, $filename, $file);
+    			$arr = Image::SaveImageWithThumb($site, $filename, $file);
     			
-    			$width = 0;
-    			$height = 0;
+    			// set local URL
+    			$url = 	'//'.$site['Domain'];
+				
+				// set URL if on S3
+				if(FILES_ON_S3 == true){
+					$url = str_replace('{{site}}', $site['FriendlyId'], S3_URL);
+				}
     			
-    			// try to get width and height
-    			try{
-    				list($width, $height, $type, $attr) = Image::getImageInfo($directory.$filename); // get width and height
-                }
-                catch(Exception $e){}
-                
+    		    // create array
                 $arr = array(
                         'filename' => $filename,
-                        'fullUrl' => '//'.$site['Domain'].'/files/'.$filename,
-                        'thumbUrl' => '//'.$site['Domain'].'/files/t-'.$filename,
+                        'fullUrl' => $url.'/files/'.$filename,
+                        'thumbUrl' => '//'.$site['Domain'].'/files/thumbs/'.$filename,
                         'extension' => $ext,
                         'isImage' => true,
-                        'width' => $width,
-                        'height' => $height
+                        'width' => $arr['Width'],
+                        'height' => $arr['Height'],
                     );
                     
     		}
     		else if(in_array($ext, $allowed)){ // save file if it is allowed
+    		
+    			// save file to directory
+    			$directory = SITES_LOCATION.'/'.$site['FriendlyId'].'/files/';
+    			
+    			// set url
+    			$url = 	'//'.$site['Domain'];
+    			
+				// set URL if on S3
+				if(FILES_ON_S3 == true){
+					$url = str_replace('{{site}}', $site['FriendlyId'], S3_URL);
+				}
+				else{
+					// upload file
+					Utilities::SaveFile($directory, $filename, $file);
+				}
 
-    			// upload file
-    			Utilities::SaveFile($directory, $filename, $file);
-                
                 $arr = array(
                     'filename' => $filename,
-                    'fullUrl' => '//'.$site['Domain'].'/files/'.$filename,
-                    'thumbUrl' => '//'.$site['Domain'].'/files/t-'.$filename,
+                    'fullUrl' => $url.'/files/'.$filename,
+                    'thumbUrl' => NULL,
                     'extension' => $ext,
                     'isImage' => false,
                     'width' => -1,
@@ -184,6 +146,93 @@ class FilePostResource extends Tonic\Resource {
     		else{
                 return new Tonic\Response(Tonic\Response::UNAUTHORIZED);
     		}
+            
+            // return a json response
+            $response = new Tonic\Response(Tonic\Response::OK);
+            $response->contentType = 'application/json';
+            $response->body = json_encode($arr);
+
+            return $response;
+        }
+        else{
+            // return an unauthorized exception (401)
+            return new Tonic\Response(Tonic\Response::UNAUTHORIZED);
+        }
+    }
+    
+}
+
+/**
+ * A protected API call to retrieve images from the site
+ * @uri /image/list/all
+ */
+class ImageListResource extends Tonic\Resource {
+
+    /**
+     * @method GET
+     */
+    function get() {
+    
+        // get token
+		$token = Utilities::ValidateJWTToken(apache_request_headers());
+
+		// check if token is not null
+        if($token != NULL){ 
+			
+			// get a reference to the site, user
+			$site = Site::GetBySiteId($token->SiteId);
+            
+            $arr = array();
+            
+            if(FILES_ON_S3 == true){
+            	
+            	$arr = S3::ListFiles($site, true);
+            
+            }
+            else{
+            
+	            $directory = SITES_LOCATION.'/'.$site['FriendlyId'].'/files/';
+	            
+	            //get all image files with a .html ext
+	            $files = glob($directory . "*.*");
+	
+	            $arr = array();
+	            
+	            $image_exts = array('gif', 'png', 'jpg', 'svg');
+	            
+	            //print each file name
+	            foreach($files as $file){
+	                $f_arr = explode("/",$file);
+	                $count = count($f_arr);
+	                $filename = $f_arr[$count-1];
+	                
+	                // get extension
+	                $parts = explode(".", $filename); 
+	            	$ext = end($parts); // get extension
+	        		$ext = strtolower($ext); // convert to lowercase
+	                
+	                // is image
+	                $is_image = in_array($ext, $image_exts);
+	                
+	                if($is_image==true){
+	                    
+	                    list($width, $height, $type, $attr) = Image::getImageInfo($directory.$filename);
+	                    
+	                    $file = array(
+	                        'filename' => $filename,
+	                        'fullUrl' => '//'.$site['Domain'].'/files/'.$filename,
+	                        'thumbUrl' => '//'.$site['Domain'].'/files/thumbs/'.$filename,
+	                        'extension' => $ext,
+							'isImage' => $is_image,
+	                        'width' => $width,
+	                        'height' => $height
+	                    );
+	                    
+	                    array_push($arr, $file); 
+	                }
+				}
+				
+			}
             
             // return a json response
             $response = new Tonic\Response(Tonic\Response::OK);
@@ -222,73 +271,79 @@ class FileListAllResource extends Tonic\Resource {
             
             $arr = array();
             
-            $directory = SITES_LOCATION.'/'.$site['FriendlyId'].'/files/';
+            if(FILES_ON_S3 == true){
+            	
+            	$arr = S3::ListFiles($site);
             
-            //get all image files with a .html ext
-            $files = glob($directory . "*.*");
-
-            $arr = array();
-            
-            $image_exts = array('gif', 'png', 'jpg', 'svg');
-            
-            //print each file name
-            foreach($files as $file){
-                $f_arr = explode("/",$file);
-                $count = count($f_arr);
-                $filename = $f_arr[$count-1];
-                
-                // get extension
-                $parts = explode(".", $filename); 
-                $ext = end($parts); // get extension
-        		$ext = strtolower($ext); // convert to lowercase
-                
-                // is image
-                $is_image = in_array($ext, $image_exts);
-                
-                // is thumb
-                $is_thumb = false;
-                
-                if(substr($filename, 0, 2)=='t-'){
-                    $is_thumb = true;
-                }
-                
-                if($is_thumb==false && $is_image==true){
-                    
-                    $width = 0;
-                    $height = 0;
-                    
-                    try{
-                    	list($width, $height, $type, $attr) = Image::getImageInfo($directory.$filename);
-                    }
-					catch(Exception $e){}
-					
-                    $file = array(
-                        'filename' => $filename,
-                        'fullUrl' => '//'.$site['Domain'].'/files/'.$filename,
-                        'thumbUrl' => '//'.$site['Domain'].'/files/t-'.$filename,
-                        'extension' => $ext,
-                        'isImage' => $is_image,
-                        'width' => $width,
-                        'height' => $height
-                    );
-                    
-                    array_push($arr, $file); 
-                }
-                else if($is_thumb==false){
-                    $file = array(
-                        'filename' => $filename,
-                        'fullUrl' => '//'.$site['Domain'].'/files/'.$filename,
-                        'thumbUrl' => '//'.$site['Domain'].'/files/t-'.$filename,
-                        'thumbUrl' => 'n/a',
-                        'extension' => $ext,
-                        'isImage' => $is_image,
-                        'width' => -1,
-                        'height' => -1
-                    );
-                    
-                    array_push($arr, $file); 
-                }
-
+            }
+            else{
+           
+	            $directory = SITES_LOCATION.'/'.$site['FriendlyId'].'/files/';
+	            
+	            //get all image files with a .html ext
+	            $files = glob($directory . "*.*");
+	
+	            $arr = array();
+	            
+	            $image_exts = array('gif', 'png', 'jpg', 'svg');
+	            
+	            //print each file name
+	            foreach($files as $file){
+	                $f_arr = explode("/",$file);
+	                $count = count($f_arr);
+	                $filename = $f_arr[$count-1];
+	                
+	                // get extension
+	                $parts = explode(".", $filename); 
+	                $ext = end($parts); // get extension
+	        		$ext = strtolower($ext); // convert to lowercase
+	                
+	                // is image
+	                $isImage = in_array($ext, $image_exts);
+	                
+					// get size of file
+					$size = filesize($file);
+	             
+	                if($isImage==true){
+	                    
+	                    $width = 0;
+	                    $height = 0;
+	                    
+	                    try{
+	                    	list($width, $height, $type, $attr) = Image::getImageInfo($directory.$filename);
+	                    }
+						catch(Exception $e){}
+						
+	                    $file = array(
+	                        'filename' => $filename,
+	                        'fullUrl' => '//'.$site['Domain'].'/files/'.$filename,
+	                        'thumbUrl' => '//'.$site['Domain'].'/files/thumbs/'.$filename,
+	                        'extension' => $ext,
+	                        'isImage' => $isImage,
+	                        'width' => $width,
+	                        'height' => $height,
+	                        'size' => $size
+	                    );
+	                    
+	                    array_push($arr, $file); 
+	                }
+	                else if($is_thumb==false){
+	                    $file = array(
+	                        'filename' => $filename,
+	                        'fullUrl' => '//'.$site['Domain'].'/files/'.$filename,
+	                        'thumbUrl' => '//'.$site['Domain'].'/files/thumbs/'.$filename,
+	                        'thumbUrl' => 'n/a',
+	                        'extension' => $ext,
+	                        'isImage' => $isImage,
+	                        'width' => NULL,
+	                        'height' => NULL,
+	                        'size' => $size
+	                    );
+	                    
+	                    array_push($arr, $file); 
+	                }
+	
+	            }
             }
             
             // return a json response
@@ -302,6 +357,7 @@ class FileListAllResource extends Tonic\Resource {
             // return an unauthorized exception (401)
             return new Tonic\Response(Tonic\Response::UNAUTHORIZED);
         }
+
     }
     
 }
