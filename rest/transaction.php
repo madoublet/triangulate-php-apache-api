@@ -141,13 +141,8 @@ class TransactionPaypalResource extends Tonic\Resource {
 
 				if(isset($request['item_number'.$x])){
 
-					$arr_temp = explode('-', $request['item_number'.$x]);
-
-					// shipping type is the last item of the array
-					$item_shipping_type = $arr_temp[count($arr_temp) - 1];
-
 					// the sku is the last item less the type
-					$item_sku = str_replace('-'.$item_shipping_type, '', $request['item_number'.$x]);
+					$item_sku = $request['item_number'.$x];
 					$item_name = $request['item_name'.$x];
 					$item_sku = iconv("ISO-8859-1","UTF-8", $item_name);
 					$item_name = iconv("ISO-8859-1","UTF-8", $item_name);
@@ -159,7 +154,6 @@ class TransactionPaypalResource extends Tonic\Resource {
 			    	$item = array(
 	                    'SKU' => $item_sku,
 	                    'Name'  => $item_name,
-	                    'ShippingType' => $item_shipping_type,
 	                    'Quantity' => $item_quantity,
 	                    'Price' => $item_price,
 	                    'Total' => $item_total,
@@ -167,9 +161,10 @@ class TransactionPaypalResource extends Tonic\Resource {
 
 	                $download_link = '';
 
+					/* #todo (check for downloads)
 	                if($item_shipping_type == 'DOWNLOAD'){
 	                	$download_link = '<br><a href="http://'.$site['Domain'].'/api/transaction/download/{{transactionId}}/'.$item_sku.'">Download</a>';
-	                }
+	                }*/ 
 
 	                // setup currency for line items
 	                $item_total = $item_total.' '.$currency;

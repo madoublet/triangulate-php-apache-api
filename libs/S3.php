@@ -37,23 +37,6 @@ class S3
 			        // Suffix is required
 			        'Suffix' => 'index.html',
 			    )));
-			
-			/* #support for S3 ANAME   
-			// #ref: http://docs.aws.amazon.com/aws-sdk-php/latest/class-Aws.S3.S3Client.html#_createBucket
-			$result = $client->createBucket(array(
-			    'Bucket' => $bucket_www,
-			    'ACL'	 => 'public-read'		
-			));
-			
-			// enable hosting for the bucket
-			$result = $client->putBucketWebsite(array(
-			    // Bucket is required
-			    'Bucket' => $bucket_www,
-			    'RedirectAllRequestsTo' => array(
-			        'HostName' => $bucket
-			    )));
-			
-			*/
 			    
 		}
 		
@@ -84,6 +67,32 @@ class S3
 		    'ACL'          => 'public-read',
 		    'StorageClass' => 'REDUCED_REDUNDANCY',
 		    'Metadata'	   => $meta
+		));
+			
+	}
+	
+	// saves a file to S3
+	public static function RemoveFile($site, $filename){
+		
+		// create AWS client
+		$client = Aws\S3\S3Client::factory(array(
+		    'key'    => S3_KEY,
+		    'secret' => S3_SECRET
+		));
+		
+		// create a bucket name, TODO: bucket needs to be in the form sample.com, www.sample.com
+		$bucket = str_replace('{{site}}', $site['FriendlyId'], BUCKET_NAME);
+		
+		// remove file
+    	$result = $client->deleteObject(array(
+		    'Bucket' => $bucket,
+		    'Key' => 'files/'.$filename
+		));
+		
+		// remove thumb
+		$result = $client->deleteObject(array(
+		    'Bucket' => $bucket,
+		    'Key' => 'files/thumbs/'.$filename
 		));
 			
 	}

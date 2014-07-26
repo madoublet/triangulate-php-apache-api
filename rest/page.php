@@ -107,23 +107,27 @@ class PageAddResource extends Tonic\Resource {
             }
             
             // init
-            $imageUrl = '';
-            $thumbUrl = '';
+            $imageURL = '';
+            $thumbURL = '';
             
 			// get thumb url
 			if($page['Image']!=''){
-            
-            	if (strpos($page['Image'],'t-') !== false) {
-				    $thumbUrl = '//'.$site['Domain'].'/files/'.$page['Image'];
+			
+				 // set images URL
+				if(FILES_ON_S3 == true){
+					$imagesURL = str_replace('{{site}}', $site['FriendlyId'], S3_URL).'/';
 				}
 				else{
-               		$thumbUrl = '//'.$site['Domain'].'/files/'.'t-'.$page['Image'];
-                }
-                
+					$imagesURL = '//'.$site['Domain'].'/';
+				}
+			
+				$thumbURL = $imagesURL.'files/thumbs/'.$page['Image'];
+				$imageURL = $imagesURL.'files/'.$page['Image'];
+				
             }
 
-            $page['Image'] = $imageUrl;
-            $page['Thumb'] = $thumbUrl;
+            $page['Image'] = $imageURL;
+            $page['Thumb'] = $thumbURL;
            
            	// set permissions 
             $page['CanEdit'] = $canEdit;
@@ -1004,28 +1008,45 @@ class PageListAll extends Tonic\Resource {
             // get pages
             $list = Page::GetPagesForSite($token->SiteId, true);
             
+            // get site
+            $site = Site::GetBySiteId($token->SiteId);
+            
             $pages = array();
             
             foreach ($list as $row){
 
-                $page = Page::GetByPageId($row['PageId']);
-
                 $fullName = $row['FirstName'].' '.$row['LastName'];
                 $row['LastModifiedFullName'] = $fullName;
 
-                $imageUrl = '';
-                $thumbUrl = '';
+                // init
+	            $imageURL = '';
+	            $thumbURL = '';
+	            
+				// get thumb url
+				if($row['Image']!=''){
+				
+					 // set images URL
+					if(FILES_ON_S3 == true){
+						$imagesURL = str_replace('{{site}}', $site['FriendlyId'], S3_URL).'/';
+					}
+					else{
+						$imagesURL = '//'.$site['Domain'].'/';
+					}
+				
+					$thumbURL = $imagesURL.'files/thumbs/'.$row['Image'];
+					$imageURL = $imagesURL.'files/'.$row['Image'];
+					
+	            };
 
-
-                $row['Image'] = $imageUrl;
-                $row['Thumb'] = $thumbUrl;
+                $row['Image'] = $imageURL;
+                $row['Thumb'] = $thumbURL;
 
                 $url = $page['FriendlyId'];
                 
                 if($page['PageTypeId']!=-1){
-                    $pageType = PageType::GetByPageTypeId($page['PageTypeId']);
+                    $pageType = PageType::GetByPageTypeId($row['PageTypeId']);
 
-                    $url = strtolower($pageType['FriendlyId']).'/'.$page['FriendlyId'];
+                    $url = strtolower($pageType['FriendlyId']).'/'.$row['FriendlyId'];
                 }
 
                 $row['Url'] = $url;
@@ -1092,9 +1113,13 @@ class PageListAllowed extends Tonic\Resource {
 				// init url
                 $url = $row['FriendlyId'];
                 
-          
 				// initialize PT
 				$pageType = NULL;
+				
+				$canEdit = false;
+				$canPublish = false;
+				$canRemove = false;
+				
                 
 				// get url, permissions
                 if($row['PageTypeId']!=-1){
@@ -1138,23 +1163,27 @@ class PageListAllowed extends Tonic\Resource {
                 }
                 
                 // init
-                $imageUrl = '';
-                $thumbUrl = '';
+                $imageURL = '';
+                $thumbURL = '';
                 
 				// get thumb url
-				if($row['Image']!=''){
-                
-                	if (strpos($row['Image'],'t-') !== false) {
-					    $thumbUrl = '//'.$site['Domain'].'/files/'.$row['Image'];
+				if($row['Image'] != ''){
+				
+					 // set images URL
+					if(FILES_ON_S3 == true){
+						$imagesURL = str_replace('{{site}}', $site['FriendlyId'], S3_URL).'/';
 					}
 					else{
-                   		$thumbUrl = '//'.$site['Domain'].'/files/'.'t-'.$row['Image'];
-                    }
-                    
-                }
-
-                $row['Image'] = $imageUrl;
-                $row['Thumb'] = $thumbUrl;
+						$imagesURL = '//'.$site['Domain'].'/';
+					}
+				
+					$thumbURL = $imagesURL.'files/thumbs/'.$row['Image'];
+					$imageURL = $imagesURL.'files/'.$row['Image'];
+					
+	            };
+	            
+                $row['Image'] = $imageURL;
+                $row['Thumb'] = $thumbURL;
                
                	// set permissions 
                 $row['CanEdit'] = $canEdit;

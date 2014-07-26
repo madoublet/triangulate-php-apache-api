@@ -220,12 +220,14 @@ class PageTypeListAllowedResource extends Tonic\Resource {
 				
 					$pageTypeId = $row['PageTypeId'];
 					
-					if(Utilities::CanPerformAction('root', $access['CanAccess']) !== false){
+					if(Utilities::CanPerformAction('root', $access['CanAccess']) != false){
 						array_push($allowed, $root);
 					}
 					
+					//print('$pageTypeId='.$pageTypeId.' access='.$access['CanAccess']);
+					
 					// check permissions
-					if(Utilities::CanPerformAction($pageTypeId, $access['CanAccess']) !== false){
+					if(Utilities::CanPerformAction($pageTypeId, $access['CanAccess']) != false){
 						array_push($allowed, $row);
 					}
 				

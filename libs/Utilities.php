@@ -438,11 +438,11 @@ class Utilities
 	    }
 	    
 	    // check access list
-	    if(strpos($canAction, $pageTypeId) != FALSE){
-		    return true;
+	    if(strpos($canAction, $pageTypeId) === false){
+		    return false;
 	    }
 	    else{
-		    return false;
+		    return true;
 	    }
 	   
     }

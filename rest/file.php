@@ -54,43 +54,6 @@ class FilePostResource extends Tonic\Resource {
 			$allowed = array_map('trim', $allowed);
 			$allowed = array_map('strtolower', $allowed);
 			
-			/*
-			// save to file or S3
-    		if(FILES_ON_S3 == true){
-	    		
-	    		// save file on S3
-	    		S3::SaveFile($site, $contentType, $filename, $file);
-	    		
-	    		// set url
-	    		$url = str_replace('{{site}}', $site['FriendlyId'], S3_URL);
-	    		
-	    		// return new file
-	    		$arr = array(
-                    'filename' => $filename,
-                    'fullUrl' => $url.'/files/'.$filename,
-                    'extension' => $ext,
-                    'isImage' => true,
-                    'contentType' => $contentType
-                );
-	    		
-	    		
-    		}
-    		else{
-	    		
-	    		// save file locally
-    			Utilities::SaveFile($directory, $filename, $file);
-                
-                // return new file
-                $arr = array(
-                    'filename' => $filename,
-                    'fullUrl' => '//'.$site['Domain'].'/files/'.$filename,
-                    'extension' => $ext,
-                    'isImage' => true,
-                    'contentType' => $contentType
-                );
-	    		
-    		}*/
-        
             // save image
             if($ext=='png' || $ext=='jpg' || $ext=='gif' || $ext == 'svg'){ // upload image
             
@@ -111,8 +74,8 @@ class FilePostResource extends Tonic\Resource {
                         'thumbUrl' => '//'.$site['Domain'].'/files/thumbs/'.$filename,
                         'extension' => $ext,
                         'isImage' => true,
-                        'width' => $arr['Width'],
-                        'height' => $arr['Height'],
+                        'width' => $arr['width'],
+                        'height' => $arr['height'],
                     );
                     
     		}
@@ -386,18 +349,31 @@ class FileRemoveResource extends Tonic\Resource {
             
             $filename = $request['filename'];
             
-            $full_path = '../sites/'.$site['FriendlyId'].'/files/'.$filename;
+            if(FILES_ON_S3 == true){  // remove file on S3
             
-            $success = unlink($full_path);
+            	S3::RemoveFile($site, $filename);
+            	
+            }
+            else{  // remove local file  
+				
+				// remove file
+				$path = SITES_LOCATION.'/'.$site['FriendlyId'].'/files/'.$filename;
+	            
+	            if(file_exists($path)){
+	            	$path = unlink($path);
+	            }
+	            
+	            // remove thumb
+				$path = SITES_LOCATION.'/'.$site['FriendlyId'].'/files/thumbs/'.$filename;
+	            
+	            if(file_exists($path)){
+	            	$path = unlink($path);
+	            }
             
-            if($success==true){
-	            return new Tonic\Response(Tonic\Response::OK);
             }
-            else{
-	            $response = new Tonic\Response(Tonic\Response::BADREQUEST);
-				$response->body = 'File could not be removed';
-				return $response;
-            }
+            
+            return new Tonic\Response(Tonic\Response::OK);
+            
         }
         else{
             // return an unauthorized exception (401)

@@ -624,6 +624,9 @@ class SiteBrandingResource extends Tonic\Resource {
 					$ico_lib->save_ico( $destination );
 				}
             }
+            
+            // publish site JSON
+            Publish::PublishSiteJSON($token->SiteId);
 
             return new Tonic\Response(Tonic\Response::OK);
         
