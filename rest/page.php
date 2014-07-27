@@ -1041,9 +1041,9 @@ class PageListAll extends Tonic\Resource {
                 $row['Image'] = $imageURL;
                 $row['Thumb'] = $thumbURL;
 
-                $url = $page['FriendlyId'];
+                $url = $row['FriendlyId'];
                 
-                if($page['PageTypeId']!=-1){
+                if($row['PageTypeId']!=-1){
                     $pageType = PageType::GetByPageTypeId($row['PageTypeId']);
 
                     $url = strtolower($pageType['FriendlyId']).'/'.$row['FriendlyId'];
