@@ -138,7 +138,9 @@ class Publish
 		// copy files
 		if(FILES_ON_S3 == true){  // copy files to S3
 		
-			$files_src = APP_LOCATION.'/themes/'.$theme.'/files/';
+			$files_src = APP_LOCATION.'/themes/'.$theme.'/files';
+			
+			echo '$files_src='.$files_src;
 			
 			// deploy directory to S3
 			S3::DeployDirectory($site, $files_src, 'files/');

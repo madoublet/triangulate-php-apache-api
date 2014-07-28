@@ -252,9 +252,6 @@ class S3
 		// create a bucket name, TODO: bucket needs to be in the form sample.com, www.sample.com
 		$bucket = str_replace('{{site}}', $site['FriendlyId'], BUCKET_NAME);
 		
-		// check to see if bucket exists
-		$doesExist = $client->doesBucketExist($bucket);
-		
 		// create a bucket if it doesn't already exist
 		S3::CreateBucket($bucket);
 		
@@ -300,9 +297,6 @@ class S3
 		
 		// create a bucket name
 		$bucket = str_replace('{{site}}', $site['FriendlyId'], BUCKET_NAME);
-		
-		// check to see if bucket exists
-		$doesExist = $client->doesBucketExist($bucket);
 		
 		// create a bucket if it doesn't already exist
 		S3::CreateBucket($bucket);
