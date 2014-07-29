@@ -62,7 +62,7 @@ class Site{
 		$showCart, $showSettings, 
 		$currency, $weightUnit, $shippingCalculation, $shippingRate, $shippingTiers, $taxRate, $payPalId, $payPalUseSandbox,
 		$welcomeEmail, $receiptEmail,
-		$isSMTP, $SMTPHost, $SMTPAuth, $SMTPUsername, $SMTPPassword, $SMTPSecure, 
+		$isSMTP, $SMTPHost, $SMTPAuth, $SMTPUsername, $SMTPSecure, 
 		$formPublicId, $formPrivateId){
 
 		try{
@@ -91,7 +91,6 @@ class Site{
 					SMTPHost = ?, 
 					SMTPAuth = ?, 
 					SMTPUsername = ?, 
-					SMTPPassword = ?, 
 					SMTPSecure = ?,
             		FormPublicId=?,
             		FormPrivateId=?
@@ -118,17 +117,41 @@ class Site{
 			$s->bindParam(18, $isSMTP); 
 			$s->bindParam(19, $SMTPHost); 
 			$s->bindParam(20, $SMTPAuth); 
-			$s->bindParam(21, $SMTPUsername); 
-			$s->bindParam(22, $SMTPPassword); 
-			$s->bindParam(23, $SMTPSecure); 
-            $s->bindParam(24, $formPublicId);
-            $s->bindParam(25, $formPrivateId);
-            $s->bindParam(26, $siteId);
+			$s->bindParam(21, $SMTPUsername);  
+			$s->bindParam(22, $SMTPSecure); 
+            $s->bindParam(23, $formPublicId);
+            $s->bindParam(24, $formPrivateId);
+            $s->bindParam(25, $siteId);
             
             $s->execute();
             
 		} catch(PDOException $e){
             die('[Site::Edit] PDO Error: '.$e->getMessage());
+        }
+        
+	}
+	
+	// edits the SMTPPassword
+	public static function EditSMTPPassword($siteId, $SMTPPassword, $SMTPPasswordIV){
+
+		try{
+            
+            $db = DB::get();
+            
+            $q = "UPDATE Sites SET 
+            		SMTPPassword = ?, 
+                    SMTPPasswordIV = ?
+        			WHERE SiteId = ?";
+     
+            $s = $db->prepare($q);
+            $s->bindParam(1, $SMTPPassword);
+            $s->bindParam(2, $SMTPPasswordIV);
+            $s->bindParam(3, $siteId);
+            
+            $s->execute();
+            
+		} catch(PDOException $e){
+            die('[Site::SMTPPassword] PDO Error: '.$e->getMessage());
         }
         
 	}    
@@ -332,7 +355,7 @@ class Site{
     						WeightUnit, ShippingCalculation, ShippingRate, ShippingTiers, TaxRate, 
 							PayPalId, PayPalUseSandbox,
 							WelcomeEmail, ReceiptEmail,
-							IsSMTP, SMTPHost, SMTPAuth, SMTPUsername, SMTPPassword, SMTPSecure,
+							IsSMTP, SMTPHost, SMTPAuth, SMTPUsername, SMTPPassword, SMTPPasswordIV, SMTPSecure,
 							FormPublicId, FormPrivateId,
 							LastLogin, CustomerId, Created
 							FROM Sites ORDER BY Name ASC";
@@ -418,7 +441,7 @@ class Site{
     						WeightUnit, ShippingCalculation, ShippingRate, ShippingTiers, TaxRate, 
 							PayPalId, PayPalUseSandbox,
 							WelcomeEmail, ReceiptEmail,
-							IsSMTP, SMTPHost, SMTPAuth, SMTPUsername, SMTPPassword, SMTPSecure,
+							IsSMTP, SMTPHost, SMTPAuth, SMTPUsername, SMTPPassword, SMTPPasswordIV, SMTPSecure,
 							FormPublicId, FormPrivateId,
 							LastLogin, CustomerId, Created	
     						FROM Sites WHERE Domain = ?";
@@ -453,7 +476,7 @@ class Site{
     						WeightUnit, ShippingCalculation, ShippingRate, ShippingTiers, TaxRate, 
 							PayPalId, PayPalUseSandbox,
 							WelcomeEmail, ReceiptEmail,
-							IsSMTP, SMTPHost, SMTPAuth, SMTPUsername, SMTPPassword, SMTPSecure,
+							IsSMTP, SMTPHost, SMTPAuth, SMTPUsername, SMTPPassword, SMTPPasswordIV, SMTPSecure,
 							FormPublicId, FormPrivateId,
 							LastLogin, CustomerId, Created
 							FROM Sites WHERE FriendlyId = ?";
@@ -488,7 +511,7 @@ class Site{
     						WeightUnit, ShippingCalculation, ShippingRate, ShippingTiers, TaxRate, 
 							PayPalId, PayPalUseSandbox,
 							WelcomeEmail, ReceiptEmail,
-							IsSMTP, SMTPHost, SMTPAuth, SMTPUsername, SMTPPassword, SMTPSecure,
+							IsSMTP, SMTPHost, SMTPAuth, SMTPUsername, SMTPPassword, SMTPPasswordIV, SMTPSecure,
 							FormPublicId, FormPrivateId,
 							LastLogin, CustomerId, Created
 							FROM Sites WHERE Siteid = ?";

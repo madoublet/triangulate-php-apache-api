@@ -94,6 +94,7 @@ CREATE TABLE IF NOT EXISTS `Sites` (
   `SMTPAuth` INT NOT NULL DEFAULT '0',
   `SMTPUsername` varchar(255) DEFAULT '',
   `SMTPPassword` varchar(255) DEFAULT '',
+  `SMTPPasswordIV` varchar(255) DEFAULT '',
   `SMTPSecure` varchar(255) DEFAULT 'tls',
   `FormPrivateId` VARCHAR(240) DEFAULT '',
   `FormPublicId` VARCHAR(240) DEFAULT '',
@@ -104,17 +105,6 @@ CREATE TABLE IF NOT EXISTS `Sites` (
   PRIMARY KEY (`SiteId`),
   UNIQUE KEY `Domain` (`Domain`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
-
-/* email update 
-ALTER TABLE  `Sites` ADD `WelcomeEmail` TEXT DEFAULT '' AFTER `PayPalUseSandbox`;
-ALTER TABLE  `Sites` ADD `ReceiptEmail` TEXT DEFAULT '' AFTER `WelcomeEmail`;
-ALTER TABLE  `Sites` ADD `IsSMTP` INT NOT NULL DEFAULT '0' AFTER `ReceiptEmail`;
-ALTER TABLE  `Sites` ADD `SMTPHost` varchar(512) DEFAULT '' AFTER `IsSMTP`;
-ALTER TABLE  `Sites` ADD `SMTPAuth` INT NOT NULL DEFAULT '0' AFTER `SMTPHost`;
-ALTER TABLE  `Sites` ADD `SMTPUsername` varchar(255) DEFAULT '' AFTER `SMTPAuth`;
-ALTER TABLE  `Sites` ADD `SMTPPassword` varchar(255) DEFAULT '' AFTER `SMTPUsername`;
-ALTER TABLE  `Sites` ADD `SMTPSecure` varchar(255) DEFAULT 'tls' AFTER `SMTPPassword`;
-*/
 
 CREATE TABLE IF NOT EXISTS `Users` (
   `UserID` varchar(50) NOT NULL,

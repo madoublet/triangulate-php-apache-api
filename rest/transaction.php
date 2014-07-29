@@ -227,10 +227,12 @@ class TransactionPaypalResource extends Tonic\Resource {
     		
     		$file = SITES_LOCATION.'/'.$site['FriendlyId'].'/emails/receipt.html';
     		
-    		// send email from file
-    		Utilities::SendEmailFromFile($email, $site['PrimaryEmail'], $site['Name'], $subject, $replace, $file);
-
-
+    		// send email
+    		$content = $site['ReceiptEmail'];
+    		
+    		// send site email
+    		Utilities::SendSiteEmail($site, $email, $site['PrimaryEmail'], $site['Name'], $subject, $content);
+  
 		} else {
 		    // IPN response was "INVALID"\
 		}

@@ -63,6 +63,9 @@
 	define('SMTP_USERNAME', '');
 	define('SMTP_PASSWORD', '');
 	define('SMTP_SECURE', 'tls');
+	
+	// key used to encrypt site SMTP passwords
+	define('SMTPENC_KEY', 'ilovetriangulate');
 	    
     // set what emails should be sent out and a reply-to email address
 	define('REPLY_TO', '');

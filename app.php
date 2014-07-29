@@ -73,6 +73,7 @@
     require_once 'rest/form.php';
     require_once 'rest/stylesheet.php';
     require_once 'rest/layout.php';
+    require_once 'rest/script.php';
     require_once 'rest/translation.php';
     require_once 'rest/transaction.php';
    

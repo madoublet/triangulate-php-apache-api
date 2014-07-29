@@ -560,19 +560,42 @@ class SiteSaveResource extends Tonic\Resource {
             
             $formPublicId = $request['formPublicId'];
             $formPrivateId = $request['formPrivateId'];
+            
+            $SMTPPasswordIV = '';
+            
+            // encyrpt password, #ref: http://stackoverflow.com/questions/10916284/how-to-encrypt-decrypt-data-in-php
+            if($SMTPPassword != '' && $SMTPPassword != 'temppassword'){
+	            
+	            // encrypt password
+				$key_size = mcrypt_get_key_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_CFB);
+				$encryption_key = SMTPENC_KEY;
+				
+				// create iv
+				$iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_CFB);
+				$iv = mcrypt_create_iv($iv_size, MCRYPT_DEV_URANDOM); // 16 bytes output
+				
+				// encrypt password
+				$encrypted = mcrypt_encrypt(MCRYPT_RIJNDAEL_128, $encryption_key, $SMTPPassword, MCRYPT_MODE_CFB, $iv);
+	            
+	            // set password to encrypted password
+	            $SMTPPasswordIV = base64_encode($iv);
+	            $SMTPPassword = base64_encode($encrypted);
+	            
+	            // edit SMTP password
+	            Site::EditSMTPPassword($token->SiteId, $SMTPPassword, $SMTPPasswordIV);
+            }
 
+			// edit site
             Site::Edit($token->SiteId, $name, $domain, $primaryEmail, $timeZone, $language, 
             	$showCart, $showSettings, $currency, $weightUnit, $shippingCalculation, $shippingRate, $shippingTiers, 
             	$taxRate, $payPalId, $payPalUseSandbox, 
             	$welcomeEmail, $receiptEmail,
-				$isSMTP, $SMTPHost, $SMTPAuth, $SMTPUsername, $SMTPPassword, $SMTPSecure,
+				$isSMTP, $SMTPHost, $SMTPAuth, $SMTPUsername, $SMTPSecure,
             	$formPublicId, $formPrivateId);
-            	
             
             // republish site settings
             Publish::PublishSiteJSON($token->SiteId);
             	
- 
             return new Tonic\Response(Tonic\Response::OK);
         
         } else{ // unauthorized access

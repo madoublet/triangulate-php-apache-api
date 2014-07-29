@@ -319,7 +319,15 @@ class UserAddMemberResource extends Tonic\Resource {
         $isActive = 0;
 
         $user = User::Add($email, $password, $firstName, $lastName, $role, $language, $isActive, $siteId);
-
+        
+        // send welcome email
+        $subject = '['.$site['Name'].'] Welcome to '.$site['Name'];
+    		
+        $content = $site['WelcomeEmail'];
+    		
+    	// send site email
+    	Utilities::SendSiteEmail($site, $email, $site['PrimaryEmail'], $site['Name'], $subject, $content);
+        
         // return a json response
         $response = new Tonic\Response(Tonic\Response::OK);
         $response->contentType = 'application/json';
@@ -483,7 +491,10 @@ class UserEditResource extends Tonic\Resource {
             $firstName = $request['firstName'];
             $lastName = $request['lastName'];
             $language = $request['language'];
-            $isActive = $request['isActive'];
+            
+            if(isset($request['isActive'])){
+            	$isActive = $request['isActive'];
+            }
 
 			if(isset($request['role'])){
             	$role = $request['role'];

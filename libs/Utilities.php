@@ -290,7 +290,7 @@ class Utilities
     }
             
     // send welcome email
-    public static function SendEmailFromFile($to, $from, $fromName, $subject, $replace, $file){
+    public static function SendEmailFromFile($to, $from, $fromName, $subject, $replace, $file, $site = null){
     
     
     	$full_file = $file;
@@ -306,11 +306,72 @@ class Utilities
 			    
 			}
 			
-			Utilities::SendEmail($to, $from, $fromName, $subject, $content);
+			// send email
+			if($site != null){
+				Utilities::SendSiteEmail($site, $to, $from, $fromName, $subject, $content);
+			}
+			else{
+				Utilities::SendEmail($to, $from, $fromName, $subject, $content);
+			}
             
         }
 	    
-	    
+    }
+    
+    // sends an email
+    public static function SendSiteEmail($site, $to, $from, $fromName, $subject, $content){
+    
+    	$mail = new PHPMailer;
+
+		if($site['IsSMTP'] == 1){
+		
+			// password and iv
+			$password = base64_decode($site['SMTPPassword']);
+			$iv = base64_decode($site['SMTPPasswordIV']);
+			$encryption_key = SMTPENC_KEY;
+			
+			// decrypt password
+			$decrypted = mcrypt_decrypt(MCRYPT_RIJNDAEL_128, $encryption_key, $password, MCRYPT_MODE_CFB, $iv);		
+		
+			// setup SMTP for the site	
+			$mail->isSMTP();                    		// Set mailer to use SMTP
+			$mail->Host = $site['SMTPHost'];  			// Specify main and backup server
+			$mail->SMTPAuth = $site['SMTPAuth'];        // Enable SMTP authentication
+			$mail->Username = $site['SMTPUsername'];    // SMTP username
+			$mail->Password = $decrypted;    			// SMTP password
+			$mail->SMTPSecure = $site['SMTPSecure'];    // Enable encryption, 'ssl' also accepted
+			
+		}
+		else{
+		
+			// setup SMTP		
+			if(IS_SMTP == true){
+	
+				$mail->isSMTP();                    // Set mailer to use SMTP
+				$mail->Host = SMTP_HOST;  			// Specify main and backup server
+				$mail->SMTPAuth = SMTP_AUTH;        // Enable SMTP authentication
+				$mail->Username = SMTP_USERNAME;    // SMTP username
+				$mail->Password = SMTP_PASSWORD;    // SMTP password
+				$mail->SMTPSecure = SMTP_SECURE;    // Enable encryption, 'ssl' also accepted
+			
+			}
+			
+		}
+		
+		$mail->From = $from;
+		$mail->FromName = $fromName;
+		$mail->addAddress($to, '');
+		$mail->isHTML(true);
+		
+		$mail->Subject = $subject;
+		$mail->Body = html_entity_decode($content);
+    
+		if(!$mail->send()) {
+		   return true;
+		}
+		
+		return false;    
+		
     }
 
 	// sends an email

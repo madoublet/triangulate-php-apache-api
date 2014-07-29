@@ -16,7 +16,6 @@ class FormResource extends Tonic\Resource {
 
         $siteId = $request['siteId'];
         $pageId = $request['pageId'];
-        $body = $request['body'];
     
         $site = Site::GetBySiteId($siteId);
         $page = Page::GetByPageId($pageId);
@@ -63,7 +62,8 @@ class FormResource extends Tonic\Resource {
             $from = $site['PrimaryEmail'];
             $fromName = $site['Name'];
             
-            Utilities::SendEmail($to, $from, $fromName, $subject, $content);
+    		// send site email
+    		Utilities::SendSiteEmail($site, $to, $site['PrimaryEmail'], $site['Name'], $subject, $content);
             
             // return a successful response (200)
             return new Tonic\Response(Tonic\Response::OK);
