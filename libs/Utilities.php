@@ -515,7 +515,7 @@ class Utilities
 		$token = array(
 		    'UserId' => $userId,
 		    'SiteId' => $siteId,
-		    'Expires' => (strtotime('NOW') + (60*60))
+		    'Expires' => (strtotime('NOW') + (3*60*60)) // expires in an hour
 		);
 		
 		// create JWT token, #ref: https://github.com/firebase/php-jwt

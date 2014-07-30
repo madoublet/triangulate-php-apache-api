@@ -144,16 +144,6 @@ class SiteCreateResource extends Tonic\Resource {
 		
         if($s_passcode == PASSCODE){
            
-           	// check for uniqueness of email 
-            if($email != ''){
-	            $isUserUnique = User::IsLoginUnique($email);
-	            
-	            if($isUserUnique==false){
-	            
-	                return new Tonic\Response(Tonic\Response::CONFLICT);
-	            }
-            }
-            
             $isFriendlyIdUnique = Site::IsFriendlyIdUnique($friendlyId);
 	            
             if($isFriendlyIdUnique==false){

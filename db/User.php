@@ -294,7 +294,7 @@ class User{
 	}
 
 	// Gets a user for a specific email and password
-	public static function GetByEmailPassword($email, $password){
+	public static function GetByEmailPassword($email, $siteId, $password){
 		
         try{
          
@@ -302,10 +302,11 @@ class User{
             
             $q = "SELECT UserId, Email, Password, FirstName, LastName, PhotoUrl,
             		Role, Language, IsActive, SiteId, Created, Token 
-        			FROM Users WHERE Email=? AND IsActive = 1";
+        			FROM Users WHERE Email=? AND SiteId=? AND IsActive = 1";
             
             $s = $db->prepare($q);
             $s->bindParam(1, $email);
+            $s->bindParam(2, $siteId);
             
             $s->execute();
             

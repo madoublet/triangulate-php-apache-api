@@ -120,7 +120,6 @@ CREATE TABLE IF NOT EXISTS `Users` (
   `IsActive` int(11) NOT NULL DEFAULT '1',
   `Created` datetime NOT NULL,
   PRIMARY KEY (`UserID`),
-  UNIQUE KEY `Email` (`Email`),
   KEY `SiteId` (`SiteId`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 

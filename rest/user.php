@@ -16,9 +16,37 @@ class UserLoginResource extends Tonic\Resource {
 
         $email = $request['email'];
         $password = $request['password'];
- 
+        
+        // get site
+        $site = null;
+        
+        if(isset($request['friendlyId'])){
+	        
+	         $friendlyId = $request['friendlyId'];
+	         
+	         // get site by its friendly id
+			 $site = Site::GetByFriendlyId($friendlyId);
+	        
+        }
+        else if(isset($request['siteId'])){
+        
+        	$siteId = $request['siteId'];
+	         
+	         // get site by its friendly id
+			 $site = Site::GetBySiteId($siteId);
+        
+        }
+        else{
+	     
+	     	// return an unauthorized exception (401)
+            $response = new Tonic\Response(Tonic\Response::UNAUTHORIZED);
+			$response->body = 'Access denied';
+			return $response;
+	        
+        }
+       
         // get the user from the credentials
-        $user = User::GetByEmailPassword($email, $password);
+        $user = User::GetByEmailPassword($email, $site['SiteId'], $password);
         
         // determine if the user is authorized
         $is_auth = false;

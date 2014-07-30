@@ -1302,12 +1302,7 @@ class PageListSortedResource extends Tonic\Resource {
 
                 if($page['Image']!=''){
                 
-                	if (strpos($page['Image'],'t-') !== false) {
-					    $thumbUrl = '//'.$site['Domain'].'/files/'.$page['Image'];
-					}
-					else{
-                   		$thumbUrl = '//'.$site['Domain'].'/files/'.'t-'.$page['Image'];
-                    }
+                	$thumbUrl = '/files/thumbs/'.$page['Image'];
                     
                 }
 
@@ -1447,12 +1442,7 @@ class PageListFriendlyResource extends Tonic\Resource {
 
                 if($page['Image']!=''){
                 
-                	if (strpos($page['Image'],'t-') !== false) {
-					    $thumbUrl = '//'.$site['Domain'].'/files/'.$page['Image'];
-					}
-					else{
-                   		$thumbUrl = '//'.$site['Domain'].'/files/'.'t-'.$page['Image'];
-                    }
+                	$thumbUrl = '/files/thumbs/'.$page['Image'];
                     
                 }
                 
@@ -1549,7 +1539,7 @@ class PageListResource extends Tonic\Resource {
             
             if($page['Image']!=''){
                 $hasImage = true;
-                $thumbUrl = 'files/t-'.$page['Image'];
+                $thumbUrl = 'files/thumbs/'.$page['Image'];
                 $imageUrl = 'files/'.substr($page['Image'], 2);
             }
             
