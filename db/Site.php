@@ -4,7 +4,7 @@
 class Site{
 	
 	// adds a Site
-	public static function Add($domain, $name, $friendlyId, $logoUrl, $theme, $primaryEmail, $timeZone, $language, $welcomeEmail, $receiptEmail){
+	public static function Add($domain, $bucket, $name, $friendlyId, $logoUrl, $theme, $primaryEmail, $timeZone, $language, $welcomeEmail, $receiptEmail){
         
         try{
             
@@ -18,22 +18,23 @@ class Site{
   
     		$timestamp = gmdate("Y-m-d H:i:s", time());
 
-            $q = "INSERT INTO Sites (SiteId, FriendlyId, Domain, Name, LogoUrl, Theme, PrimaryEmail, TimeZone, Language, WelcomeEmail, ReceiptEmail, Created) 
-    			    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            $q = "INSERT INTO Sites (SiteId, FriendlyId, Domain, Bucket, Name, LogoUrl, Theme, PrimaryEmail, TimeZone, Language, WelcomeEmail, ReceiptEmail, Created) 
+    			    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
      
             $s = $db->prepare($q);
             $s->bindParam(1, $siteId);
             $s->bindParam(2, $friendlyId);
             $s->bindParam(3, $domain);
-            $s->bindParam(4, $name);
-            $s->bindParam(5, $logoUrl);
-            $s->bindParam(6, $theme);
-            $s->bindParam(7, $primaryEmail);
-            $s->bindParam(8, $timeZone);
-            $s->bindParam(9, $language);
-            $s->bindParam(10, $welcomeEmail);
-            $s->bindParam(11, $receiptEmail);
-            $s->bindParam(12, $timestamp);
+            $s->bindParam(4, $bucket);
+            $s->bindParam(5, $name);
+            $s->bindParam(6, $logoUrl);
+            $s->bindParam(7, $theme);
+            $s->bindParam(8, $primaryEmail);
+            $s->bindParam(9, $timeZone);
+            $s->bindParam(10, $language);
+            $s->bindParam(11, $welcomeEmail);
+            $s->bindParam(12, $receiptEmail);
+            $s->bindParam(13, $timestamp);
             
             $s->execute();
             
@@ -41,6 +42,7 @@ class Site{
                 'SiteId' => $siteId,
                 'FriendlyId' => $friendlyId,
                 'Domain' => $domain,
+                'Bucket' => $bucket,
                 'Name' => $name,
                 'LogoUrl' => $logoUrl,
                 'Theme' => $theme,
@@ -435,7 +437,7 @@ class Site{
         
     		$db = DB::get();
             
-            $q = "SELECT SiteId, FriendlyId, Domain, Name, LogoUrl, IconUrl, IconBg, Theme,
+            $q = "SELECT SiteId, FriendlyId, Domain, Bucket, Name, LogoUrl, IconUrl, IconBg, Theme,
     						PrimaryEmail, TimeZone, Language, Currency, 
     						ShowCart, ShowSettings,
     						WeightUnit, ShippingCalculation, ShippingRate, ShippingTiers, TaxRate, 
@@ -443,7 +445,9 @@ class Site{
 							WelcomeEmail, ReceiptEmail,
 							IsSMTP, SMTPHost, SMTPAuth, SMTPUsername, SMTPPassword, SMTPPasswordIV, SMTPSecure,
 							FormPublicId, FormPrivateId,
-							LastLogin, CustomerId, Created	
+							LastLogin, CustomerId, 
+							CanDeploy, UserLimit, FileLimit,
+							Created	
     						FROM Sites WHERE Domain = ?";
                     
             $s = $db->prepare($q);
@@ -470,7 +474,7 @@ class Site{
         
         	$db = DB::get();
             
-            $q = "SELECT SiteId, FriendlyId, Domain, Name, LogoUrl, IconUrl, IconBg, Theme,
+            $q = "SELECT SiteId, FriendlyId, Domain, Bucket, Name, LogoUrl, IconUrl, IconBg, Theme,
     						PrimaryEmail, TimeZone, Language, Currency, 
     						ShowCart, ShowSettings,
     						WeightUnit, ShippingCalculation, ShippingRate, ShippingTiers, TaxRate, 
@@ -478,7 +482,9 @@ class Site{
 							WelcomeEmail, ReceiptEmail,
 							IsSMTP, SMTPHost, SMTPAuth, SMTPUsername, SMTPPassword, SMTPPasswordIV, SMTPSecure,
 							FormPublicId, FormPrivateId,
-							LastLogin, CustomerId, Created
+							LastLogin, CustomerId, 
+							CanDeploy, UserLimit, FileLimit,
+							Created
 							FROM Sites WHERE FriendlyId = ?";
                     
             $s = $db->prepare($q);
@@ -505,7 +511,7 @@ class Site{
         
             $db = DB::get();
             
-            $q = "SELECT SiteId, FriendlyId, Domain, Name, LogoUrl, IconUrl, IconBg, Theme,
+            $q = "SELECT SiteId, FriendlyId, Domain, Bucket, Name, LogoUrl, IconUrl, IconBg, Theme,
     						PrimaryEmail, TimeZone, Language, Currency, 
     						ShowCart, ShowSettings,
     						WeightUnit, ShippingCalculation, ShippingRate, ShippingTiers, TaxRate, 
@@ -513,7 +519,9 @@ class Site{
 							WelcomeEmail, ReceiptEmail,
 							IsSMTP, SMTPHost, SMTPAuth, SMTPUsername, SMTPPassword, SMTPPasswordIV, SMTPSecure,
 							FormPublicId, FormPrivateId,
-							LastLogin, CustomerId, Created
+							LastLogin, CustomerId, 
+							CanDeploy, UserLimit, FileLimit,
+							Created
 							FROM Sites WHERE Siteid = ?";
                     
             $s = $db->prepare($q);

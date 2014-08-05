@@ -173,10 +173,13 @@ class SiteCreateResource extends Tonic\Resource {
     			$receiptEmail = file_get_contents($receipt_file);
     			
     		}
-            
+    		
+    		// create the bucket name
+    		$bucket = str_replace('{{site}}', $friendlyId, BUCKET_NAME);
+    		
             // add the site
-    	    $site = Site::Add($domain, $name, $friendlyId, $logoUrl, $theme, $email, $timeZone, $language, $welcomeEmail, $receiptEmail); // add the site
-            
+    	    $site = Site::Add($domain, $bucket, $name, $friendlyId, $logoUrl, $theme, $email, $timeZone, $language, $welcomeEmail, $receiptEmail);
+    	                
             // add the admin
             if($email != ''){
             	$isActive = 1; // admins by default are active
@@ -355,14 +358,15 @@ class SiteRetrieveResource extends Tonic\Resource {
             
             // set images URL
 			if(FILES_ON_S3 == true){
-				$imagesURL = str_replace('{{site}}', $site['FriendlyId'], S3_URL).'/';
+				$bucket = $site['Bucket'];
+				$imagesURL = str_replace('{{bucket}}', $bucket, S3_URL);
 			}
 			else{
-				$imagesURL = '//'.$site['Domain'].'/';
+				$imagesURL = '//'.$site['Domain'];
 			}
 			
 			// set the ImagesURL
-			$site['ImagesURL'] = $imagesURL;
+			$site['ImagesURL'] = $imagesURL.'/';
             
             // determine offset for timezone
             $zone = new DateTimeZone($site['TimeZone']);
@@ -628,14 +632,22 @@ class SiteBrandingResource extends Tonic\Resource {
             else if($type == 'icon'){
 	            Site::EditIcon($token->SiteId, $url);
 	            
-	            // create the icon
-	            $source = '../sites/'.$site['FriendlyId'].'/files/'.$url;
-				$destination = '../sites/'.$site['FriendlyId'].'/favicon.ico';
-				
-				if(file_exists($source)){
-					$ico_lib = new PHP_ICO($source, array( array( 32, 32 ), array( 64, 64 ) ) );
-					$ico_lib->save_ico( $destination );
+	            if(FILES_ON_S3 == true){
+					$bucket = $site['Bucket'];
+					$imagesURL = str_replace('{{bucket}}', $bucket, S3_URL);
+					
+					$source = $imagesURL.'/files/'.$url;
 				}
+				else{
+					$source = SITES_LOCATION.'/'.$site['FriendlyId'].'/files/'.$url;
+				}
+				
+	            // create the icon
+	            $destination = SITES_LOCATION.'/'.$site['FriendlyId'].'/favicon.ico';
+				
+				$ico_lib = new PHP_ICO($source, array( array( 32, 32 ), array( 64, 64 ) ) );
+				$ico_lib->save_ico( $destination );
+				
             }
             
             // publish site JSON

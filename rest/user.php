@@ -125,13 +125,14 @@ class UserLoginResource extends Tonic\Resource {
             		
             		// set images URL
 					if(FILES_ON_S3 == true){
-						$imagesURL = str_replace('{{site}}', $site['FriendlyId'], S3_URL).'/';
+						$bucket = $site['Bucket'];
+						$imagesURL = str_replace('{{bucket}}', $bucket, S3_URL);
 					}
 					else{
-						$imagesURL = '//'.$site['Domain'].'/';
+						$imagesURL = '//'.$site['Domain'];
 					}
             		
-	            	$fullPhotoUrl = $imagesURL.'files/thumbs/'.$user['PhotoUrl'];
+	            	$fullPhotoUrl = $imagesURL.'/files/thumbs/'.$user['PhotoUrl'];
 	            	
             	}
             
@@ -432,13 +433,14 @@ class UserPhotoResource extends Tonic\Resource {
 			
 			// set images URL
 			if(FILES_ON_S3 == true){
-				$imagesURL = str_replace('{{site}}', $site['FriendlyId'], S3_URL).'/';
+				$bucket = $site['Bucket'];
+				$imagesURL = str_replace('{{bucket}}', $bucket, S3_URL);
 			}
 			else{
-				$imagesURL = '//'.$site['Domain'].'/';
+				$imagesURL = '//'.$site['Domain'];
 			}
 			
-			$fullPhotoUrl = $imagesURL.'files/thumbs/'.$photoUrl;
+			$fullPhotoUrl = $imagesURL.'/files/thumbs/'.$photoUrl;
            
             // return a json response
             $response = new Tonic\Response(Tonic\Response::OK);
@@ -612,13 +614,14 @@ class UserList extends Tonic\Resource {
             		
             		// set images URL
 					if(FILES_ON_S3 == true){
-						$imagesURL = str_replace('{{site}}', $site['FriendlyId'], S3_URL).'/';
+						$bucket = $site['Bucket'];
+						$imagesURL = str_replace('{{bucket}}', $bucket, S3_URL);
 					}
 					else{
-						$imagesURL = '//'.$site['Domain'].'/';
+						$imagesURL = '//'.$site['Domain'];
 					}
             		
-	            	$fullPhotoUrl = $imagesURL.'files/thumbs/'.$user['PhotoUrl'];
+	            	$fullPhotoUrl = $imagesURL.'/files/thumbs/'.$user['PhotoUrl'];
             	}
             	
             	$user['HasPhoto'] = $hasPhoto; 

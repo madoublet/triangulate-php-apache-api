@@ -69,6 +69,7 @@ CREATE TABLE IF NOT EXISTS `Sites` (
   `SiteId` varchar(50) NOT NULL,
   `FriendlyId` varchar(50) DEFAULT NULL,
   `Domain` varchar(255) NOT NULL,
+  `Bucket` varchar(255) DEFAULT NULL,
   `Name` varchar(255) NOT NULL,
   `LogoUrl` varchar(512) DEFAULT NULL,
   `IconUrl` varchar(512) DEFAULT NULL,
@@ -100,11 +101,23 @@ CREATE TABLE IF NOT EXISTS `Sites` (
   `FormPublicId` VARCHAR(240) DEFAULT '',
   `SubscriptionId` varchar(256) DEFAULT '',
   `CustomerId` varchar(256) DEFAULT '',
+  `CanDeploy` INT NOT NULL DEFAULT '0',
+  `UserLimit` INT NOT NULL DEFAULT '1',
+  `FileLimit` INT NOT NULL DEFAULT '100',
   `LastLogin` datetime DEFAULT NULL,
   `Created` datetime NOT NULL,
   PRIMARY KEY (`SiteId`),
   UNIQUE KEY `Domain` (`Domain`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+/*
+CanDeploy, UserLimit, FileLimit,
+
+ALTER TABLE `Sites` ADD `Bucket` VARCHAR(255) AFTER `Domain`;
+ALTER TABLE `Sites` ADD `CanDeploy` INT NOT NULL DEFAULT '0' AFTER `CustomerId`;
+ALTER TABLE `Sites` ADD `UserLimit` INT NOT NULL DEFAULT '1' AFTER `CanDeploy`;
+ALTER TABLE `Sites` ADD `FileLimit` INT NOT NULL DEFAULT '100' AFTER `UserLimit`;
+*/
 
 CREATE TABLE IF NOT EXISTS `Users` (
   `UserID` varchar(50) NOT NULL,

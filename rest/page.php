@@ -113,16 +113,17 @@ class PageAddResource extends Tonic\Resource {
 			// get thumb url
 			if($page['Image']!=''){
 			
-				 // set images URL
+				// set images URL
 				if(FILES_ON_S3 == true){
-					$imagesURL = str_replace('{{site}}', $site['FriendlyId'], S3_URL).'/';
+					$bucket = $site['Bucket'];
+					$imagesURL = str_replace('{{bucket}}', $bucket, S3_URL);
 				}
 				else{
-					$imagesURL = '//'.$site['Domain'].'/';
+					$imagesURL = '//'.$site['Domain'];
 				}
 			
-				$thumbURL = $imagesURL.'files/thumbs/'.$page['Image'];
-				$imageURL = $imagesURL.'files/'.$page['Image'];
+				$thumbURL = $imagesURL.'/files/thumbs/'.$page['Image'];
+				$imageURL = $imagesURL.'/files/'.$page['Image'];
 				
             }
 
@@ -1027,14 +1028,15 @@ class PageListAll extends Tonic\Resource {
 				
 					 // set images URL
 					if(FILES_ON_S3 == true){
-						$imagesURL = str_replace('{{site}}', $site['FriendlyId'], S3_URL).'/';
+						$bucket = $site['Bucket'];
+						$imagesURL = str_replace('{{bucket}}', $bucket, S3_URL);
 					}
 					else{
-						$imagesURL = '//'.$site['Domain'].'/';
+						$imagesURL = '//'.$site['Domain'];
 					}
 				
-					$thumbURL = $imagesURL.'files/thumbs/'.$row['Image'];
-					$imageURL = $imagesURL.'files/'.$row['Image'];
+					$thumbURL = $imagesURL.'/files/thumbs/'.$row['Image'];
+					$imageURL = $imagesURL.'/files/'.$row['Image'];
 					
 	            };
 
@@ -1171,14 +1173,15 @@ class PageListAllowed extends Tonic\Resource {
 				
 					 // set images URL
 					if(FILES_ON_S3 == true){
-						$imagesURL = str_replace('{{site}}', $site['FriendlyId'], S3_URL).'/';
+						$bucket = $site['Bucket'];
+						$imagesURL = str_replace('{{bucket}}', $bucket, S3_URL);
 					}
 					else{
-						$imagesURL = '//'.$site['Domain'].'/';
+						$imagesURL = '//'.$site['Domain'];
 					}
 				
-					$thumbURL = $imagesURL.'files/thumbs/'.$row['Image'];
-					$imageURL = $imagesURL.'files/'.$row['Image'];
+					$thumbURL = $imagesURL.'/files/thumbs/'.$row['Image'];
+					$imageURL = $imagesURL.'/files/'.$row['Image'];
 					
 	            };
 	            

@@ -308,7 +308,8 @@ class Publish
 			
 			// if files are stored on S3
 			if(FILES_ON_S3 == true){
-				$imagesURL = str_replace('{{site}}', $site['FriendlyId'], S3_URL).'/';
+				$bucket = $site['Bucket'];
+				$imagesURL = str_replace('{{bucket}}', $bucket, S3_URL).'/';
 			}
 			
 		}

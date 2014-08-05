@@ -64,7 +64,8 @@ class FilePostResource extends Tonic\Resource {
 				
 				// set URL if on S3
 				if(FILES_ON_S3 == true){
-					$url = str_replace('{{site}}', $site['FriendlyId'], S3_URL);
+					$bucket = $site['Bucket'];
+					$url = str_replace('{{bucket}}', $bucket, S3_URL);
 				}
     			
     		    // create array
@@ -89,7 +90,8 @@ class FilePostResource extends Tonic\Resource {
     			
 				// set URL if on S3
 				if(FILES_ON_S3 == true){
-					$url = str_replace('{{site}}', $site['FriendlyId'], S3_URL);
+					$bucket = $site['Bucket'];
+					$url = str_replace('{{bucket}}', $bucket, S3_URL);
 				}
 				else{
 					// upload file
@@ -180,12 +182,14 @@ class ImageListResource extends Tonic\Resource {
 	                if($is_image==true){
 	                    
 	                    list($width, $height, $type, $attr) = Image::getImageInfo($directory.$filename);
+	                    $size = filesize($directory.$filename);
 	                    
 	                    $file = array(
 	                        'filename' => $filename,
 	                        'fullUrl' => '//'.$site['Domain'].'/files/'.$filename,
 	                        'thumbUrl' => '//'.$site['Domain'].'/files/thumbs/'.$filename,
 	                        'extension' => $ext,
+	                        'size' => number_format($size / 1048576, 2),
 							'isImage' => $is_image,
 	                        'width' => $width,
 	                        'height' => $height
@@ -285,7 +289,7 @@ class FileListAllResource extends Tonic\Resource {
 	                        'isImage' => $isImage,
 	                        'width' => $width,
 	                        'height' => $height,
-	                        'size' => $size
+	                        'size' => number_format($size / 1048576, 2)
 	                    );
 	                    
 	                    array_push($arr, $file); 
@@ -300,7 +304,7 @@ class FileListAllResource extends Tonic\Resource {
 	                        'isImage' => $isImage,
 	                        'width' => NULL,
 	                        'height' => NULL,
-	                        'size' => $size
+	                        'size' => number_format($size / 1048576, 2)
 	                    );
 	                    
 	                    array_push($arr, $file); 
@@ -313,6 +317,71 @@ class FileListAllResource extends Tonic\Resource {
             $response = new Tonic\Response(Tonic\Response::OK);
             $response->contentType = 'application/json';
             $response->body = json_encode($arr);
+
+            return $response;
+        }
+        else{
+            // return an unauthorized exception (401)
+            return new Tonic\Response(Tonic\Response::UNAUTHORIZED);
+        }
+
+    }
+    
+}
+
+/**
+ * A protected API call to retrieve the size in MB of files stored on the site
+ * @uri /file/retrieve/size
+ */
+class FileRetrieveSizeResource extends Tonic\Resource {
+
+    /**
+     * @method GET
+     */
+    function get() {
+    
+       	// get token
+		$token = Utilities::ValidateJWTToken(apache_request_headers());
+
+
+		// check if token is not null
+        if($token != NULL){ 
+			
+			// get a reference to the site, user
+			$site = Site::GetBySiteId($token->SiteId);
+            
+            $arr = array();
+            
+            if(FILES_ON_S3 == true){
+            	
+            	$total_size = S3::RetrieveFilesSize($site);
+            
+            }
+            else{
+           
+	            $directory = SITES_LOCATION.'/'.$site['FriendlyId'].'/files/';
+	            
+	            //get all files in the directory
+	            $files = glob($directory . "*.*");
+	
+	            $total_size = 0;
+	            
+	            //print each file name
+	            foreach($files as $file){
+	                
+	                // get size of file
+					$total_size = $total_size + filesize($file);
+	         
+	            }
+	            
+	            $total_size = round(($total_size / 1024 / 1024), 2);
+	      
+            }
+            
+            // return a json response
+            $response = new Tonic\Response(Tonic\Response::OK);
+            $response->contentType = 'text/html';
+            $response->body = $total_size;
 
             return $response;
         }

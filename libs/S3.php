@@ -53,8 +53,7 @@ class S3
 		    'secret' => S3_SECRET
 		));
 		
-		// create a bucket name, TODO: bucket needs to be in the form sample.com, www.sample.com
-		$bucket = str_replace('{{site}}', $site['FriendlyId'], BUCKET_NAME);
+		$bucket = $site['Bucket'];
 		
 		// create a bucket if it doesn't already exist
 		S3::CreateBucket($bucket);
@@ -80,8 +79,7 @@ class S3
 		    'secret' => S3_SECRET
 		));
 		
-		// create a bucket name, TODO: bucket needs to be in the form sample.com, www.sample.com
-		$bucket = str_replace('{{site}}', $site['FriendlyId'], BUCKET_NAME);
+		$bucket = $site['Bucket'];
 		
 		// remove file
     	$result = $client->deleteObject(array(
@@ -106,8 +104,7 @@ class S3
 		    'secret' => S3_SECRET
 		));
 		
-		// create a bucket name, TODO: bucket needs to be in the form sample.com, www.sample.com
-		$bucket = str_replace('{{site}}', $site['FriendlyId'], BUCKET_NAME);
+		$bucket = $site['Bucket'];
 		
 		// create a bucket if it doesn't already exist
 		S3::CreateBucket($bucket);
@@ -135,10 +132,10 @@ class S3
 		    'secret' => S3_SECRET
 		));
 		
-		// create a bucket name, TODO: bucket needs to be in the form sample.com, www.sample.com
-		$bucket = str_replace('{{site}}', $site['FriendlyId'], BUCKET_NAME);
+		$bucket = $site['Bucket'];
+		
 		$prefix = 'files/';
-	    $url = str_replace('{{site}}', $site['FriendlyId'], S3_URL);
+	    $url = str_replace('{{bucket}}', $bucket, S3_URL);
 		
 		// list objects in a bucket
 		$iterator = $client->getIterator('ListObjects', array(
@@ -237,6 +234,55 @@ class S3
 		return $arr;
 	}
 	
+	// gets the size in MB of files stored in /file
+	public static function RetrieveFilesSize($site, $imagesOnly = false){
+		
+		$arr = array();
+		
+		// create AWS client
+		$client = Aws\S3\S3Client::factory(array(
+		    'key'    => S3_KEY,
+		    'secret' => S3_SECRET
+		));
+		
+		$bucket = $site['Bucket'];
+		
+		$prefix = 'files/';
+	    $url = str_replace('{{bucket}}', $bucket, S3_URL);
+		
+		// list objects in a bucket
+		$iterator = $client->getIterator('ListObjects', array(
+		    'Bucket' => $bucket,
+		    'Prefix' => $prefix
+		));
+		
+		// totalsize
+		$total_size = 0;
+		
+		// walk through objects
+		foreach ($iterator as $object) {
+			
+			$filename = $object['Key'];
+			$size = $object['Size'];
+			
+			$filename = str_replace($prefix, '', $filename);
+			
+    		// init
+    		$file = array();
+			
+			// exclude thumbs and empty directories
+			if(strpos($filename, 'thumbs/') === FALSE && $filename !== ''){
+			
+				$total_size += $size;
+	    	
+    		}
+		
+			
+		}
+		
+		return round(($total_size / 1024 / 1024), 2);
+	}
+	
 	// deploys the site to Amazon S3
 	public static function DeploySite($siteId){
 		
@@ -249,8 +295,7 @@ class S3
 		    'secret' => S3_SECRET
 		));
 		
-		// create a bucket name, TODO: bucket needs to be in the form sample.com, www.sample.com
-		$bucket = str_replace('{{site}}', $site['FriendlyId'], BUCKET_NAME);
+		$bucket = $site['Bucket'];
 		
 		// create a bucket if it doesn't already exist
 		S3::CreateBucket($bucket);
@@ -272,7 +317,7 @@ class S3
 		$client->uploadDirectory($local_dir, $bucket, $keyPrefix, $options);
 		
 		// get json for the site
-		$json = Publish::CreateSiteJSON($site, 'S3');
+		$json = json_encode(Publish::CreateSiteJSON($site, 'S3'));
 		
 		// deploy an updated site.json
 		$result = $client->putObject(array(
@@ -295,12 +340,10 @@ class S3
 		    'secret' => S3_SECRET
 		));
 		
-		// create a bucket name
-		$bucket = str_replace('{{site}}', $site['FriendlyId'], BUCKET_NAME);
+		$bucket = $site['Bucket'];
 		
 		// create a bucket if it doesn't already exist
 		S3::CreateBucket($bucket);
-		
 		
 		// set permissions
 		$options = array(
@@ -312,7 +355,6 @@ class S3
 		// sync folders, #ref: http://blogs.aws.amazon.com/php/post/Tx2W9JAA7RXVOXA/Syncing-Data-with-Amazon-S3
 		$client->uploadDirectory($local_dir, $bucket, $keyPrefix, $options);
 	
-		
 	}
 	
 }

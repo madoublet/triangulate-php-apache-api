@@ -538,23 +538,32 @@ class Utilities
 			
 				$jwt = str_replace('Bearer ', '', $auth);
 				
-				// decode token
-				$jwt_decoded = JWT::decode($jwt, JWT_KEY);
+				try{
 				
-				if($jwt_decoded != NULL){
+					// decode token
+					$jwt_decoded = JWT::decode($jwt, JWT_KEY);
 					
-					// check to make sure the token has not expired
-					if(strtotime('NOW') < $jwt_decoded->Expires){
-						return $jwt_decoded;
+					if($jwt_decoded != NULL){
+						
+						// check to make sure the token has not expired
+						if(strtotime('NOW') < $jwt_decoded->Expires){
+							return $jwt_decoded;
+						}
+						else{
+							return NULL;
+						}
+						
 					}
 					else{
 						return NULL;
 					}
-					
-				}
 				
-				// return token
-				return $jwt_decoded;
+					// return token
+					return $jwt_decoded;
+				
+				} catch(Exception $e){
+					return NULL;
+				}
 							
 			}
 			else{
