@@ -19,7 +19,7 @@
 	
 	// default bucket
 	define('BUCKET_NAME', '{{site}}.yourdomain.com');
-	define('S3_LOCATION', 'us-east-1',
+	define('S3_LOCATION', 'us-east-1'),
 	define('S3_URL', 'http://{{bucket}}.s3-website-us-east-1.amazonaws.com');
 	define('S3_KEY', 'AWS ACCESS KEY');
 	define('S3_SECRET', 'AWS SECRET KEY');

@@ -277,7 +277,7 @@ class Utilities
           }
           else{
             $xml = $xml.'<url>'.
-                       '<loc>http://'.$site['Domain'].'/'.strtolower($pageType['FriendlyId']).'/'.strtolower($row['FriendlyId']).'</loc>'.
+                       '<loc>http://'.$site['Domain'].'/#/'.strtolower($pageType['FriendlyId']).'/'.strtolower($row['FriendlyId']).'</loc>'.
                        '<lastmod>'.date('Y-m-d', $u).'</lastmod>'.
                      '<priority>0.5</priority>'.
                        '</url>';
@@ -290,7 +290,7 @@ class Utilities
     }
             
     // send welcome email
-    public static function SendEmailFromFile($to, $from, $fromName, $subject, $replace, $file, $site = null){
+    public static function SendEmailFromFile($to, $from, $fromName, $subject, $replace, $file, $site = NULL){
     
     
     	$full_file = $file;
@@ -307,7 +307,7 @@ class Utilities
 			}
 			
 			// send email
-			if($site != null){
+			if($site != NULL){
 				Utilities::SendSiteEmail($site, $to, $from, $fromName, $subject, $content);
 			}
 			else{
@@ -398,6 +398,8 @@ class Utilities
 		
 		$mail->Subject = $subject;
 		$mail->Body    = html_entity_decode($content);
+		
+		echo 'send email';
     
 		if(!$mail->send()) {
 		   return true;

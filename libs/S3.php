@@ -296,6 +296,7 @@ class S3
 		));
 		
 		$bucket = $site['Bucket'];
+		$bucket_www = 'www.'.$site['Bucket'];
 		
 		// create a bucket if it doesn't already exist
 		S3::CreateBucket($bucket);
@@ -328,6 +329,21 @@ class S3
 		    'ACL'          => 'public-read',
 		    'StorageClass' => 'REDUCED_REDUNDANCY'
 		));
+		
+		// #support for S3 ANAME   
+		// #ref: http://docs.aws.amazon.com/aws-sdk-php/latest/class-Aws.S3.S3Client.html#_createBucket
+		$result = $client->createBucket(array(
+		    'Bucket' => $bucket_www,
+		    'ACL'	 => 'public-read'		
+		));
+		
+		// enable hosting for the bucket
+		$result = $client->putBucketWebsite(array(
+		    // Bucket is required
+		    'Bucket' => $bucket_www,
+		    'RedirectAllRequestsTo' => array(
+		        'HostName' => $bucket
+		    )));
 		
 	}
 	
