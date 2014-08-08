@@ -310,10 +310,10 @@ class SiteCreateResource extends Tonic\Resource {
 	    		$from = REPLY_TO;
 	    		$fromName = REPLY_TO_NAME;
 	    		$subject = BRAND.': Welcome to '.BRAND;
-	    		$file = APP_URL.'/emails/new-user.html';
+	    		$file = APP_LOCATION.'/emails/new-user.html';
 	    		
 	    		// create strings to replace
-	    		$loginUrl = APP_URL;
+	    		$loginUrl = APP_URL.'/#/login/'.$site['FriendlyId'];
 	    		$newSiteUrl = APP_URL.'/sites/'.$site['FriendlyId'];
 	    		
 	    		$replace = array(

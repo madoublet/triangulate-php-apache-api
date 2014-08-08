@@ -340,7 +340,7 @@ class User{
 	}
 	
 	// Gets a user for a specific email
-	public static function GetByEmail($email){
+	public static function GetByEmail($email, $siteId){
         
         try{
     	
@@ -348,10 +348,11 @@ class User{
             
             $q = "SELECT UserId, Email, Password, FirstName, LastName, PhotoUrl,
             		Role, Language, IsActive, SiteId, Created, Token 
-        			FROM Users WHERE Email=?";
+        			FROM Users WHERE Email=? AND SiteId=?";
                     
             $s = $db->prepare($q);
             $s->bindParam(1, $email);
+            $s->bindParam(2, $siteId);
             
             $s->execute();
             
@@ -368,7 +369,7 @@ class User{
 	}
 	
 	// Gets a user for a specific token
-	public static function GetByToken($token){
+	public static function GetByToken($token, $siteId){
 
         try{
         
@@ -376,10 +377,11 @@ class User{
             
             $q = "SELECT UserId, Email, Password, FirstName, LastName, PhotoUrl,
             		Role, Language, IsActive, SiteId, Created 
-        			FROM Users WHERE Token=?";
+        			FROM Users WHERE Token=? AND SiteId=?";
                     
             $s = $db->prepare($q);
             $s->bindParam(1, $token);
+            $s->bindParam(2, $siteId);
             
             $s->execute();
             

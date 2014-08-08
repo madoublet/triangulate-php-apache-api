@@ -292,10 +292,10 @@ class Utilities
     // send welcome email
     public static function SendEmailFromFile($to, $from, $fromName, $subject, $replace, $file, $site = NULL){
     
-    
     	$full_file = $file;
-	    
+    	
 	    if(file_exists($full_file)){
+	    
             $content = file_get_contents($full_file);
             
             // walk through and replace values in associative array

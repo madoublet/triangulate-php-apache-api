@@ -1,5 +1,4 @@
 <?php
-
 /**
  * A protected API call to login a user
  * @uri /user/login
@@ -201,36 +200,39 @@ class UserForgotResource extends Tonic\Resource {
         parse_str($this->request->data, $request);
 
         $email = $request['email'];
+        $friendlyId = $request['friendlyId'];
         
-        $user = User::GetByEmail($email);
+        // get site
+        $site = Site::GetByFriendlyId($friendlyId);
+        
+        // get user
+        $user = User::GetByEmail($email, $site['SiteId']);
 
+		// send email
         if($user!=null){
             
+            // set token
             $token = urlencode(User::SetToken($user['UserId']));
             
-            // send an email to reset the password
-        	$to = $email;
-    		$subject = 'RespondCMS: Reset your password';
-    		$message = '<html>
-    			<head>
-    			  <title>RespondCMS: Reset your password</title>
-    			</head>
-    			<body>
-    			  <p>
-    			  	To reset your password, click on the <br>
-    				<a href="'.APP_URL.'/forgot?t='.$token.'">'.APP_URL.'/forgot?t='.$token.'
-    				</a>
-    			  </p>
-    			</body>
-    			</html>';
-    
-    		$headers  = 'MIME-Version: 1.0' . "\r\n";
-    		$headers .= 'Content-type: text/html; charset=utf-8' . "\r\n";
-    		$headers .= 'From: no-reply@respondcms.com' . "\r\n" .
-        				'Reply-To: no-reply@respondcms.com' . "\r\n";
-    
-    		mail($to, $subject, $message, $headers);
-            
+            // send email
+            $to = $email;
+    		$from = REPLY_TO;
+    		$fromName = REPLY_TO_NAME;
+    		$subject = BRAND.': Reset Password';
+    		$file = APP_LOCATION.'/emails/reset-password.html';
+    		
+    		// create strings to replace
+    		$resetUrl = APP_URL.'/#/reset/'.$site['FriendlyId'].'/'.$token;
+    		
+    		$replace = array(
+    			'{{brand}}' => BRAND,
+    			'{{reply-to}}' => REPLY_TO,
+    			'{{reset-url}}' => $resetUrl
+    		);
+    		
+    		// send email from file
+    		Utilities::SendEmailFromFile($to, $from, $fromName, $subject, $replace, $file);
+                    
             // return a successful response (200)
             return new Tonic\Response(Tonic\Response::OK);
 
@@ -258,9 +260,13 @@ class UserResetResource extends Tonic\Resource {
 
         $token = $request['token'];
         $password = $request['password'];
+        $friendlyId = $request['friendlyId'];
+        
+        // get site
+        $site = Site::GetByFriendlyId($friendlyId);
 
         // get the user from the credentials
-        $user = User::GetByToken($token);
+        $user = User::GetByToken($token, $site['SiteId']);
 
         if($user!=null){
             
@@ -270,8 +276,8 @@ class UserResetResource extends Tonic\Resource {
             return new Tonic\Response(Tonic\Response::OK);
         }
         else{
-            // return an unauthorized exception (401)
-            return new Tonic\Response(Tonic\Response::UNAUTHORIZED);
+            // return a bad request
+            return new Tonic\Response(Tonic\Response::BADREQUEST);
         }
     }
 }
