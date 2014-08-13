@@ -1,3 +1,9 @@
+/* UPDATES
+ALTER TABLE `Sites` ADD `Status` VARCHAR(10) DEFAULT 'Trial' AFTER `FormPublicId`;
+ALTER TABLE `Sites` ADD `Plan` VARCHAR(50) DEFAULT '' AFTER `Status`;
+ALTER TABLE `Sites` ADD `Provider` VARCHAR(50) DEFAULT '' AFTER `Plan`;
+*/
+
 CREATE TABLE IF NOT EXISTS `MenuItems` (
   `MenuItemId` varchar(50) NOT NULL,
   `Name` varchar(255) NOT NULL,
@@ -99,6 +105,9 @@ CREATE TABLE IF NOT EXISTS `Sites` (
   `SMTPSecure` varchar(255) DEFAULT 'tls',
   `FormPrivateId` VARCHAR(240) DEFAULT '',
   `FormPublicId` VARCHAR(240) DEFAULT '',
+  `Status` varchar(10) DEFAULT '',
+  `Plan` varchar(50) DEFAULT 'Trial',
+  `Provider` varchar(50) DEFAULT '',
   `SubscriptionId` varchar(256) DEFAULT '',
   `CustomerId` varchar(256) DEFAULT '',
   `CanDeploy` INT NOT NULL DEFAULT '0',
@@ -109,15 +118,6 @@ CREATE TABLE IF NOT EXISTS `Sites` (
   PRIMARY KEY (`SiteId`),
   UNIQUE KEY `Domain` (`Domain`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
-
-/*
-CanDeploy, UserLimit, FileLimit,
-
-ALTER TABLE `Sites` ADD `Bucket` VARCHAR(255) AFTER `Domain`;
-ALTER TABLE `Sites` ADD `CanDeploy` INT NOT NULL DEFAULT '0' AFTER `CustomerId`;
-ALTER TABLE `Sites` ADD `UserLimit` INT NOT NULL DEFAULT '1' AFTER `CanDeploy`;
-ALTER TABLE `Sites` ADD `FileLimit` INT NOT NULL DEFAULT '100' AFTER `UserLimit`;
-*/
 
 CREATE TABLE IF NOT EXISTS `Users` (
   `UserID` varchar(50) NOT NULL,

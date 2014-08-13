@@ -302,29 +302,9 @@ class Site{
             die('[Site::SetLastLogin] PDO Error: '.$e->getMessage());
         }
 	}
-	
-	// update customer
-	public static function EditCustomer($siteId, $customerId){
-        
-        try{
-        
-            $db = DB::get();
-            
-            $q = "UPDATE Sites SET Type = 'Subscription', CustomerId = ? WHERE SiteId= ?";
-     
-            $s = $db->prepare($q);
-            $s->bindParam(1, $customerId);
-            $s->bindParam(2, $siteId);
-            
-            $s->execute();
-            
-		} catch(PDOException $e){
-            die('[Site::EditCustomer] PDO Error: '.$e->getMessage());
-        }
-	}
 		
-	// update type
-	public static function EditType($siteId, $type){
+	// subscribes a site (change status, plan, and set customer)
+	public static function Subscribe($siteId, $status, $plan, $provider, $subscriptionId, $customerId){
         
         try{
         
@@ -332,16 +312,20 @@ class Site{
             
             $timestamp = gmdate("Y-m-d H:i:s", time());
             
-            $q = "UPDATE Sites SET Type = ? WHERE SiteId= ?";
+            $q = "UPDATE Sites SET Status = ?, Plan = ?, Provider = ?, SubscriptionId = ?, CustomerId = ? WHERE SiteId = ?";
      
             $s = $db->prepare($q);
-            $s->bindParam(1, $type);
-            $s->bindParam(2, $siteId);
+            $s->bindParam(1, $status);
+            $s->bindParam(2, $plan);
+            $s->bindParam(3, $provider);
+            $s->bindParam(4, $subscriptionId);
+            $s->bindParam(5, $customerId);
+            $s->bindParam(6, $siteId);
             
             $s->execute();
             
 		} catch(PDOException $e){
-            die('[Site::UpdateStatus] PDO Error: '.$e->getMessage());
+            die('[Site::Subscribe] PDO Error: '.$e->getMessage());
         }
 	}
 	
@@ -359,7 +343,9 @@ class Site{
 							WelcomeEmail, ReceiptEmail,
 							IsSMTP, SMTPHost, SMTPAuth, SMTPUsername, SMTPPassword, SMTPPasswordIV, SMTPSecure,
 							FormPublicId, FormPrivateId,
-							LastLogin, CustomerId, Created
+							Status, Plan, Provider, SubscriptionId, CustomerId,
+							CanDeploy, UserLimit, FileLimit,
+							LastLogin, Created
 							FROM Sites ORDER BY Name ASC";
                     
             $s = $db->prepare($q);
@@ -445,9 +431,9 @@ class Site{
 							WelcomeEmail, ReceiptEmail,
 							IsSMTP, SMTPHost, SMTPAuth, SMTPUsername, SMTPPassword, SMTPPasswordIV, SMTPSecure,
 							FormPublicId, FormPrivateId,
-							LastLogin, CustomerId, 
+							Status, Plan, Provider, SubscriptionId, CustomerId,
 							CanDeploy, UserLimit, FileLimit,
-							Created	
+							LastLogin, Created	
     						FROM Sites WHERE Domain = ?";
                     
             $s = $db->prepare($q);
@@ -482,9 +468,9 @@ class Site{
 							WelcomeEmail, ReceiptEmail,
 							IsSMTP, SMTPHost, SMTPAuth, SMTPUsername, SMTPPassword, SMTPPasswordIV, SMTPSecure,
 							FormPublicId, FormPrivateId,
-							LastLogin, CustomerId, 
+							Status, Plan, Provider, SubscriptionId, CustomerId,
 							CanDeploy, UserLimit, FileLimit,
-							Created
+							LastLogin, Created
 							FROM Sites WHERE FriendlyId = ?";
                     
             $s = $db->prepare($q);
@@ -519,9 +505,9 @@ class Site{
 							WelcomeEmail, ReceiptEmail,
 							IsSMTP, SMTPHost, SMTPAuth, SMTPUsername, SMTPPassword, SMTPPasswordIV, SMTPSecure,
 							FormPublicId, FormPrivateId,
-							LastLogin, CustomerId, 
+							Status, Plan, Provider, SubscriptionId, CustomerId, 
 							CanDeploy, UserLimit, FileLimit,
-							Created
+							LastLogin, Created
 							FROM Sites WHERE Siteid = ?";
                     
             $s = $db->prepare($q);

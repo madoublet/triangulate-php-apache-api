@@ -330,6 +330,7 @@ class S3
 		    'StorageClass' => 'REDUCED_REDUNDANCY'
 		));
 		
+		/*
 		// #support for S3 ANAME   
 		// #ref: http://docs.aws.amazon.com/aws-sdk-php/latest/class-Aws.S3.S3Client.html#_createBucket
 		$result = $client->createBucket(array(
@@ -344,6 +345,7 @@ class S3
 		    'RedirectAllRequestsTo' => array(
 		        'HostName' => $bucket
 		    )));
+		*/
 		
 	}
 	

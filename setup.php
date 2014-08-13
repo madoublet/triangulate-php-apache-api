@@ -2,6 +2,8 @@
 
 	// define brand
 	define('BRAND', 'Triangulate');
+	define('BRAND_LOGO', 'https://app.triangulate.io/images/triangulate-icon.png');
+	
 
 	// DB connection parameters
 	define('DB_HOST', 'localhost');
@@ -24,20 +26,14 @@
 	define('S3_KEY', 'AWS ACCESS KEY');
 	define('S3_SECRET', 'AWS SECRET KEY');
 	
-	// URL of the application
-	define('APP_URL', 'http://app.path-to-triangulate.com');
+	// URLs
+	define('APP_URL', 'http://app.mytriangulate.com');
+	define('API_URL', 'http://app.mytriangulate.com/api');
+	define('SITES_URL', 'http://sites.mytriangulate.com');
 	
-	// location of the app folder
-	define('APP_LOCATION', '../app');
-	
-	// URL of the API
-	define('API_URL', 'http://api.path-to-triangulate.com');
-	
-	// URL of sites produced by the app
-	define('SITES_URL', 'http://sites.path-to-triangulate.com');
-	
-	// location of the sites folder
-	define('SITES_LOCATION', '../sites');
+	// locations
+	define('APP_LOCATION', '../');
+	define('SITES_LOCATION', '../../sites');
 	
 	// setup default language for the site
 	define('DEFAULT_LANGUAGE', 'en');
@@ -51,9 +47,13 @@
 	// JWT key
 	define('JWT_KEY', 'ilovetriangulate');
 	
-	// CORS (optional for external URLs)
+	// stripe keys
+	define('STRIPE_SECRET_KEY', '');
+	define('STRIPE_PUBLISHABLE_KEY', '');
+	
+	// Cross Origin Resource Sharing (CORS)
 	define ('CORS', serialize (array (
-	    'http://path.totriangulate.com'
+	    'http://sites.mytriangulate.com'
 	    )));
 	    
 	// advanced SMTP settings (see https://github.com/Synchro/PHPMailer)
