@@ -240,13 +240,28 @@ class TranslationSaveResource extends Tonic\Resource {
 			// make it pretty
 			$json = json_decode($content);
 			$content = json_encode($json, JSON_PRETTY_PRINT);
-            
+			
+			// make the locales directory if it does not exist
+			$locales_dir = SITES_LOCATION.'/'.$site['FriendlyId'].'/locales';
+			
+			// create libs directory if it does not exist
+			if(!file_exists($locales_dir)){
+				mkdir($locales_dir, 0755, true);	
+			}
+			
 			// set directory an filename
-			$dir = SITES_LOCATION.'/'.$site['FriendlyId'].'/locales/'.$locale.'/';
+			$locale_dir = $locales_dir.'/'.$locale.'/';
+			
+			// make the locale dir if it does not exist
+			if(!file_exists($locale_dir)){
+				mkdir($locale_dir, 0755, true);	
+			}
+			
+			// set filename
 			$filename = 'translation.json';
            
            	// save content
-		   	Utilities::SaveContent($dir, $filename, $content);
+		   	Utilities::SaveContent($locale_dir, $filename, $content);
            
             // return a json response
            	return new Tonic\Response(Tonic\Response::OK);
