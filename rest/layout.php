@@ -117,7 +117,7 @@ class LayoutPublishResource extends Tonic\Resource {
             
             // publish index to root
             if($name=='index'){
-	            $index = '../sites/'.$site['FriendlyId'].'/index.html';
+	            $index = SITES_LOCATION.'/'.$site['FriendlyId'].'/index.html';
 	            file_put_contents($index, $content); // save to file	            
             }
 

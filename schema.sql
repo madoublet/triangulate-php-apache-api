@@ -1,7 +1,7 @@
 /* UPDATES
-ALTER TABLE `Sites` ADD `Status` VARCHAR(10) DEFAULT 'Trial' AFTER `FormPublicId`;
-ALTER TABLE `Sites` ADD `Plan` VARCHAR(50) DEFAULT '' AFTER `Status`;
-ALTER TABLE `Sites` ADD `Provider` VARCHAR(50) DEFAULT '' AFTER `Plan`;
+ALTER TABLE `Sites` ADD `ShowLanguages` INT NOT NULL DEFAULT '0' AFTER `ShowSettings`;
+ALTER TABLE `Sites` ADD `ShowLogin` INT NOT NULL DEFAULT '0' AFTER `ShowLanguages`;
+ALTER TABLE `Sites` ADD `UrlMode` VARCHAR(10) NOT NULL DEFAULT 'hash' AFTER `ShowLogin`;
 */
 
 CREATE TABLE IF NOT EXISTS `MenuItems` (

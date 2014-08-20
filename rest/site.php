@@ -536,6 +536,11 @@ class SiteSaveResource extends Tonic\Resource {
             $showCart = $request['showCart'];
             
             $showSettings = $request['showSettings'];
+            $showLanguages = $request['showLanguages'];
+            $showLogin = $request['showLogin'];
+            
+            $urlMode = $request['urlMode'];
+            
             $weightUnit = $request['weightUnit'];
             $shippingCalculation = $request['shippingCalculation'];
             $shippingRate = $request['shippingRate'];
@@ -582,7 +587,8 @@ class SiteSaveResource extends Tonic\Resource {
 
 			// edit site
             Site::Edit($token->SiteId, $name, $domain, $primaryEmail, $timeZone, $language, 
-            	$showCart, $showSettings, $currency, $weightUnit, $shippingCalculation, $shippingRate, $shippingTiers, 
+            	$showCart, $showSettings, $showLanguages, $showLogin, $urlMode,
+            	$currency, $weightUnit, $shippingCalculation, $shippingRate, $shippingTiers, 
             	$taxRate, $payPalId, $payPalUseSandbox, 
             	$welcomeEmail, $receiptEmail,
 				$isSMTP, $SMTPHost, $SMTPAuth, $SMTPUsername, $SMTPSecure,

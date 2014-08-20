@@ -265,11 +265,22 @@ class Utilities
 		  if($pageType['IsSecure']==1){
 		  	continue;
 		  }
-          
+		  
+		  // set URL divider based on URL mode
+		  $divider = '/#/';
+		  
+		  if($site['UrlMode'] == 'hashbang'){
+			  $divider = '/!#/';
+		  }
+		  else if($site['UrlMode'] == 'html5'){
+		  		$divider = '/';
+		  }
+		  
+		  // build url
           if($row['PageTypeId']==-1){
             
             $xml = $xml.'<url>'.
-                       '<loc>http://'.$site['Domain'].'/</loc>'.
+                       '<loc>http://'.$site['Domain'].$divider.strtolower($row['FriendlyId']).'</loc>'.
                        '<lastmod>'.date('Y-m-d', $u).'</lastmod>'.
                      '<priority>1.0</priority>'.
                        '</url>';
@@ -277,7 +288,8 @@ class Utilities
           }
           else{
             $xml = $xml.'<url>'.
-                       '<loc>http://'.$site['Domain'].'/#/'.strtolower($pageType['FriendlyId']).'/'.strtolower($row['FriendlyId']).'</loc>'.
+                       '<loc>http://'.$site['Domain'].$divider.
+                       strtolower($pageType['FriendlyId']).'/'.strtolower($row['FriendlyId']).'</loc>'.
                        '<lastmod>'.date('Y-m-d', $u).'</lastmod>'.
                      '<priority>0.5</priority>'.
                        '</url>';

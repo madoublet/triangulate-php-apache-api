@@ -127,7 +127,7 @@ class Publish
 		}
 		
 		// copy styles
-		$styles_src = APP_LOCATION.'/themes/'.$theme.'/styles/';
+		$styles_src = APP_LOCATION.'themes/'.$theme.'/styles/';
 		
 		if(file_exists($styles_src)){
 			$styles_dest = SITES_LOCATION.'/'.$site['FriendlyId'].'/themes/'.$theme.'/styles/';
@@ -138,7 +138,7 @@ class Publish
 		// copy files
 		if(FILES_ON_S3 == true){  // copy files to S3
 		
-			$files_src = APP_LOCATION.'/themes/'.$theme.'/files';
+			$files_src = APP_LOCATION.'themes/'.$theme.'/files';
 			
 			echo '$files_src='.$files_src;
 			
@@ -147,7 +147,7 @@ class Publish
 		
 		}
 		else{ // copy files locally
-			$files_src = APP_LOCATION.'/themes/'.$theme.'/files/';
+			$files_src = APP_LOCATION.'themes/'.$theme.'/files/';
 			
 			if(file_exists($files_src)){
 				$files_dest = SITES_LOCATION.'/'.$site['FriendlyId'].'/files/';
@@ -157,7 +157,7 @@ class Publish
 		}
 		
 		// copy resources
-		$res_src = APP_LOCATION.'/themes/'.$theme.'/resources/';
+		$res_src = APP_LOCATION.'themes/'.$theme.'/resources/';
 		
 		if(file_exists($res_src)){
 			$res_dest = SITES_LOCATION.'/'.$site['FriendlyId'].'/themes/'.$theme.'/resources/';
@@ -327,6 +327,8 @@ class Publish
 		// set display
 		$showCart = false;
 		$showSettings = false;
+		$showLanguages = false;
+		$showLogin = false;
 		
 		if($site['ShowCart'] == 1){
 			$showCart = true;
@@ -334,6 +336,14 @@ class Publish
 		
 		if($site['ShowSettings'] == 1){
 			$showSettings = true;
+		}
+		
+		if($site['ShowLanguages'] == 1){
+			$showLanguages = true;
+		}
+		
+		if($site['ShowLogin'] == 1){
+			$showLogin = true;
 		}
 		
 		// setup sites array
@@ -351,6 +361,8 @@ class Publish
 			'Language' => $site['Language'],
 			'ShowCart' => $showCart,
 			'ShowSettings' => $showSettings,
+			'ShowLanguages' => $showLanguages,
+			'ShowLogin' => $showLogin,
 			'Currency' => $site['Currency'],
 			'WeightUnit' => $site['WeightUnit'],
 			'ShippingCalculation' => $site['ShippingCalculation'],

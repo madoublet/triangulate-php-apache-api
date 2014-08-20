@@ -61,7 +61,7 @@ class Site{
 	
 	// edits the site information
 	public static function Edit($siteId, $name, $domain, $primaryEmail, $timeZone, $language, 
-		$showCart, $showSettings, 
+		$showCart, $showSettings, $showLanguages, $showLogin, $urlMode,
 		$currency, $weightUnit, $shippingCalculation, $shippingRate, $shippingTiers, $taxRate, $payPalId, $payPalUseSandbox,
 		$welcomeEmail, $receiptEmail,
 		$isSMTP, $SMTPHost, $SMTPAuth, $SMTPUsername, $SMTPSecure, 
@@ -80,6 +80,9 @@ class Site{
         			Currency = ?,
         			ShowCart = ?,
         			ShowSettings = ?,
+        			ShowLanguages = ?,
+        			ShowLogin = ?,
+        			UrlMode = ?,
         			WeightUnit = ?,
         			ShippingCalculation = ?, 
         			ShippingRate = ?,
@@ -107,23 +110,26 @@ class Site{
             $s->bindParam(6, $currency);
             $s->bindParam(7, $showCart);
             $s->bindParam(8, $showSettings);
-            $s->bindParam(9, $weightUnit);
-            $s->bindParam(10, $shippingCalculation);
-            $s->bindValue(11, strval($shippingRate), PDO::PARAM_STR);
-            $s->bindParam(12, $shippingTiers);
-            $s->bindParam(13, $taxRate);
-            $s->bindParam(14, $payPalId);
-            $s->bindParam(15, $payPalUseSandbox);
-            $s->bindParam(16, $welcomeEmail); 
-            $s->bindParam(17, $receiptEmail);
-			$s->bindParam(18, $isSMTP); 
-			$s->bindParam(19, $SMTPHost); 
-			$s->bindParam(20, $SMTPAuth); 
-			$s->bindParam(21, $SMTPUsername);  
-			$s->bindParam(22, $SMTPSecure); 
-            $s->bindParam(23, $formPublicId);
-            $s->bindParam(24, $formPrivateId);
-            $s->bindParam(25, $siteId);
+            $s->bindParam(9, $showLanguages);
+            $s->bindParam(10, $showLogin);
+            $s->bindParam(11, $urlMode);
+            $s->bindParam(12, $weightUnit);
+            $s->bindParam(13, $shippingCalculation);
+            $s->bindValue(14, strval($shippingRate), PDO::PARAM_STR);
+            $s->bindParam(15, $shippingTiers);
+            $s->bindParam(16, $taxRate);
+            $s->bindParam(17, $payPalId);
+            $s->bindParam(18, $payPalUseSandbox);
+            $s->bindParam(19, $welcomeEmail); 
+            $s->bindParam(20, $receiptEmail);
+			$s->bindParam(21, $isSMTP); 
+			$s->bindParam(22, $SMTPHost); 
+			$s->bindParam(23, $SMTPAuth); 
+			$s->bindParam(24, $SMTPUsername);  
+			$s->bindParam(25, $SMTPSecure); 
+            $s->bindParam(26, $formPublicId);
+            $s->bindParam(27, $formPrivateId);
+            $s->bindParam(28, $siteId);
             
             $s->execute();
             
@@ -337,7 +343,7 @@ class Site{
             
             $q = "SELECT SiteId, FriendlyId, Domain, Name, LogoUrl, IconUrl, IconBg, Theme,
     						PrimaryEmail, TimeZone, Language, Currency, 
-    						ShowCart, ShowSettings,
+    						ShowCart, ShowSettings, ShowLanguages, ShowLogin, UrlMode,
     						WeightUnit, ShippingCalculation, ShippingRate, ShippingTiers, TaxRate, 
 							PayPalId, PayPalUseSandbox,
 							WelcomeEmail, ReceiptEmail,
@@ -425,7 +431,7 @@ class Site{
             
             $q = "SELECT SiteId, FriendlyId, Domain, Bucket, Name, LogoUrl, IconUrl, IconBg, Theme,
     						PrimaryEmail, TimeZone, Language, Currency, 
-    						ShowCart, ShowSettings,
+    						ShowCart, ShowSettings, ShowLanguages, ShowLogin, UrlMode,
     						WeightUnit, ShippingCalculation, ShippingRate, ShippingTiers, TaxRate, 
 							PayPalId, PayPalUseSandbox,
 							WelcomeEmail, ReceiptEmail,
@@ -462,7 +468,7 @@ class Site{
             
             $q = "SELECT SiteId, FriendlyId, Domain, Bucket, Name, LogoUrl, IconUrl, IconBg, Theme,
     						PrimaryEmail, TimeZone, Language, Currency, 
-    						ShowCart, ShowSettings,
+    						ShowCart, ShowSettings, ShowLanguages, ShowLogin, UrlMode,
     						WeightUnit, ShippingCalculation, ShippingRate, ShippingTiers, TaxRate, 
 							PayPalId, PayPalUseSandbox,
 							WelcomeEmail, ReceiptEmail,
@@ -499,7 +505,7 @@ class Site{
             
             $q = "SELECT SiteId, FriendlyId, Domain, Bucket, Name, LogoUrl, IconUrl, IconBg, Theme,
     						PrimaryEmail, TimeZone, Language, Currency, 
-    						ShowCart, ShowSettings,
+    						ShowCart, ShowSettings, ShowLanguages, ShowLogin, UrlMode,
     						WeightUnit, ShippingCalculation, ShippingRate, ShippingTiers, TaxRate, 
 							PayPalId, PayPalUseSandbox,
 							WelcomeEmail, ReceiptEmail,
