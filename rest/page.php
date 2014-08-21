@@ -1614,7 +1614,8 @@ class PageListResource extends Tonic\Resource {
                     'LastModified' => $page['LastModifiedDate'],
                     'Author' => $name,
                     'HasPhoto' => $hasPhoto,
-                    'Photo' => $photo
+                    'Photo' => $photo,
+                    'Tags' => $page['Tags']
                 );
             
             array_push($pages, $item);
