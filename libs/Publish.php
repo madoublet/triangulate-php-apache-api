@@ -283,6 +283,15 @@ class Publish
 		if(file_exists($template_file)){
             $content = file_get_contents($template_file);
             
+            $language = $site['Language'];
+            
+            // set to the correct format for i18next (ll-LL)
+            if(strpos($language, '-') !== FALSE){
+				$arr = explode('-', $language);
+				$language = strtolower($arr[0]).'-'.strtoupper($arr[1]);
+			}
+            
+            $content = str_replace('{{language}}', $site['Language'], $content);
             $content = str_replace('{{states}}', $states, $content);
         }
         
