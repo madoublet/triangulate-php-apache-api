@@ -244,7 +244,7 @@ class TranslationSaveResource extends Tonic\Resource {
 			// make the locales directory if it does not exist
 			$locales_dir = SITES_LOCATION.'/'.$site['FriendlyId'].'/locales';
 			
-			// create libs directory if it does not exist
+			// create locales directory if it does not exist
 			if(!file_exists($locales_dir)){
 				mkdir($locales_dir, 0755, true);	
 			}

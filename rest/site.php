@@ -303,6 +303,28 @@ class SiteCreateResource extends Tonic\Resource {
     		// publish the site
     		Publish::PublishSite($site['SiteId']);
     		
+    		// create a locale directory
+			$locales_dir = SITES_LOCATION.'/'.$site['FriendlyId'].'/locales';
+			
+			// create locales directory if it does not exist
+			if(!file_exists($locales_dir)){
+				mkdir($locales_dir, 0755, true);	
+			}
+			
+			// set directory for locale
+			$locale_dir = $locales_dir.'/'.$site['Language'].'/';
+			
+			// make the locale dir if it does not exist
+			if(!file_exists($locale_dir)){
+				mkdir($locale_dir, 0755, true);	
+			}
+			
+			// set filename
+			$filename = 'translation.json';
+			
+			// create a blank translation file
+		   	Utilities::SaveContent($locale_dir, $filename, '{}');
+    		
     		// send welcome email
     		if(SEND_WELCOME_EMAIL == true && $email != ''){
     		
@@ -830,6 +852,95 @@ class SiteSubscribeStripeResource extends Tonic\Resource {
     			'{{friendlyid}}' => $site['FriendlyId'],
     			'{{provider}}' => $provider,
     			'{{customerid}}' => $customerId
+    		);
+    		
+    		// send email from file
+    		Utilities::SendEmailFromFile($to, $from, $fromName, $subject, $replace, $file);
+        
+            // return a json response
+            return new Tonic\Response(Tonic\Response::OK); 
+                
+        }
+        else{
+            return new Tonic\Response(Tonic\Response::UNAUTHORIZED);
+        }
+    }
+}
+
+/**
+ * API call to pay for a subscription
+ * @uri /site/unsubscribe/stripe
+ */
+class SiteUnsubscribeStripeResource extends Tonic\Resource {
+
+    /**
+     * @method POST
+     */
+    function post() {
+    
+    	// get token
+		$token = Utilities::ValidateJWTToken(apache_request_headers());
+
+		// check if token is not null
+        if($token != NULL){ 
+
+        	// parse request
+        	parse_str($this->request->data, $request);
+        	
+        	$site = Site::GetBySiteId($token->SiteId);
+
+			$siteId = $site['SiteId'];
+			$email = $site['PrimaryEmail'];
+			$status = 'Unsubscribed';
+			$plan = '';
+        	$provider = '';
+        	$subscriptionId = '';
+        	$customerId = $site['CustomerId'];
+    
+			// set API key
+			Stripe::setApiKey(STRIPE_SECRET_KEY);
+
+            // retrieve customer
+            $customer = Stripe_Customer::retrieve($site['CustomerId']);
+			
+			// unsubscribe
+			$cu->subscriptions->retrieve($site['SubscriptionId'])->cancel();
+            			
+			// unsubscribe to a plan
+			Site::Subscribe($siteId, $status, $plan, $provider, $subscriptionId, $customerId);
+			
+			// send success email to user
+			$to = $site['PrimaryEmail'];
+    		$from = REPLY_TO;
+    		$fromName = REPLY_TO_NAME;
+    		$subject = BRAND.': You have successfully unsubscribed to '.BRAND;
+    		$file = APP_LOCATION.'/emails/unsubscribe-success.html';
+ 
+    		$replace = array(
+    			'{{brand-logo}}' => '<img src="'.BRAND_LOGO.'" style="max-height:50px">',
+    			'{{brand}}' => BRAND,
+    			'{{reply-to}}' => REPLY_TO
+    		);
+    		
+    		// send 
+    		Utilities::SendEmailFromFile($to, $from, $fromName, $subject, $replace, $file);
+    		
+    		// send details email to admin
+			$to = REPLY_TO;
+    		$from = REPLY_TO;
+    		$fromName = REPLY_TO_NAME;
+    		$subject = BRAND.': Unsubscribed';
+    		$file = APP_LOCATION.'/emails/unsubscribe-details.html';
+ 
+    		$replace = array(
+    			'{{brand-logo}}' => '<img src="'.BRAND_LOGO.'" style="max-height:50px">',
+    			'{{brand}}' => BRAND,
+    			'{{reply-to}}' => REPLY_TO,
+    			'{{domain}}' => $domain,
+    			'{{siteid}}' => $site['SiteId'],
+    			'{{friendlyid}}' => $site['FriendlyId'],
+    			'{{provider}}' => $site['Provider'],
+    			'{{customerid}}' => $site['CustomerId']
     		);
     		
     		// send email from file
