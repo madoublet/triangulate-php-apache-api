@@ -220,23 +220,18 @@ class User{
 
             $db = DB::get();
 		
-    		// create a more secure password (http://www.openwall.com/articles/PHP-Users-Passwords)
-    		$hash_cost_log2 = 8; // Base-2 logarithm of the iteration count used for password stretching
-    		$hash_portable = FALSE; // Not portable
-    		
-    		$hasher = new PasswordHash($hash_cost_log2, $hash_portable);
-    		$s_token = $hasher->HashPassword($userId);
-    		unset($hasher);
+			// create a token
+    		$token = $userId.uniqid();
     		
     		$q = "UPDATE Users SET Token = ? WHERE UserId=?";
     		
     		$s = $db->prepare($q);
-            $s->bindParam(1, $s_token);
+            $s->bindParam(1, $token);
             $s->bindParam(2, $userId);
             
             $s->execute();
     		
-    		return $s_token;
+    		return $token;
         
 		} catch(PDOException $e){
             die('[User::SetToken] PDO Error: '.$e->getMessage());

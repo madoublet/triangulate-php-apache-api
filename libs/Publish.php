@@ -256,6 +256,10 @@ class Publish
 						        .'			LastModifiedBy: \''.$page['FirstName'].' '.$page['LastName'].'\','.PHP_EOL
 						        .'			PhotoUrl: \''.$page['PhotoUrl'].'\''.PHP_EOL
 						        .'		};'.PHP_EOL
+						        .'},'.PHP_EOL
+						        
+						        .'siteMeta:  function($http){'.PHP_EOL
+						        .'    	return $http({method: \'GET\', url: \'data/site.json\'});'.PHP_EOL
 						        .'}'.PHP_EOL
 				
 						      .'},'.PHP_EOL
