@@ -237,9 +237,16 @@ class TranslationSaveResource extends Tonic\Resource {
 				$locale = $request['locale'];
 			}
 			
-			// make it pretty
+			// decode JSON
 			$json = json_decode($content);
-			$content = json_encode($json, JSON_PRETTY_PRINT);
+			
+			// encode it to make it look pretty
+			if(defined('JSON_PRETTY_PRINT')){
+				$content = json_encode($json, JSON_PRETTY_PRINT);
+			}
+			else{
+				$content = json_encode($json);
+			}
 			
 			// make the locales directory if it does not exist
 			$locales_dir = SITES_LOCATION.'/'.$site['FriendlyId'].'/locales';
