@@ -352,7 +352,7 @@ class SiteCreateResource extends Tonic\Resource {
 	    		
 	    		// create strings to replace
 	    		$loginUrl = APP_URL.'/#/login/'.$site['FriendlyId'];
-	    		$newSiteUrl = APP_URL.'/sites/'.$site['FriendlyId'];
+	    		$newSiteUrl = 'http://'.$domain;
 	    		
 	    		$replace = array(
 	    			'{{brand-logo}}' => '<img src="'.BRAND_LOGO.'" style="max-height:50px">',
