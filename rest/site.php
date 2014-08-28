@@ -36,6 +36,11 @@ class SiteValidateIdResource extends Tonic\Resource {
         $friendlyId = $request['friendlyId'];
         
         $isFriendlyIdUnique = Site::IsFriendlyIdUnique($friendlyId);
+        
+        // check for reserved names
+        if($friendlyId == 'app' || $friendlyId == 'sites' || $friendlyId == 'api'){
+	        $isFriendlyIdUnique = false;
+        }
 	            
         if($isFriendlyIdUnique==false){
             return new Tonic\Response(Tonic\Response::CONFLICT);
@@ -138,13 +143,21 @@ class SiteCreateResource extends Tonic\Resource {
         // defaults
         $firstName = 'New';
         $lastName = 'User';
-        $domain = SITES_URL.'/'.$friendlyId;
+        $domain = SITE_URL;
     	$domain = str_replace('http://', '', $domain);
+    	
+    	$domain = str_replace('{{friendlyId}}', $friendlyId, $domain);
+    	
 		$logoUrl = 'sample-logo.png';
 		
         if($s_passcode == PASSCODE){
            
             $isFriendlyIdUnique = Site::IsFriendlyIdUnique($friendlyId);
+	            
+	        // check for reserved names
+	        if($friendlyId == 'app' || $friendlyId == 'sites' || $friendlyId == 'api'){
+		        $isFriendlyIdUnique = false;
+	        }    
 	            
             if($isFriendlyIdUnique==false){
                 return new Tonic\Response(Tonic\Response::CONFLICT);
@@ -177,8 +190,11 @@ class SiteCreateResource extends Tonic\Resource {
     		// create the bucket name
     		$bucket = str_replace('{{site}}', $friendlyId, BUCKET_NAME);
     		
+    		// set default URL mode
+    		$urlMode = DEFAULT_URL_MODE;
+    		
             // add the site
-    	    $site = Site::Add($domain, $bucket, $name, $friendlyId, $logoUrl, $theme, $email, $timeZone, $language, $welcomeEmail, $receiptEmail);
+    	    $site = Site::Add($domain, $bucket, $name, $friendlyId, $urlMode, $logoUrl, $theme, $email, $timeZone, $language, $welcomeEmail, $receiptEmail);
     	                
             // add the admin
             if($email != ''){

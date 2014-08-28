@@ -53,6 +53,9 @@ class Publish
 			Utilities::CopyDirectory($templates_src, $templates_dest);
 		}
 		
+		// setup htaccess
+		Publish::SetupHtaccess($site);
+		
 	}
 	
 	// creates .htaccess to deny access to a specific directory
@@ -67,6 +70,29 @@ class Publish
 		$deny = $dir.'.htaccess';
 
 		file_put_contents($deny, 'Deny from all'); // save to file	
+		
+	}
+	
+	// creates .htaccess for html5 sites
+	public static function SetupHtaccess($site){
+	
+		$htaccess = SITES_LOCATION.'/'.$site['FriendlyId'].'/.htaccess';
+	
+		if($site['UrlMode'] == 'html5'){
+			// create dir if needed
+			if(!file_exists($dir)){
+				mkdir($dir, 0755, true);	
+			}
+			
+			$contents = 'RewriteEngine On'.PHP_EOL.
+							'RewriteCond %{REQUEST_FILENAME} !-f'.PHP_EOL.
+							'RewriteCond %{REQUEST_FILENAME} !-d'.PHP_EOL.
+							'RewriteCond %{REQUEST_URI} !.*\.(css¦js|html|png)'.PHP_EOL.
+							'RewriteRule (.*) index.html [L]';
+			
+
+			file_put_contents($htaccess, $contents); // save to file			
+		}
 		
 	}
 
@@ -294,7 +320,20 @@ class Publish
 				$arr = explode('-', $language);
 				$language = strtolower($arr[0]).'-'.strtoupper($arr[1]);
 			}
-            
+			
+			$urlMode = $site['UrlMode'];
+			$html5mode = '';
+			
+			// set $html5mode
+			if($urlMode == 'html5'){
+				$html5mode = '$locationProvider.html5Mode(true);';
+			}
+			else if($urlMode == 'hashbang'){
+				$html5mode = "$locationProvider.html5Mode(true).hashPrefix('!');";
+			}
+			
+            // set html5mode, language, and states
+            $content = str_replace('{{html5mode}}', $html5mode, $content);
             $content = str_replace('{{language}}', $site['Language'], $content);
             $content = str_replace('{{states}}', $states, $content);
         }
@@ -366,6 +405,7 @@ class Publish
 			'API' => API_URL,
 			'Name' => $site['Name'],
 			'ImagesURL' => $imagesURL,
+			'UrlMode' => $site['UrlMode'],
 			'LogoUrl' => $logoUrl,
 			'IconUrl' => $iconUrl,
 			'IconBg' => $site['IconBg'],

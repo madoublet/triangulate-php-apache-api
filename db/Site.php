@@ -4,7 +4,7 @@
 class Site{
 	
 	// adds a Site
-	public static function Add($domain, $bucket, $name, $friendlyId, $logoUrl, $theme, $primaryEmail, $timeZone, $language, $welcomeEmail, $receiptEmail){
+	public static function Add($domain, $bucket, $name, $friendlyId, $urlMode, $logoUrl, $theme, $primaryEmail, $timeZone, $language, $welcomeEmail, $receiptEmail){
         
         try{
             
@@ -18,29 +18,31 @@ class Site{
   
     		$timestamp = gmdate("Y-m-d H:i:s", time());
 
-            $q = "INSERT INTO Sites (SiteId, FriendlyId, Domain, Bucket, Name, LogoUrl, Theme, PrimaryEmail, TimeZone, Language, WelcomeEmail, ReceiptEmail, Created) 
-    			    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            $q = "INSERT INTO Sites (SiteId, FriendlyId, UrlMode, Domain, Bucket, Name, LogoUrl, Theme, PrimaryEmail, TimeZone, Language, WelcomeEmail, ReceiptEmail, Created) 
+    			    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
      
             $s = $db->prepare($q);
             $s->bindParam(1, $siteId);
             $s->bindParam(2, $friendlyId);
-            $s->bindParam(3, $domain);
-            $s->bindParam(4, $bucket);
-            $s->bindParam(5, $name);
-            $s->bindParam(6, $logoUrl);
-            $s->bindParam(7, $theme);
-            $s->bindParam(8, $primaryEmail);
-            $s->bindParam(9, $timeZone);
-            $s->bindParam(10, $language);
-            $s->bindParam(11, $welcomeEmail);
-            $s->bindParam(12, $receiptEmail);
-            $s->bindParam(13, $timestamp);
+            $s->bindParam(3, $urlMode);
+            $s->bindParam(4, $domain);
+            $s->bindParam(5, $bucket);
+            $s->bindParam(6, $name);
+            $s->bindParam(7, $logoUrl);
+            $s->bindParam(8, $theme);
+            $s->bindParam(9, $primaryEmail);
+            $s->bindParam(10, $timeZone);
+            $s->bindParam(11, $language);
+            $s->bindParam(12, $welcomeEmail);
+            $s->bindParam(13, $receiptEmail);
+            $s->bindParam(14, $timestamp);
             
             $s->execute();
             
             return array(
                 'SiteId' => $siteId,
                 'FriendlyId' => $friendlyId,
+                'UrlMode' => $urlMode,
                 'Domain' => $domain,
                 'Bucket' => $bucket,
                 'Name' => $name,

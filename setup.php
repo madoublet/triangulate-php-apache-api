@@ -30,6 +30,10 @@
 	define('APP_URL', 'http://app.mytriangulate.com');
 	define('API_URL', 'http://app.mytriangulate.com/api');
 	define('SITES_URL', 'http://sites.mytriangulate.com');
+	define('SITE_URL', 'http://{{friendlyId}}.mytriangulate.com');
+	
+	// default mode (hash, hashbang, html5)
+	define('DEFAULT_URL_MODE', 'html5');
 	
 	// locations
 	define('APP_LOCATION', '../');
