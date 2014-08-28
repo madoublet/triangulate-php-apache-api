@@ -643,6 +643,9 @@ class Publish
 			  return true;
 			} 
 			catch(exception $e){
+			
+			  echo $e;
+			  
 			  return false;
 			}
     	}
