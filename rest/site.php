@@ -95,14 +95,19 @@ class SiteCreateResource extends Tonic\Resource {
         
         parse_str($this->request->data, $request); // parse request
 
-        $friendlyId = $request['friendlyId'];
-        $name = $request['name'];
+        $friendlyId = trim($request['friendlyId']);
+        $name = trim($request['name']);
         $s_passcode = $request['passcode'];
         $timeZone = $request['timeZone'];
         $email = '';
         $password = '';
         $language = 'en-us'; // language for the app
         $userId = -1;
+        
+        // validate name and friendlyId
+        if($friendlyId == '' || $name == ''){
+	        return new Tonic\Response(Tonic\Response::BADREQUEST);
+        }
         
         $theme = DEFAULT_THEME;
         
@@ -127,6 +132,11 @@ class SiteCreateResource extends Tonic\Resource {
 	        
 	        $email = $request['email'];
 	        $password = $request['password'];
+	        
+	        // valide email and password
+	        if($email == '' || $password == ''){
+		        return new Tonic\Response(Tonic\Response::BADREQUEST);
+	        }
         }
         else{
 			// get an authuser
