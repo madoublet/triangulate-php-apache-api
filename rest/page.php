@@ -244,7 +244,7 @@ class PageRemoveResource extends Tonic\Resource {
         	if($page['SiteId']==$site['SiteId']){ 
         	
         		// get file location
-        		$path = '../sites/'.$site['FriendlyId'].'/';
+        		$path = SITES_LOCATION.'/'.$site['FriendlyId'].'/';
         		
         		// default is root
         		$pageTypeId = -1;
@@ -279,6 +279,9 @@ class PageRemoveResource extends Tonic\Resource {
 		        		        
 		        // remove page from the DB
 		        Page::Remove($pageId);
+		        
+		        // update states
+		        Publish::InjectStates($site);
 		        
 				return new Tonic\Response(Tonic\Response::OK);
 			
