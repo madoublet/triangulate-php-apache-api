@@ -361,7 +361,7 @@ class SiteCreateResource extends Tonic\Resource {
 	    		$file = APP_LOCATION.'/emails/new-user.html';
 	    		
 	    		// create strings to replace
-	    		$loginUrl = APP_URL.'/#/login/'.$site['FriendlyId'];
+	    		$loginUrl = APP_URL.'/login/'.$site['FriendlyId'];
 	    		$newSiteUrl = 'http://'.$domain;
 	    		
 	    		$replace = array(
