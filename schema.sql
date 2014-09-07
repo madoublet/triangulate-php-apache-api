@@ -2,6 +2,9 @@
 ALTER TABLE `Sites` ADD `ShowLanguages` INT NOT NULL DEFAULT '0' AFTER `ShowSettings`;
 ALTER TABLE `Sites` ADD `ShowLogin` INT NOT NULL DEFAULT '0' AFTER `ShowLanguages`;
 ALTER TABLE `Sites` ADD `UrlMode` VARCHAR(10) NOT NULL DEFAULT 'hash' AFTER `ShowLogin`;
+
+9/5/2014
+ALTER TABLE `Users` ADD `SiteAdmin` INT NOT NULL DEFAULT '0' AFTER `IsActive`;
 */
 
 CREATE TABLE IF NOT EXISTS `MenuItems` (
@@ -134,6 +137,7 @@ CREATE TABLE IF NOT EXISTS `Users` (
   `SiteId` varchar(50) NOT NULL,
   `Token` varchar(255) DEFAULT NULL,
   `IsActive` int(11) NOT NULL DEFAULT '1',
+  `SiteAdmin` int(11) NOT NULL DEFAULT '0',
   `Created` datetime NOT NULL,
   PRIMARY KEY (`UserID`),
   KEY `SiteId` (`SiteId`)

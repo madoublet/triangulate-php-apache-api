@@ -134,6 +134,9 @@ class UserLoginResource extends Tonic\Resource {
 	            	$fullPhotoUrl = $imagesURL.'/files/thumbs/'.$user['PhotoUrl'];
 	            	
             	}
+            	
+            	// set last login
+            	Site::SetLastLogin($user['SiteId']);
             
             	// return a subset of the user array
             	$returned_user = array(
@@ -144,6 +147,7 @@ class UserLoginResource extends Tonic\Resource {
             		'FullPhotoUrl' => $fullPhotoUrl,
             		'Language' => $user['Language'],
             		'Role' => $user['Role'],
+            		'SiteAdmin' => $user['SiteAdmin'],
             		'SiteId' => $user['SiteId'],
             		'UserId' => $user['UserId'],
             		'CanEdit' => $canEdit,

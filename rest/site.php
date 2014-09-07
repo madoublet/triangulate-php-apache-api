@@ -165,7 +165,7 @@ class SiteCreateResource extends Tonic\Resource {
             $isFriendlyIdUnique = Site::IsFriendlyIdUnique($friendlyId);
 	            
 	        // check for reserved names
-	        if($friendlyId == 'app' || $friendlyId == 'sites' || $friendlyId == 'api'){
+	        if($friendlyId == 'app' || $friendlyId == 'sites' || $friendlyId == 'api' || $friendlyId == 'triangulate' || $friendlyId == 'developer'){
 		        $isFriendlyIdUnique = false;
 	        }    
 	            
@@ -659,6 +659,57 @@ class SiteSaveResource extends Tonic\Resource {
 
 /**
  * A protected API call to view, edit, and delete a site
+ * @uri /site/edit/admin
+ */
+class SiteEditAdminResource extends Tonic\Resource {
+
+
+    /**
+     * @method POST
+     */
+    function post() {
+
+        // get token
+		$token = Utilities::ValidateJWTToken(apache_request_headers());
+
+		// check if token is not null
+        if($token != NULL){ 
+        
+        	$user = User::GetByUserId($token->UserId);
+        	
+        	if($user['SiteAdmin'] == 1){
+
+	            parse_str($this->request->data, $request); // parse request
+	
+	            $siteId = $request['siteId'];
+	            $domain = $request['domain'];
+	            $bucket = $request['bucket'];
+	            $status = $request['status'];
+	            $fileLimit = $request['fileLimit'];
+	            $userLimit = $request['userLimit'];
+	            
+	            // edit site
+	            Site::EditAdmin($siteId, $domain, $bucket, $status, $fileLimit, $userLimit);
+	            
+	            return new Tonic\Response(Tonic\Response::OK);
+			
+			} else{ // unauthorized access
+
+            	return new Tonic\Response(Tonic\Response::UNAUTHORIZED);
+			}
+        
+        } else{ // unauthorized access
+
+            return new Tonic\Response(Tonic\Response::UNAUTHORIZED);
+        }
+
+        return new Tonic\Response(Tonic\Response::NOTIMPLEMENTED);
+    }
+
+}
+
+/**
+ * A protected API call to view, edit, and delete a site
  * @uri /site/branding/image
  */
 class SiteBrandingResource extends Tonic\Resource {
@@ -756,7 +807,7 @@ class SiteBrandingIconBackgroundResource extends Tonic\Resource {
 }
 
 /**
- * This class defines an example resource that is wired into the URI /example
+ * List all sites
  * @uri /site/list/all
  */
 class SiteListAllResource extends Tonic\Resource {
@@ -766,20 +817,30 @@ class SiteListAllResource extends Tonic\Resource {
      */
     function get() {
 
-        // get an authuser
-        $authUser = new AuthUser();
+         // get token
+		$token = Utilities::ValidateJWTToken(apache_request_headers());
 
-        if(isset($authUser->UserId)){ // check if authorized
+		// check if token is not null
+        if($token != NULL){ 
+        
+        	$user = User::GetByUserId($token->UserId);
+        	
+        	if($user['SiteAdmin'] == 1){
 
-            // get sites
-            $list = Site::GetSites();
-
-            // return a json response
-            $response = new Tonic\Response(Tonic\Response::OK);
-            $response->contentType = 'application/json';
-            $response->body = json_encode($list);
-
-            return $response;
+	            // get sites
+	            $list = Site::GetSites();
+	
+	            // return a json response
+	            $response = new Tonic\Response(Tonic\Response::OK);
+	            $response->contentType = 'application/json';
+	            $response->body = json_encode($list);
+	
+	            return $response;
+            }
+            else{ // unauthorized access
+	
+	            return new Tonic\Response(Tonic\Response::UNAUTHORIZED);
+	        }
 
         }
         else{ // unauthorized access

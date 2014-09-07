@@ -258,6 +258,37 @@ class Site{
         
 	}
 	
+	// edits the administrative portion of the site
+    public static function EditAdmin($siteId, $domain, $bucket, $status, $fileLimit, $userLimit){
+        
+        try{
+            
+            $db = DB::get();
+            
+            $q = "UPDATE Sites SET 
+                	Domain = ?,
+                	Bucket = ?,
+                	Status = ?,
+                	FileLimit = ?,
+                	UserLimit = ?
+                	WHERE SiteId = ?";
+     
+            $s = $db->prepare($q);
+            $s->bindParam(1, $domain);
+            $s->bindParam(2, $bucket);
+            $s->bindParam(3, $status);
+            $s->bindParam(4, $fileLimit);
+            $s->bindParam(5, $userLimit);
+            $s->bindParam(6, $siteId);
+            
+            $s->execute();
+            
+		} catch(PDOException $e){
+            die('[Site::EditAdmin] PDO Error: '.$e->getMessage());
+        }
+        
+	}
+	
 	// determines whether a friendlyId is unique
 	public static function IsFriendlyIdUnique($friendlyId){
 
@@ -343,7 +374,7 @@ class Site{
         try{
             $db = DB::get();
             
-            $q = "SELECT SiteId, FriendlyId, Domain, Name, LogoUrl, IconUrl, IconBg, Theme,
+            $q = "SELECT SiteId, FriendlyId, Domain, Bucket, Name, LogoUrl, IconUrl, IconBg, Theme,
     						PrimaryEmail, TimeZone, Language, Currency, 
     						ShowCart, ShowSettings, ShowLanguages, ShowLogin, UrlMode,
     						WeightUnit, ShippingCalculation, ShippingRate, ShippingTiers, TaxRate, 
@@ -354,7 +385,7 @@ class Site{
 							Status, Plan, Provider, SubscriptionId, CustomerId,
 							CanDeploy, UserLimit, FileLimit,
 							LastLogin, Created
-							FROM Sites ORDER BY Name ASC";
+							FROM Sites ORDER BY Created DESC";
                     
             $s = $db->prepare($q);
             
