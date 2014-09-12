@@ -373,7 +373,7 @@ class Publish
 		$iconUrl = '';
 		
 		if($site['IconUrl'] != ''){
-			$iconUrl = 'files/'.$site['IconUrl'];
+			$iconUrl = $imagesURL.'files/'.$site['IconUrl'];
 		}
 		
 		// set display
