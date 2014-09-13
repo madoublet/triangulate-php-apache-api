@@ -60,7 +60,7 @@ class FilePostResource extends Tonic\Resource {
     			$arr = Image::SaveImageWithThumb($site, $filename, $file);
     			
     			// set local URL
-    			$url = 	'http://'.$site['Domain'];
+    			$url = 	$site['Domain'];
 				
 				// set URL if on S3
 				if(FILES_ON_S3 == true){
@@ -72,7 +72,7 @@ class FilePostResource extends Tonic\Resource {
                 $arr = array(
                         'filename' => $filename,
                         'fullUrl' => $url.'/files/'.$filename,
-                        'thumbUrl' => 'http://'.$site['Domain'].'/files/thumbs/'.$filename,
+                        'thumbUrl' => $site['Domain'].'/files/thumbs/'.$filename,
                         'extension' => $ext,
                         'isImage' => true,
                         'width' => $arr['width'],
@@ -86,7 +86,7 @@ class FilePostResource extends Tonic\Resource {
     			$directory = SITES_LOCATION.'/'.$site['FriendlyId'].'/files/';
     			
     			// set url
-    			$url = 	'http://'.$site['Domain'];
+    			$url = 	$site['Domain'];
     			
 				// set URL if on S3
 				if(FILES_ON_S3 == true){
@@ -186,8 +186,8 @@ class ImageListResource extends Tonic\Resource {
 	                    
 	                    $file = array(
 	                        'filename' => $filename,
-	                        'fullUrl' => 'http://'.$site['Domain'].'/files/'.$filename,
-	                        'thumbUrl' => 'http://'.$site['Domain'].'/files/thumbs/'.$filename,
+	                        'fullUrl' => $site['Domain'].'/files/'.$filename,
+	                        'thumbUrl' => $site['Domain'].'/files/thumbs/'.$filename,
 	                        'extension' => $ext,
 	                        'size' => number_format($size / 1048576, 2),
 							'isImage' => $is_image,
@@ -283,8 +283,8 @@ class FileListAllResource extends Tonic\Resource {
 						
 	                    $file = array(
 	                        'filename' => $filename,
-	                        'fullUrl' => 'http://'.$site['Domain'].'/files/'.$filename,
-	                        'thumbUrl' => 'http://'.$site['Domain'].'/files/thumbs/'.$filename,
+	                        'fullUrl' => $site['Domain'].'/files/'.$filename,
+	                        'thumbUrl' => $site['Domain'].'/files/thumbs/'.$filename,
 	                        'extension' => $ext,
 	                        'isImage' => $isImage,
 	                        'width' => $width,
@@ -297,8 +297,8 @@ class FileListAllResource extends Tonic\Resource {
 	                else if($is_thumb==false){
 	                    $file = array(
 	                        'filename' => $filename,
-	                        'fullUrl' => 'http://'.$site['Domain'].'/files/'.$filename,
-	                        'thumbUrl' => 'http://'.$site['Domain'].'/files/thumbs/'.$filename,
+	                        'fullUrl' => $site['Domain'].'/files/'.$filename,
+	                        'thumbUrl' => $site['Domain'].'/files/thumbs/'.$filename,
 	                        'thumbUrl' => 'n/a',
 	                        'extension' => $ext,
 	                        'isImage' => $isImage,

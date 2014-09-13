@@ -710,7 +710,7 @@ class Publish
 			$site = Site::GetBySiteId($page['SiteId']); // test for now
 			$dest = SITES_LOCATION.'/'.$site['FriendlyId'].'/templates/';
 			$imageurl = $dest.'files/';
-			$siteurl = 'http://'.$site['Domain'].'/';
+			$siteurl = $site['Domain'].'/';
 			
 			$friendlyId = $page['FriendlyId'];
 			

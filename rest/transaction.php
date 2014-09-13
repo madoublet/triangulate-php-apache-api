@@ -163,7 +163,7 @@ class TransactionPaypalResource extends Tonic\Resource {
 
 					/* #todo (check for downloads)
 	                if($item_shipping_type == 'DOWNLOAD'){
-	                	$download_link = '<br><a href="http://'.$site['Domain'].'/api/transaction/download/{{transactionId}}/'.$item_sku.'">Download</a>';
+	                	$download_link = '<br><a href="'.$site['Domain'].'/api/transaction/download/{{transactionId}}/'.$item_sku.'">Download</a>';
 	                }*/ 
 
 	                // setup currency for line items
@@ -197,7 +197,7 @@ class TransactionPaypalResource extends Tonic\Resource {
 			$site_logo = '';
 
 			if($site['LogoUrl']!='' && $site['LogoUrl']!=NULL){
-				$site_logo = '<img src="http://'.$site['Domain'].'/files/'.$site['LogoUrl'].'" style="max-height:50px">';
+				$site_logo = '<img src="'.$site['Domain'].'/files/'.$site['LogoUrl'].'" style="max-height:50px">';
 			}
 
 			// setup currency for line items

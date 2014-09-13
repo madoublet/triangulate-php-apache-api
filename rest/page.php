@@ -119,7 +119,7 @@ class PageAddResource extends Tonic\Resource {
 					$imagesURL = str_replace('{{bucket}}', $bucket, S3_URL);
 				}
 				else{
-					$imagesURL = '//'.$site['Domain'];
+					$imagesURL = $site['Domain'];
 				}
 			
 				$thumbURL = $imagesURL.'/files/thumbs/'.$page['Image'];
@@ -1035,7 +1035,7 @@ class PageListAll extends Tonic\Resource {
 						$imagesURL = str_replace('{{bucket}}', $bucket, S3_URL);
 					}
 					else{
-						$imagesURL = '//'.$site['Domain'];
+						$imagesURL = $site['Domain'];
 					}
 				
 					$thumbURL = $imagesURL.'/files/thumbs/'.$row['Image'];
@@ -1180,7 +1180,7 @@ class PageListAllowed extends Tonic\Resource {
 						$imagesURL = str_replace('{{bucket}}', $bucket, S3_URL);
 					}
 					else{
-						$imagesURL = '//'.$site['Domain'];
+						$imagesURL = $site['Domain'];
 					}
 				
 					$thumbURL = $imagesURL.'/files/thumbs/'.$row['Image'];

@@ -2,7 +2,7 @@
 
 	// define brand
 	define('BRAND', 'Triangulate');
-	define('BRAND_LOGO', 'https://app.triangulate.io/images/triangulate-icon.png');
+	define('BRAND_LOGO', '/images/triangulate-icon.png');
 	
 
 	// DB connection parameters
@@ -31,7 +31,7 @@
 	define('API_URL', 'http://app.mytriangulate.com/api');
 	define('SITES_URL', 'http://sites.mytriangulate.com');
 	define('SITE_URL', 'http://{{friendlyId}}.mytriangulate.com');
-	
+
 	// default mode (hash, hashbang, html5)
 	define('DEFAULT_URL_MODE', 'html5');
 	
@@ -41,9 +41,6 @@
 	
 	// setup default language for the site
 	define('DEFAULT_LANGUAGE', 'en');
-	
-	// site admin
-	define('SITE_ADMIN', '');
 	
 	// passcode
 	define('PASSCODE', 'ilovetriangulate');

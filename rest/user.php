@@ -128,7 +128,7 @@ class UserLoginResource extends Tonic\Resource {
 						$imagesURL = str_replace('{{bucket}}', $bucket, S3_URL);
 					}
 					else{
-						$imagesURL = '//'.$site['Domain'];
+						$imagesURL = $site['Domain'];
 					}
             		
 	            	$fullPhotoUrl = $imagesURL.'/files/thumbs/'.$user['PhotoUrl'];
@@ -447,7 +447,7 @@ class UserPhotoResource extends Tonic\Resource {
 				$imagesURL = str_replace('{{bucket}}', $bucket, S3_URL);
 			}
 			else{
-				$imagesURL = '//'.$site['Domain'];
+				$imagesURL = $site['Domain'];
 			}
 			
 			$fullPhotoUrl = $imagesURL.'/files/thumbs/'.$photoUrl;
@@ -628,7 +628,7 @@ class UserList extends Tonic\Resource {
 						$imagesURL = str_replace('{{bucket}}', $bucket, S3_URL);
 					}
 					else{
-						$imagesURL = '//'.$site['Domain'];
+						$imagesURL = $site['Domain'];
 					}
             		
 	            	$fullPhotoUrl = $imagesURL.'/files/thumbs/'.$user['PhotoUrl'];

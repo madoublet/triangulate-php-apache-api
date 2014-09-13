@@ -218,7 +218,7 @@ class Utilities
             '<rss version="2.0">'.
               '<channel>'.
               '<title>'.$site['Name'].' - /'.$pageType['FriendlyId'].'</title>'.
-              '<link>http://'.$site['Domain'].'</link>'.
+              '<link>'.$site['Domain'].'</link>'.
               '<description></description>'.
               '<language>en-us</language>'.
               '<copyright>Copyright (C) '.date('Y').' '.$site['Domain'].'</copyright>';
@@ -230,7 +230,7 @@ class Utilities
             $rss = $rss.'<item>'.
                    '<title>'.$row['Name'].'</title>'.
                    '<description><![CDATA['.$row['Description'].']]></description>'.
-                   '<link>http://'.$site['Domain'].'/'.strtolower($pageType['FriendlyId']).'/'.strtolower($row['FriendlyId']).'.html</link>'.
+                   '<link>'.$site['Domain'].'/'.strtolower($pageType['FriendlyId']).'/'.strtolower($row['FriendlyId']).'.html</link>'.
                    '<pubDate>'.date('D, d M Y H:i:s T', $u).'</pubDate>'.
                    '</item>';
         }
@@ -280,7 +280,7 @@ class Utilities
           if($row['PageTypeId']==-1){
             
             $xml = $xml.'<url>'.
-                       '<loc>http://'.$site['Domain'].$divider.strtolower($row['FriendlyId']).'</loc>'.
+                       '<loc>'.$site['Domain'].$divider.strtolower($row['FriendlyId']).'</loc>'.
                        '<lastmod>'.date('Y-m-d', $u).'</lastmod>'.
                      '<priority>1.0</priority>'.
                        '</url>';
@@ -288,7 +288,7 @@ class Utilities
           }
           else{
             $xml = $xml.'<url>'.
-                       '<loc>http://'.$site['Domain'].$divider.
+                       '<loc>'.$site['Domain'].$divider.
                        strtolower($pageType['FriendlyId']).'/'.strtolower($row['FriendlyId']).'</loc>'.
                        '<lastmod>'.date('Y-m-d', $u).'</lastmod>'.
                      '<priority>0.5</priority>'.

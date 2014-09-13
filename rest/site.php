@@ -154,7 +154,6 @@ class SiteCreateResource extends Tonic\Resource {
         $firstName = 'New';
         $lastName = 'User';
         $domain = SITE_URL;
-    	$domain = str_replace('http://', '', $domain);
     	
     	$domain = str_replace('{{friendlyId}}', $friendlyId, $domain);
     	
@@ -294,7 +293,7 @@ class SiteCreateResource extends Tonic\Resource {
 		    			$content = file_get_contents($filename);
 		    			
 		    			// fix images
-		    			$content = str_replace('{{site-dir}}', '//'.$site['Domain'], $content);
+		    			$content = str_replace('{{site-dir}}', $site['Domain'], $content);
 		    		}
 					
 					Page::EditContent($page['PageId'], $content, $userId);
@@ -362,7 +361,7 @@ class SiteCreateResource extends Tonic\Resource {
 	    		
 	    		// create strings to replace
 	    		$loginUrl = APP_URL.'/login/'.$site['FriendlyId'];
-	    		$newSiteUrl = 'http://'.$domain;
+	    		$newSiteUrl = $domain;
 	    		
 	    		$replace = array(
 	    			'{{brand-logo}}' => '<img src="'.BRAND_LOGO.'" style="max-height:50px">',
@@ -411,7 +410,7 @@ class SiteRetrieveResource extends Tonic\Resource {
 				$imagesURL = str_replace('{{bucket}}', $bucket, S3_URL);
 			}
 			else{
-				$imagesURL = '//'.$site['Domain'];
+				$imagesURL = $site['Domain'];
 			}
 			
 			// set the ImagesURL
