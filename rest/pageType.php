@@ -90,7 +90,7 @@ class PageTypeRemoveResource extends Tonic\Resource {
     /**
      * @method POST
      */
-    function post($pageTypeId) {
+    function post() {
     
         // get token
 		$token = Utilities::ValidateJWTToken(apache_request_headers());
@@ -113,7 +113,7 @@ class PageTypeRemoveResource extends Tonic\Resource {
 			}
 		
 			// remove page type and pages from DB
-            PageType::Delete($pageType['PageTypeId']);
+            PageType::Remove($pageType['PageTypeId'], $token->SiteId);
 
             return new Tonic\Response(Tonic\Response::OK);
         }

@@ -119,7 +119,7 @@ class PageType{
 	}
 	
 	// removes a pageType
-	public static function Remove($pageTypeId){
+	public static function Remove($pageTypeId, $siteId){
 		
         try{
             
@@ -129,15 +129,8 @@ class PageType{
             $q = "DELETE FROM PageTypes WHERE PageTypeId = ? AND SiteId = ?";
      
             $s = $db->prepare($q);
-            $s->bindParam(1, $pageTypeId);
-            
-            $s->execute();
-            
-            // remove pages associated with that pagetype
-            $q = "DELETE FROM Pages WHERE PageTypeId = ?";
-     
-            $s = $db->prepare($q);
-            $s->bindParam(1, $pageTypeId);
+            $s->bindParam(1, $siteId);
+            $s->bindParam(2, $pageTypeId);
             
             $s->execute();
             
