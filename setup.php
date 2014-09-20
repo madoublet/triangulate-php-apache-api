@@ -75,8 +75,8 @@
 	define('SEND_PAYMENT_SUCCESSFUL_EMAIL', false);
 	define('SEND_PAYMENT_FAILED_EMAIL', false);
 	
-    // start page (sets the default page a user sees after logon)
-	define('START_PAGE', 'app/pages');
+    // start page (sets the default page (route state) a user sees after logon)
+	define('START_PAGE', 'app.pages');
 	
 	// set the default theme (directory name: themes/simple => simple)
 	define('DEFAULT_THEME', 'simple');
