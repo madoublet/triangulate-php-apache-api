@@ -86,7 +86,7 @@ class StylesheetRetrieveResource extends Tonic\Resource {
 
 
 /**
- * This class defines an example resource that is wired into the URI /example
+ * Publishes the LESS for a stylesheet and renders the CSS to the site
  * @uri /stylesheet/publish
  */
 class StylesheetPublishResource extends Tonic\Resource {
@@ -115,12 +115,18 @@ class StylesheetPublishResource extends Tonic\Resource {
 
             file_put_contents($f, $content); // save to file
 
-            Publish::PublishAllCSS($site['SiteId']);
+            $result = Publish::PublishCSS($site, $name);
             
-            // return a json response
-            $response = new Tonic\Response(Tonic\Response::OK);
-            $response->contentType = 'text/HTML';
-            $response->body = $content;
+            if($result == true){
+	            $response = new Tonic\Response(Tonic\Response::OK);
+	            $response->contentType = 'text/HTML';
+	            $response->body = $content;
+            }
+            else{
+	            $response = new Tonic\Response(Tonic\Response::BADREQUEST);
+	            $response->contentType = 'text/HTML';
+	            $response->body = $result;
+            }
 
             return $response;
         }
