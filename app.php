@@ -44,6 +44,7 @@
 	require_once 'db/Role.php';
 	require_once 'db/MenuItem.php';
 	require_once 'db/Transaction.php';
+	require_once 'db/Version.php';
 	
 	// include external libs (via composer)
 	require 'vendor/autoload.php';
@@ -76,5 +77,6 @@
     require_once 'rest/script.php';
     require_once 'rest/translation.php';
     require_once 'rest/transaction.php';
+    require_once 'rest/version.php';
    
 ?>

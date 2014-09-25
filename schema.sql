@@ -61,6 +61,16 @@ CREATE TABLE IF NOT EXISTS `Pages` (
   KEY `OrgId` (`SiteId`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
+CREATE TABLE IF NOT EXISTS `Versions` (
+  `VersionId` varchar(50) NOT NULL,
+  `PageId` varchar(50) NOT NULL,
+  `UserId` varchar(50) NOT NULL,
+  `Content` text,
+  `Created` datetime NOT NULL,
+  PRIMARY KEY (`VersionId`),
+  KEY `PageId` (`PageId`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `PageTypes` (
   `PageTypeId` varchar(50) NOT NULL,
   `FriendlyId` varchar(50) DEFAULT NULL,
@@ -194,3 +204,10 @@ ALTER TABLE `PageTypes`
 
 ALTER TABLE `Users`
   ADD CONSTRAINT `Users_ibfk_1` FOREIGN KEY (`SiteId`) REFERENCES `Sites` (`SiteId`) ON DELETE CASCADE ON UPDATE CASCADE;
+  
+ALTER TABLE `Versions`
+  ADD CONSTRAINT `Versions_ibfk_1` FOREIGN KEY (`PageId`) REFERENCES `Pages` (`PageId`) ON DELETE CASCADE ON UPDATE CASCADE; 
+  
+ALTER TABLE `Versions`
+  ADD CONSTRAINT `Versions_ibfk_2` FOREIGN KEY (`UserId`) REFERENCES `Users` (`UserId`) ON DELETE CASCADE ON UPDATE CASCADE;  
+  

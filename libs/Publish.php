@@ -79,10 +79,6 @@ class Publish
 		$htaccess = SITES_LOCATION.'/'.$site['FriendlyId'].'/.htaccess';
 	
 		if($site['UrlMode'] == 'html5'){
-			// create dir if needed
-			if(!file_exists($dir)){
-				mkdir($dir, 0755, true);	
-			}
 			
 			$contents = 'RewriteEngine On'.PHP_EOL.
 							'RewriteCond %{REQUEST_FILENAME} !-f'.PHP_EOL.
