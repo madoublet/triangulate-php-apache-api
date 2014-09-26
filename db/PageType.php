@@ -129,8 +129,8 @@ class PageType{
             $q = "DELETE FROM PageTypes WHERE PageTypeId = ? AND SiteId = ?";
      
             $s = $db->prepare($q);
-            $s->bindParam(1, $siteId);
-            $s->bindParam(2, $pageTypeId);
+            $s->bindParam(1, $pageTypeId);
+            $s->bindParam(2, $siteId);
             
             $s->execute();
             
