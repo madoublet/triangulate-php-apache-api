@@ -32,8 +32,8 @@ class Image
 			$full = $directory.$filename;
 			
 			// create a directory
-			if(!file_exists($dir)){
-				mkdir($dir, 0777, true);	
+			if(!file_exists($directory)){
+				mkdir($directory, 0777, true);	
 			}
 			
 			// just copy the image
