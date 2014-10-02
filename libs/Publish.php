@@ -358,6 +358,7 @@ class Publish
 			if(FILES_ON_S3 == true){
 				$bucket = $site['Bucket'];
 				$imagesURL = str_replace('{{bucket}}', $bucket, S3_URL).'/';
+				$imagesURL = str_replace('{{site}}', $site['FriendlyId'], $imagesURL);
 			}
 			
 		}
@@ -754,6 +755,95 @@ class Publish
 			else{
 				$html = $page['Content'];
 			}
+			
+			// remove any drafts associated with the page
+			if($remove_draft==true){
+			
+				// remove a draft from the page
+				Page::RemoveDraft($page['PageId']);
+			
+			}
+
+			// save the content to the published file
+			Utilities::SaveContent($dest, $file, $html);
+			
+			// inject states
+			Publish::InjectStates($site);
+            
+            return $dest.$file;
+		}
+	}
+	
+	// publishes a static version of the page
+	public static function PublishStaticPage($pageId, $preview = false, $remove_draft = false){
+	
+		$page = Page::GetByPageId($pageId);
+        
+		if($page!=null){
+			
+			$site = Site::GetBySiteId($page['SiteId']); // test for now
+			$dest = SITES_LOCATION.'/'.$site['FriendlyId'].'/templates/';
+			$imageurl = $dest.'files/';
+			$siteurl = $site['Domain'].'/';
+			
+			$friendlyId = $page['FriendlyId'];
+			
+			$url = '';
+			$file = '';
+            
+	 	  	// create a static location for the page
+	 	  	if($page['PageTypeId']==-1){
+				$url = $page['FriendlyId'].'.html';
+				$dest = SITES_LOCATION.'/'.$site['FriendlyId'].'/';
+			}
+			else{
+				$pageType = PageType::GetByPageTypeId($page['PageTypeId']);
+				
+				$dest = SITES_LOCATION.'/'.$site['FriendlyId'].'/uncategorized/';
+				
+				if($pageType!=null){
+					$dest = SITES_LOCATION.'/'.$site['FriendlyId'].'/'.$pageType['FriendlyId'].'/';
+				}
+	
+			}
+            
+            // create directory if it does not exist
+            if(!file_exists($dest)){
+				mkdir($dest, 0755, true);	
+			}
+            
+			// generate default
+			$html = '';
+			$content = '';
+			
+			// get index and layout (file_get_contents)
+			$index = SITES_LOCATION.'/'.$site['FriendlyId'].'/themes/'.$site['Theme'].'/layouts/index.html';
+			$layout = SITES_LOCATION.'/'.$site['FriendlyId'].'/themes/'.$site['Theme'].'/layouts/'.$page['Layout'].'.html';
+			
+			// get index html
+			if(file_exists($index)){
+            	$html = file_get_contents($index);
+            }
+  
+            // get layout html
+			if(file_exists($layout)){
+            	$layout_html = file_get_contents($layout);
+            
+				$html = str_replace('<body ui-view></body>', '<body ui-view>'.$layout_html.'</body>', $html);
+            }
+			
+			// get draft/content
+			if($preview == true){
+				$file = $page['FriendlyId'].'.preview.html';
+				$content = $page['Draft'];
+			}
+			else{
+				$file = $page['FriendlyId'].'.html';
+				$content = $page['Content'];
+			}
+			
+			// replace triangulate-content for layout with content
+			$html = str_replace('<triangulate-content id="main-content" url="{{page.Url}}"></triangulate-content>', $content, $html);
 			
 			// remove any drafts associated with the page
 			if($remove_draft==true){

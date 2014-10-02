@@ -408,6 +408,7 @@ class SiteRetrieveResource extends Tonic\Resource {
 			if(FILES_ON_S3 == true){
 				$bucket = $site['Bucket'];
 				$imagesURL = str_replace('{{bucket}}', $bucket, S3_URL);
+				$imagesURL = str_replace('{{site}}', $site['FriendlyId'], $imagesURL);
 			}
 			else{
 				$imagesURL = $site['Domain'];
@@ -509,24 +510,28 @@ class SiteRemoveResource extends Tonic\Resource {
     function remove() {
 
         // get an authuser
-        $authUser = new AuthUser();
+        $token = Utilities::ValidateJWTToken(apache_request_headers());
 
-        if(isset($authUser->UserId)){ // check if authorized
+        if($token != NULL){  // check if authorized
 
-			if($authUser->IsSuperAdmin == 1){
+			 // validate that the user can remove the site
+	        $user = User::GetByUserId($token->UserId);
+			
+			if($user['SiteAdmin'] == 1){
+	        
 	            parse_str($this->request->data, $request); // parse request
-	
+	        
 	            $siteId = $request['siteId'];
 	            
 	            $site = Site::GetBySiteId($siteId);
 	            
-	            $directory = '../sites/'.$site['FriendlyId'];
+	            $directory = SITES_LOCATION.'/'.$site['FriendlyId'];
 	            
 	            // Get the directory name
-				$oldname = '../sites/'.$site['FriendlyId'];
+				$oldname = SITES_LOCATION.'/'.$site['FriendlyId'];
 				
 				// Replace any special chars with your choice
-				$newname = '../sites/'.$site['FriendlyId'].'-removed';
+				$newname = SITES_LOCATION.'/'.$site['FriendlyId'].'-removed';
 				
 				if(file_exists($oldname)){
 					// Renames the directory
@@ -740,6 +745,7 @@ class SiteBrandingResource extends Tonic\Resource {
 	            if(FILES_ON_S3 == true){
 					$bucket = $site['Bucket'];
 					$imagesURL = str_replace('{{bucket}}', $bucket, S3_URL);
+					$imagesURL = str_replace('{{site}}', $site['FriendlyId'], $imagesURL);
 					
 					$source = $imagesURL.'/files/'.$url;
 				}

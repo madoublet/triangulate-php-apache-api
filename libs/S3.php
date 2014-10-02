@@ -60,7 +60,7 @@ class S3
 		
 		$result = $client->putObject(array(
 		    'Bucket'       => $bucket,
-		    'Key'          => 'files/'.$filename,
+		    'Key'          => $site['FriendlyId'].'/files/'.$filename,
 		    'Body'   	   => file_get_contents($file),
 		    'ContentType'  => $contentType,
 		    'ACL'          => 'public-read',
@@ -84,13 +84,13 @@ class S3
 		// remove file
     	$result = $client->deleteObject(array(
 		    'Bucket' => $bucket,
-		    'Key' => 'files/'.$filename
+		    'Key' => $site['FriendlyId'].'/files/'.$filename
 		));
 		
 		// remove thumb
 		$result = $client->deleteObject(array(
 		    'Bucket' => $bucket,
-		    'Key' => 'files/thumbs/'.$filename
+		    'Key' => $site['FriendlyId'].'/files/thumbs/'.$filename
 		));
 			
 	}
@@ -111,7 +111,7 @@ class S3
 		
 		$result = $client->putObject(array(
 		    'Bucket'       => $bucket,
-		    'Key'          => 'files/'.$filename,
+		    'Key'          => $site['FriendlyId'].'/files/'.$filename,
 		    'Body'   	   => $contents,
 		    'ContentType'  => $contentType,
 		    'ACL'          => 'public-read',
@@ -134,8 +134,9 @@ class S3
 		
 		$bucket = $site['Bucket'];
 		
-		$prefix = 'files/';
-	    $url = str_replace('{{bucket}}', $bucket, S3_URL);
+		$prefix = $site['FriendlyId'].'/files/';
+	    $url = str_replace('{{bucket}}', $site['Bucket'], S3_URL);
+		$url = str_replace('{{site}}', $site['FriendlyId'], $url);
 		
 		// list objects in a bucket
 		$iterator = $client->getIterator('ListObjects', array(
@@ -247,9 +248,8 @@ class S3
 		
 		$bucket = $site['Bucket'];
 		
-		$prefix = 'files/';
-	    $url = str_replace('{{bucket}}', $bucket, S3_URL);
-		
+		$prefix = $site['FriendlyId'].'/files/';
+	    
 		// list objects in a bucket
 		$iterator = $client->getIterator('ListObjects', array(
 		    'Bucket' => $bucket,
@@ -371,7 +371,7 @@ class S3
 		);
 		
 		// sync folders, #ref: http://blogs.aws.amazon.com/php/post/Tx2W9JAA7RXVOXA/Syncing-Data-with-Amazon-S3
-		$client->uploadDirectory($local_dir, $bucket, $keyPrefix, $options);
+		$client->uploadDirectory($local_dir, $bucket, $site['FriendlyId'].'/'.$keyPrefix, $options);
 	
 	}
 	

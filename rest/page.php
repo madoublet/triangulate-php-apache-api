@@ -117,6 +117,7 @@ class PageAddResource extends Tonic\Resource {
 				if(FILES_ON_S3 == true){
 					$bucket = $site['Bucket'];
 					$imagesURL = str_replace('{{bucket}}', $bucket, S3_URL);
+					$imagesURL = str_replace('{{site}}', $site['FriendlyId'], $imagesURL);
 				}
 				else{
 					$imagesURL = $site['Domain'];
@@ -1033,6 +1034,7 @@ class PageListAll extends Tonic\Resource {
 					if(FILES_ON_S3 == true){
 						$bucket = $site['Bucket'];
 						$imagesURL = str_replace('{{bucket}}', $bucket, S3_URL);
+						$imagesURL = str_replace('{{site}}', $site['FriendlyId'], $imagesURL);
 					}
 					else{
 						$imagesURL = $site['Domain'];
@@ -1178,6 +1180,7 @@ class PageListAllowed extends Tonic\Resource {
 					if(FILES_ON_S3 == true){
 						$bucket = $site['Bucket'];
 						$imagesURL = str_replace('{{bucket}}', $bucket, S3_URL);
+						$imagesURL = str_replace('{{site}}', $site['FriendlyId'], $imagesURL);
 					}
 					else{
 						$imagesURL = $site['Domain'];

@@ -64,8 +64,8 @@ class FilePostResource extends Tonic\Resource {
 				
 				// set URL if on S3
 				if(FILES_ON_S3 == true){
-					$bucket = $site['Bucket'];
-					$url = str_replace('{{bucket}}', $bucket, S3_URL);
+					$url = str_replace('{{bucket}}', $site['Bucket'], S3_URL);
+					$url = str_replace('{{site}}', $site['FriendlyId'], $url);
 				}
     			
     		    // create array
@@ -90,8 +90,8 @@ class FilePostResource extends Tonic\Resource {
     			
 				// set URL if on S3
 				if(FILES_ON_S3 == true){
-					$bucket = $site['Bucket'];
-					$url = str_replace('{{bucket}}', $bucket, S3_URL);
+					$url = str_replace('{{bucket}}', $site['Bucket'], S3_URL);
+					$url = str_replace('{{site}}', $site['FriendlyId'], $url);
 				}
 				else{
 					// upload file

@@ -79,4 +79,8 @@
     require_once 'rest/transaction.php';
     require_once 'rest/version.php';
    
+	// workaround for JSON module issues
+	if(defined('JSON_C_VERSION') == false){	
+		define('JSON_C_VERSION', true);
+	}
 ?>

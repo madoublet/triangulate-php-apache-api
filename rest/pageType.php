@@ -104,13 +104,6 @@ class PageTypeRemoveResource extends Tonic\Resource {
         
         	$pageType = PageType::GetByPageTypeId($pageTypeId);
 			$site = Site::GetBySiteId($pageType['SiteId']);
-			
-			// remove pages for that pagetype in that site
-			$dir = '../sites/'.$site['FriendlyId'].'/'.$pageType['FriendlyId'];
-			
-			if(file_exists($dir)){
-				Utilities::RemoveDirectory($dir);
-			}
 		
 			// remove page type and pages from DB
             PageType::Remove($pageType['PageTypeId'], $token->SiteId);

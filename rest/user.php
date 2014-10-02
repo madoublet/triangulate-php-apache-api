@@ -126,6 +126,7 @@ class UserLoginResource extends Tonic\Resource {
 					if(FILES_ON_S3 == true){
 						$bucket = $site['Bucket'];
 						$imagesURL = str_replace('{{bucket}}', $bucket, S3_URL);
+						$imagesURL = str_replace('{{site}}', $site['FriendlyId'], $imagesURL);
 					}
 					else{
 						$imagesURL = $site['Domain'];
@@ -445,6 +446,7 @@ class UserPhotoResource extends Tonic\Resource {
 			if(FILES_ON_S3 == true){
 				$bucket = $site['Bucket'];
 				$imagesURL = str_replace('{{bucket}}', $bucket, S3_URL);
+				$imagesURL = str_replace('{{site}}', $site['FriendlyId'], $imagesURL);
 			}
 			else{
 				$imagesURL = $site['Domain'];
@@ -626,6 +628,7 @@ class UserList extends Tonic\Resource {
 					if(FILES_ON_S3 == true){
 						$bucket = $site['Bucket'];
 						$imagesURL = str_replace('{{bucket}}', $bucket, S3_URL);
+						$imagesURL = str_replace('{{site}}', $site['FriendlyId'], $imagesURL);
 					}
 					else{
 						$imagesURL = $site['Domain'];
