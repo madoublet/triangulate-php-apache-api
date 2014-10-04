@@ -272,7 +272,7 @@ class Utilities
 		  if($site['UrlMode'] == 'hashbang'){
 			  $divider = '/!#/';
 		  }
-		  else if($site['UrlMode'] == 'html5'){
+		  else if($site['UrlMode'] == 'html5' || $site['UrlMode'] == 'static') {
 		  		$divider = '/';
 		  }
 		  

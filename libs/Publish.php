@@ -1004,7 +1004,7 @@ class Publish
 		}
 
 		// replace ui-sref with static reference
-		$html = str_replace('ui-sref="', 'href="/', $html);
+		//$html = str_replace('ui-sref="', 'href="/', $html);
 		
 		// replace common Angular calls for SEO, e.g. {{page.Name}} {{page.Description}} {{site.Name}}
 		$html = str_replace('{{page.Name}}', $page['Name'], $html);
