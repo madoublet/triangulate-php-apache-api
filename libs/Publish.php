@@ -89,6 +89,13 @@ class Publish
 
 			file_put_contents($htaccess, $contents); // save to file			
 		}
+		else if($site['UrlMode'] == 'static'){
+			$contents = 'RewriteEngine On'.PHP_EOL.
+						'RewriteCond %{REQUEST_FILENAME} !-f'.PHP_EOL.
+						'RewriteRule ^([^\.]+)$ $1.html [NC,L]';
+			
+			file_put_contents($htaccess, $contents); // save to file
+		}
 		
 	}
 
@@ -205,8 +212,30 @@ class Publish
 		// copies a directory
 		Utilities::CopyDirectory($src, $dest);
 		
-		// inject states
-		Publish::InjectStates($site);
+		if($site['UrlMode'] == 'static'){
+		
+			// get static version of triangulate.site.js
+			$src_file = APP_LOCATION.'/site/js/static/triangulate.site.js';
+			$dest_file = SITES_LOCATION.'/'.$site['FriendlyId'].'/js/triangulate.site.js';
+			
+			$content = file_get_contents($src_file);
+            
+            // get language
+            $language = $site['Language'];
+            
+            // set language
+            $content = str_replace('{{language}}', $language, $content);
+
+			// update site file
+			file_put_contents($dest_file, $content);
+		
+			// inject controllers
+			Publish::InjectControllers($site);
+		}
+		else{
+			// inject states
+			Publish::InjectStates($site);
+		}
 		
 	}
 	
@@ -339,6 +368,126 @@ class Publish
 		
 	}
 	
+	// injects controllers into site/js/static/triangulate.site.controllers.js
+	public static function InjectControllers($site){
+	
+		// create site json
+		$arr = Publish::CreateSiteJSON($site);
+		
+		// encode to json
+		$site_json = json_encode($arr).';';		
+		
+		// inject routes
+		$pages = Page::GetPagesForSite($site['SiteId'], true);
+		
+		// a list of controllers for the app
+		$ctrls = '';
+		
+		// walk through pages
+		foreach($pages as $page){
+		
+			$isSecure = 'false';
+			
+			// create a controller name
+			$ctrl = ucfirst($page['FriendlyId']);
+			$ctrl = str_replace('-', '', $ctrl);
+		
+			// defaults
+			$url = '/'.$page['FriendlyId'];
+			$templateUrl = 'themes/'.$site['Theme'].'/layouts/'.$page['Layout'].'.html';
+			
+			// check for page type
+			if($page['PageTypeId'] != -1){
+				$pageType = PageType::GetByPageTypeId($page['PageTypeId']);
+				
+				if($pageType != NULL){
+					$state = $pageType['FriendlyId'].'/'.$page['FriendlyId'];
+					$url = '/'.$pageType['FriendlyId'].'/'.$page['FriendlyId'];
+					
+					$ctrl = ucfirst($pageType['FriendlyId']).$ctrl;
+					$ctrl = str_replace('-', '', $ctrl);
+					
+					if($pageType['IsSecure'] == 1){
+						$isSecure = 'true';
+					}
+				}
+			}
+			
+			// strip the first / for the pageUrl
+			$pageUrl = ltrim($url,'/');
+			
+			// build fullStylesheet
+			$fullStylesheetUrl = 'css/'.$page['Stylesheet'].'.css';
+			
+			// setup state 
+			if($url != ''){
+				$page_json = '{'.PHP_EOL
+						        .'	PageId: \''.$page['PageId'].'\','.PHP_EOL
+						        .'	PageTypeId: \''.$page['PageTypeId'].'\','.PHP_EOL
+						        .'	FriendlyId: \''.$page['FriendlyId'].'\','.PHP_EOL
+						        .'	Url: \''.$pageUrl.'\','.PHP_EOL
+						        .'	Name: \''.htmlentities($page['Name'], ENT_QUOTES).'\','.PHP_EOL
+						        .'	Description: \''.htmlentities($page['Description'], ENT_QUOTES).'\','.PHP_EOL
+						        .'	Keywords: \''.htmlentities($page['Keywords'], ENT_QUOTES).'\','.PHP_EOL
+						        .'	Callout: \''.htmlentities($page['Callout'], ENT_QUOTES).'\','.PHP_EOL
+						        .'	IsSecure: '.$isSecure.','.PHP_EOL
+						        .'	BeginDate: \''.$page['BeginDate'].'\','.PHP_EOL
+						        .'	EndDate: \''.$page['EndDate'].'\','.PHP_EOL
+						        .'	Location: \''.htmlentities($page['Location'], ENT_QUOTES).'\','.PHP_EOL
+						        .'	LatLong: \''.$page['LatLong'].'\','.PHP_EOL
+						        .'	Layout: \''.$page['Layout'].'\','.PHP_EOL
+						        .'	FullStylesheetUrl: \''.$fullStylesheetUrl.'\','.PHP_EOL
+						        .'	Stylesheet: \''.$page['Stylesheet'].'\','.PHP_EOL
+						        .'	Image: \''.$page['Image'].'\','.PHP_EOL
+						        .'	LastModifiedDate: \''.$page['LastModifiedDate'].'\','.PHP_EOL
+						        .'	FirstName: \''.$page['FirstName'].'\','.PHP_EOL
+						        .'	LastName: \''.$page['LastName'].'\','.PHP_EOL
+						        .'	LastModifiedBy: \''.$page['FirstName'].' '.$page['LastName'].'\','.PHP_EOL
+						        .'	PhotoUrl: \''.$page['PhotoUrl'].'\''.PHP_EOL
+						        .'};';
+			}
+			
+			// controller file
+			$ctrl_file = APP_LOCATION.'/site/js/static/triangulate.site.controller.js';
+		
+		
+			if(file_exists($ctrl_file)){
+				$content = file_get_contents($ctrl_file);
+				
+				// replace ctrl
+				$content = str_replace('{{ctrl}}', $ctrl, $content);
+				$content = str_replace('{{page}}', $page_json, $content);
+				$content = str_replace('{{site}}', $site_json, $content);
+				
+				// add controller to the list
+				$ctrls .= $content.PHP_EOL;
+			}
+		}
+		
+		// site file
+        $js_dir = SITES_LOCATION.'/'.$site['FriendlyId'].'/js/';
+        $app_filename = 'triangulate.site.controllers.js';
+		$app_file = $js_dir.$app_filename;
+		
+		// init content
+		$content = '';
+		
+		// controller file
+		$ctrls_file = APP_LOCATION.'/site/js/static/triangulate.site.controllers.js';
+		
+		// update states
+		if(file_exists($ctrls_file)){
+            $content = file_get_contents($ctrls_file);
+          			
+            // set contorllers
+            $content = str_replace('{{controllers}}', $ctrls, $content);
+        }
+        
+        // save content
+        Utilities::SaveContent($js_dir, $app_filename, $content);
+		
+	}
+	
 	// creates site JSON
 	public static function CreateSiteJSON($site, $env = 'local'){
 		
@@ -352,7 +501,7 @@ class Publish
 		// set imagesURL
 		if($env == 'local'){  // if it is locally deployed
 		
-			$imagesURL = '';
+			$imagesURL = '/';
 			
 			// if files are stored on S3
 			if(FILES_ON_S3 == true){
@@ -363,7 +512,7 @@ class Publish
 			
 		}
 		else{ // if the deployment is on S3
-			$imagesURL = '';
+			$imagesURL = '/';
 		}
 		
 		// set iconUrl
@@ -672,27 +821,6 @@ class Publish
 
 	}
 
-	/*
-
-	// publishes a fragment
-	public static function PublishFragment($siteFriendlyId, $file, $status, $content){
-
-		// clean content
-		$content = str_replace( "&nbsp;", ' ', $content);
-
-		$dir = SITES_LOCATION.'/'.$siteFriendlyId.'/fragments/'.$status.'/';
-		
-		if(!file_exists($dir)){
-			mkdir($dir, 0755, true);	
-		}
-		
-		// create fragment
-		$fragment = SITES_LOCATION.'/'.$siteFriendlyId.'/fragments/'.$status.'/'.$file;
-		file_put_contents($fragment, $content); // save to file
-	}
-	
-	*/
-
 	// publishes a page
 	// live 	-> 	/site/{{site.FriendlyId}}/templates/page/{{pageType.FriendlyId}}.{{page.FriendlyId}}.html
 	// preview	->  /site/{{site.FriendlyId}}/templates/preview/{{pageType.FriendlyId}}.{{page.FriendlyId}}.html
@@ -703,164 +831,194 @@ class Publish
 		if($page!=null){
 			
 			$site = Site::GetBySiteId($page['SiteId']); // test for now
-			$dest = SITES_LOCATION.'/'.$site['FriendlyId'].'/templates/';
-			$imageurl = $dest.'files/';
-			$siteurl = $site['Domain'].'/';
 			
-			$friendlyId = $page['FriendlyId'];
-			
-			$url = '';
-			$file = '';
-            
-            // set full destination
-            if($preview==true){
-                $dest = SITES_LOCATION.'/'.$site['FriendlyId'].'/templates/preview/';
-            }   
-            else{
-                $dest = SITES_LOCATION.'/'.$site['FriendlyId'].'/templates/page/';
-	 	  	}
-            
-            // create directory if it does not exist
-            if(!file_exists($dest)){
-				mkdir($dest, 0755, true);	
-			}
-            
-            // set friendlyId
-            $file = $page['FriendlyId'].'.html';
-            
-            // initialize PT
-            $pageType = NULL;
-            
-			// create a nice path to store the file
-			if($page['PageTypeId'] != -1){
+			if($site['UrlMode'] == 'static'){ // for sites using static html pages (URL-based routing)
+				Publish::PublishDynamicPage($page, $site, $preview, $remove_draft);
+				Publish::PublishStaticPage($page, $site, $preview, $remove_draft);
 				
-				$pageType = PageType::GetByPageTypeId($page['PageTypeId']);
+				// inject controllers
+				Publish::InjectControllers($site);
+			}
+			else{ // publishes a dynamic version of the page (for sites using UI-ROUTER (html5, hashbang, etc)
+				Publish::PublishDynamicPage($page, $site, $preview, $remove_draft);
 				
-				// prepend the friendlyId to the fullname
-				if($pageType!=null){
-					$file = strtolower($pageType['FriendlyId']).'.'.$file;
-				}
-				else{
-					$file = 'uncategorized.'.$file;
-				}
-	
-			}
-		
-			// generate default
-			$html = '';
-			
-			if($preview == true){
-				$html = $page['Draft'];
-			}
-			else{
-				$html = $page['Content'];
+				// inject states
+				Publish::InjectStates($site);
 			}
 			
-			// remove any drafts associated with the page
-			if($remove_draft==true){
-			
-				// remove a draft from the page
-				Page::RemoveDraft($page['PageId']);
-			
-			}
-
-			// save the content to the published file
-			Utilities::SaveContent($dest, $file, $html);
-			
-			// inject states
-			Publish::InjectStates($site);
-            
-            return $dest.$file;
 		}
 	}
 	
-	// publishes a static version of the page
-	public static function PublishStaticPage($pageId, $preview = false, $remove_draft = false){
-	
-		$page = Page::GetByPageId($pageId);
+	// publishes a dymanic version of the page
+	public static function PublishDynamicPage($page, $site, $preview = false, $remove_draft = false){
+		
+		$dest = SITES_LOCATION.'/'.$site['FriendlyId'].'/templates/';
+		$imageurl = $dest.'files/';
+		$siteurl = $site['Domain'].'/';
+		
+		$friendlyId = $page['FriendlyId'];
+		
+		$url = '';
+		$file = '';
         
-		if($page!=null){
+        // set full destination
+        if($preview==true){
+            $dest = SITES_LOCATION.'/'.$site['FriendlyId'].'/templates/preview/';
+        }   
+        else{
+            $dest = SITES_LOCATION.'/'.$site['FriendlyId'].'/templates/page/';
+ 	  	}
+        
+        // create directory if it does not exist
+        if(!file_exists($dest)){
+			mkdir($dest, 0755, true);	
+		}
+        
+        // set friendlyId
+        $file = $page['FriendlyId'].'.html';
+        
+        // initialize PT
+        $pageType = NULL;
+        
+		// create a nice path to store the file
+		if($page['PageTypeId'] != -1){
 			
-			$site = Site::GetBySiteId($page['SiteId']); // test for now
-			$dest = SITES_LOCATION.'/'.$site['FriendlyId'].'/templates/';
-			$imageurl = $dest.'files/';
-			$siteurl = $site['Domain'].'/';
+			$pageType = PageType::GetByPageTypeId($page['PageTypeId']);
 			
-			$friendlyId = $page['FriendlyId'];
-			
-			$url = '';
-			$file = '';
-            
-	 	  	// create a static location for the page
-	 	  	if($page['PageTypeId']==-1){
-				$url = $page['FriendlyId'].'.html';
-				$dest = SITES_LOCATION.'/'.$site['FriendlyId'].'/';
+			// prepend the friendlyId to the fullname
+			if($pageType!=null){
+				$file = strtolower($pageType['FriendlyId']).'.'.$file;
 			}
 			else{
-				$pageType = PageType::GetByPageTypeId($page['PageTypeId']);
-				
-				$dest = SITES_LOCATION.'/'.$site['FriendlyId'].'/uncategorized/';
-				
-				if($pageType!=null){
-					$dest = SITES_LOCATION.'/'.$site['FriendlyId'].'/'.$pageType['FriendlyId'].'/';
-				}
-	
-			}
-            
-            // create directory if it does not exist
-            if(!file_exists($dest)){
-				mkdir($dest, 0755, true);	
-			}
-            
-			// generate default
-			$html = '';
-			$content = '';
-			
-			// get index and layout (file_get_contents)
-			$index = SITES_LOCATION.'/'.$site['FriendlyId'].'/themes/'.$site['Theme'].'/layouts/index.html';
-			$layout = SITES_LOCATION.'/'.$site['FriendlyId'].'/themes/'.$site['Theme'].'/layouts/'.$page['Layout'].'.html';
-			
-			// get index html
-			if(file_exists($index)){
-            	$html = file_get_contents($index);
-            }
-  
-            // get layout html
-			if(file_exists($layout)){
-            	$layout_html = file_get_contents($layout);
-            
-				$html = str_replace('<body ui-view></body>', '<body ui-view>'.$layout_html.'</body>', $html);
-            }
-			
-			// get draft/content
-			if($preview == true){
-				$file = $page['FriendlyId'].'.preview.html';
-				$content = $page['Draft'];
-			}
-			else{
-				$file = $page['FriendlyId'].'.html';
-				$content = $page['Content'];
-			}
-			
-			// replace triangulate-content for layout with content
-			$html = str_replace('<triangulate-content id="main-content" url="{{page.Url}}"></triangulate-content>', $content, $html);
-			
-			// remove any drafts associated with the page
-			if($remove_draft==true){
-			
-				// remove a draft from the page
-				Page::RemoveDraft($page['PageId']);
-			
+				$file = 'uncategorized.'.$file;
 			}
 
-			// save the content to the published file
-			Utilities::SaveContent($dest, $file, $html);
-			
-			// inject states
-			Publish::InjectStates($site);
-            
-            return $dest.$file;
 		}
+	
+		// generate default
+		$html = '';
+		
+		if($preview == true){
+			$html = $page['Draft'];
+		}
+		else{
+			$html = $page['Content'];
+		}
+		
+		// remove any drafts associated with the page
+		if($remove_draft==true){
+		
+			// remove a draft from the page
+			Page::RemoveDraft($page['PageId']);
+		
+		}
+
+		// save the content to the published file
+		Utilities::SaveContent($dest, $file, $html);
+		
+        return $dest.$file;
+        
+	}
+	
+	
+	// publishes a static version of the page
+	public static function PublishStaticPage($page, $site, $preview = false, $remove_draft = false){
+	
+		$dest = SITES_LOCATION.'/'.$site['FriendlyId'].'/';
+		$imageurl = $dest.'files/';
+		$siteurl = $site['Domain'].'/';
+		
+		$friendlyId = $page['FriendlyId'];
+		
+		$url = '';
+		$file = '';
+		
+		// created ctrl
+		$ctrl = ucfirst($page['FriendlyId']);
+		$ctrl = str_replace('-', '', $ctrl);
+        
+ 	  	// create a static location for the page
+ 	  	if($page['PageTypeId'] == -1){
+			$url = $page['FriendlyId'].'.html';
+			$dest = SITES_LOCATION.'/'.$site['FriendlyId'].'/';
+		}
+		else{
+			$pageType = PageType::GetByPageTypeId($page['PageTypeId']);
+			
+			$dest = SITES_LOCATION.'/'.$site['FriendlyId'].'/uncategorized/';
+			
+			if($pageType!=null){
+				$dest = SITES_LOCATION.'/'.$site['FriendlyId'].'/'.$pageType['FriendlyId'].'/';
+				
+				// created ctrl
+				$ctrl = ucfirst($pageType['FriendlyId']).$ctrl;
+				$ctrl = str_replace('-', '', $ctrl);
+			}
+
+		}
+        
+        // create directory if it does not exist
+        if(!file_exists($dest)){
+			mkdir($dest, 0755, true);	
+		}
+        
+		// generate default
+		$html = '';
+		$content = '';
+		
+		// get index and layout (file_get_contents)
+		$index = SITES_LOCATION.'/'.$site['FriendlyId'].'/themes/'.$site['Theme'].'/layouts/index.html';
+		$layout = SITES_LOCATION.'/'.$site['FriendlyId'].'/themes/'.$site['Theme'].'/layouts/'.$page['Layout'].'.html';
+		
+		// get index html
+		if(file_exists($index)){
+        	$html = file_get_contents($index);
+        }
+
+        // get layout html
+		if(file_exists($layout)){
+        	$layout_html = file_get_contents($layout);
+        
+			$html = str_replace('<body ui-view></body>', '<body ng-controller="'.$ctrl.'Ctrl">'.$layout_html.'</body>', $html);
+        }
+		
+		// get draft/content
+		if($preview == true){
+			$file = $page['FriendlyId'].'.preview.html';
+			$content = $page['Draft'];
+		}
+		else{
+			$file = $page['FriendlyId'].'.html';
+			$content = $page['Content'];
+		}
+		
+		// replace triangulate-content for layout with content
+		$html = str_replace('<triangulate-content id="main-content" url="{{page.Url}}"></triangulate-content>', $content, $html);
+		
+		// remove any drafts associated with the page
+		if($remove_draft==true){
+		
+			// remove a draft from the page
+			Page::RemoveDraft($page['PageId']);
+		
+		}
+
+		// replace ui-sref with static reference
+		$html = str_replace('ui-sref="', 'href="/', $html);
+		
+		// replace common Angular calls for SEO, e.g. {{page.Name}} {{page.Description}} {{site.Name}}
+		$html = str_replace('{{page.Name}}', $page['Name'], $html);
+		$html = str_replace('{{page.Description}}', $page['Description'], $html);
+		$html = str_replace('{{page.Keywords}}', $page['Keywords'], $html);
+		$html = str_replace('{{page.Callout}}', $page['Callout'], $html);
+		$html = str_replace('{{site.Name}}', $site['Name'], $html);
+		$html = str_replace('{{site.Language}}', $site['Language'], $html);
+		
+		// save the content to the published file
+		Utilities::SaveContent($dest, $file, $html);
+		
+        return $dest.$file;
+        
 	}
 	
 	// removes a draft of the page

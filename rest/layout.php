@@ -116,9 +116,14 @@ class LayoutPublishResource extends Tonic\Resource {
             file_put_contents($file, $content); // save to file
             
             // publish index to root
-            if($name=='index'){
+            if($name=='index' && $site['UrlMode'] != 'static'){
 	            $index = SITES_LOCATION.'/'.$site['FriendlyId'].'/index.html';
 	            file_put_contents($index, $content); // save to file	            
+            }
+            
+            // republish pages for static mode
+            if($site['UrlMode'] == 'static'){
+	            Publish::PublishAllPages($site['SiteId']);
             }
 
             // return a json response

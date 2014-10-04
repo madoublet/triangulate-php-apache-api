@@ -246,6 +246,7 @@ class PageRemoveResource extends Tonic\Resource {
         	
         		// get file location
         		$path = SITES_LOCATION.'/'.$site['FriendlyId'].'/';
+        		$static_path = SITES_LOCATION.'/'.$site['FriendlyId'].'/';
         		
         		// default is root
         		$pageTypeId = -1;
@@ -262,6 +263,7 @@ class PageRemoveResource extends Tonic\Resource {
 						$pageTypeId = $pageType['PageTypeId'];
 		    			
 		    			$file = $pageType['FriendlyId'].'.'.$page['FriendlyId'].'.html';
+		    			$static_path = $static_file.$pageType['FriendlyId'].'/';
 		    		}
 				}
         		
@@ -277,12 +279,25 @@ class PageRemoveResource extends Tonic\Resource {
 		        if(file_exists($template)){
 		        	unlink($template);
 		        }
-		        		        
+		        
+		        $static_file = $static_path.$file;
+		        
+		        // remove static file if it exists
+		        if(file_exists($static_file)){
+		        	unlink($static_file);
+		        }
+		        
 		        // remove page from the DB
 		        Page::Remove($pageId);
 		        
-		        // update states
-		        Publish::InjectStates($site);
+		        if($site['UrlMode'] == 'static'){
+		        	// update controllers
+		        	Publish::InjectControllers($site);
+		        }
+		        else{
+		        	// update states
+					Publish::InjectStates($site);
+				}
 		        
 				return new Tonic\Response(Tonic\Response::OK);
 			
