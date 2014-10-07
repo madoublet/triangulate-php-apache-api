@@ -648,6 +648,11 @@ class SiteSaveResource extends Tonic\Resource {
             
             // republish site settings
             Publish::PublishSiteJSON($token->SiteId);
+            
+            // republish site to push updates to all pages
+            if($urlMode == 'static'){
+	            Publish::PublishSite($token->SiteId);
+            }
             	
             return new Tonic\Response(Tonic\Response::OK);
         

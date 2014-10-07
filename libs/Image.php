@@ -4,14 +4,14 @@ class Image
 {
 	
 	// saves the image with a thumbnail
-	public static function SaveImageWithThumb($site, $filename, $image){
+	public static function SaveImageWithThumb($site, $filename, $image, $folder = 'files'){
 		
 		// get meta information
 		$size = filesize($image);
 		list($curr_w, $curr_h, $type, $attr) = Image::getImageInfo($image);
 		
 		// create thumb
-		$thumb = Image::CreateThumb($site, $image, $filename); 
+		$thumb = Image::CreateThumb($site, $image, $filename, $folder); 
 		
 		// save the image to S3
 		if(FILES_ON_S3 == true){
@@ -22,12 +22,12 @@ class Image
 				);
 		
 			// save file with meta-data
-			S3::SaveFile($site, $type, $filename, $image, $meta);
+			S3::SaveFile($site, $type, $filename, $image, $meta, $folder);
 		
 		}
 		else{ // save the image locally
 		
-			$directory = SITES_LOCATION.'/'.$site['FriendlyId'].'/files/';
+			$directory = SITES_LOCATION.'/'.$site['FriendlyId'].'/'.$folder.'/';
 		
 			$full = $directory.$filename;
 			
@@ -50,10 +50,10 @@ class Image
 	}
 	
 	// creates a thumbnail
-	public static function CreateThumb($site, $image, $filename){
+	public static function CreateThumb($site, $image, $filename, $folder = 'files'){
 	
 		// directory
-		$dir = SITES_LOCATION.'/'.$site['FriendlyId'].'/files/';
+		$dir = SITES_LOCATION.'/'.$site['FriendlyId'].'/'.$folder.'/';
 	
 		// set thumb size
 		$target_w = THUMB_MAX_WIDTH;
@@ -122,7 +122,7 @@ class Image
 		
 		// (for testing) die('curr_w='.$curr_w.' curr_h='.$curr_h.' x_start='.$x_start.' y_start='.$y_start.' target_w='.$target_w.' target_h='.$target_h.' up_w='.$up_w.' up_h='.$up_h);
 		if ($type!='image/svg+xml') {
-		imagecopyresampled($dst_img, $n_img, 0, 0, $x_start, $y_start, $target_w, $target_h, $up_w, $up_h); 
+			imagecopyresampled($dst_img, $n_img, 0, 0, $x_start, $y_start, $target_w, $target_h, $up_w, $up_h); 
 		}
 		
 		
@@ -152,7 +152,7 @@ class Image
 						'height'	=> $target_h
 						);
 				
-					S3::SaveContents($site, $type, 'thumbs/'.$filename, $contents, $meta);
+					S3::SaveContents($site, $type, 'thumbs/'.$filename, $contents, $meta, $folder);
 				}
 				else{  // save file locally
 					imagejpeg($dst_img, $full, 100);
@@ -178,7 +178,7 @@ class Image
 						'height'	=> $target_h
 						);
 				
-					S3::SaveContents($site, $type, 'thumbs/'.$filename, $contents, $meta);
+					S3::SaveContents($site, $type, 'thumbs/'.$filename, $contents, $meta, $folder);
 				}
 				else{  // save file locally
 					imagepng($dst_img, $full);
@@ -195,11 +195,13 @@ class Image
 					ob_start();
 				
 					imagegif($dst_img, null);
+					
+					$meta = array();
 				
 					$contents = ob_get_contents();
 					ob_end_clean();
 				
-					S3::SaveContents($site, $type, 'thumbs/'.$filename, $contents);
+					S3::SaveContents($site, $type, 'thumbs/'.$filename, $contents, $meta, $folder);
 				}
 				else{  // save file locally
 					imagegif($dst_img, $full);
@@ -211,7 +213,7 @@ class Image
 			
 				// save file on S3
 				if(FILES_ON_S3 == true){
-					S3::SaveFile($site, $type, 'thumbs/'.$filename, $image);
+					S3::SaveFile($site, $type, 'thumbs/'.$filename, $image, $folder);
 				}
 				else{  // save file locally
 					copy($image, $full);

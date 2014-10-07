@@ -45,7 +45,7 @@ class S3
 	}
 	
 	// saves a file to S3
-	public static function SaveFile($site, $contentType, $filename, $file, $meta = array()){
+	public static function SaveFile($site, $contentType, $filename, $file, $meta = array(), $folder = 'files'){
 		
 		// create AWS client
 		$client = Aws\S3\S3Client::factory(array(
@@ -60,7 +60,7 @@ class S3
 		
 		$result = $client->putObject(array(
 		    'Bucket'       => $bucket,
-		    'Key'          => $site['FriendlyId'].'/files/'.$filename,
+		    'Key'          => $site['FriendlyId'].'/'.$folder.'/'.$filename,
 		    'Body'   	   => file_get_contents($file),
 		    'ContentType'  => $contentType,
 		    'ACL'          => 'public-read',
@@ -71,7 +71,7 @@ class S3
 	}
 	
 	// saves a file to S3
-	public static function RemoveFile($site, $filename){
+	public static function RemoveFile($site, $filename, $folder = 'files'){
 		
 		// create AWS client
 		$client = Aws\S3\S3Client::factory(array(
@@ -84,19 +84,19 @@ class S3
 		// remove file
     	$result = $client->deleteObject(array(
 		    'Bucket' => $bucket,
-		    'Key' => $site['FriendlyId'].'/files/'.$filename
+		    'Key' => $site['FriendlyId'].'/'.$folder.'/'.$filename
 		));
 		
 		// remove thumb
 		$result = $client->deleteObject(array(
 		    'Bucket' => $bucket,
-		    'Key' => $site['FriendlyId'].'/files/thumbs/'.$filename
+		    'Key' => $site['FriendlyId'].'/'.$folder.'/thumbs/'.$filename
 		));
 			
 	}
 	
 	// saves contents to S3
-	public static function SaveContents($site, $contentType, $filename, $contents, $meta = array()){
+	public static function SaveContents($site, $contentType, $filename, $contents, $meta = array(), $folder = 'files'){
 		
 		// create AWS client
 		$client = Aws\S3\S3Client::factory(array(
@@ -111,7 +111,7 @@ class S3
 		
 		$result = $client->putObject(array(
 		    'Bucket'       => $bucket,
-		    'Key'          => $site['FriendlyId'].'/files/'.$filename,
+		    'Key'          => $site['FriendlyId'].'/'.$folder.'/'.$filename,
 		    'Body'   	   => $contents,
 		    'ContentType'  => $contentType,
 		    'ACL'          => 'public-read',
@@ -122,7 +122,7 @@ class S3
 	}
 	
 	// lists files on S3
-	public static function ListFiles($site, $imagesOnly = false){
+	public static function ListFiles($site, $imagesOnly = false, $folder = 'files'){
 		
 		$arr = array();
 		
@@ -134,7 +134,7 @@ class S3
 		
 		$bucket = $site['Bucket'];
 		
-		$prefix = $site['FriendlyId'].'/files/';
+		$prefix = $site['FriendlyId'].'/'.$folder.'/';
 	    $url = str_replace('{{bucket}}', $site['Bucket'], S3_URL);
 		$url = str_replace('{{site}}', $site['FriendlyId'], $url);
 		
@@ -191,8 +191,8 @@ class S3
 	            	
 	            	$file = array(
 		                'filename' => $filename,
-		                'fullUrl' => $url.'/files/'.$filename,
-		                'thumbUrl' => $url.'/files/thumbs/'.$filename,
+		                'fullUrl' => $url.'/'.$folder.'/'.$filename,
+		                'thumbUrl' => $url.'/'.$folder.'/thumbs/'.$filename,
 		                'extension' => $ext,
 		                'isImage' => $isImage,
 		                'size' => round(($size / 1024 / 1024), 2),
@@ -212,7 +212,7 @@ class S3
 						
 						$file = array(
 			                'filename' => $filename,
-			                'fullUrl' => $url.'/files/'.$filename,
+			                'fullUrl' => $url.'/'.$folder.'/'.$filename,
 			                'thumbUrl' => NULL,
 			                'extension' => $ext,
 			                'isImage' => $isImage,
