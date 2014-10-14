@@ -45,6 +45,7 @@
 	require_once 'db/MenuItem.php';
 	require_once 'db/Transaction.php';
 	require_once 'db/Version.php';
+	require_once 'db/Product.php';
 	
 	// include external libs (via composer)
 	require 'vendor/autoload.php';
@@ -78,6 +79,7 @@
     require_once 'rest/translation.php';
     require_once 'rest/transaction.php';
     require_once 'rest/version.php';
+    require_once 'rest/product.php';
    
 	// workaround for JSON module issues
 	if(defined('JSON_C_VERSION') == false){	

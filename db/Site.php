@@ -421,12 +421,13 @@ class Site{
         	while($row = $s->fetch(PDO::FETCH_ASSOC)) { 
         		$domain = $row['Domain'];
         		$www = str_replace('http://', 'http://www.', $row['Domain']);
-        		$www = str_replace('https://', 'https://www.', $row['Domain']);
+        		$www_s = str_replace('https://', 'https://www.', $row['Domain']);
         		
         		$s3 = str_replace('{{site}}', $row['FriendlyId'], S3_URL);
         		        	
                 array_push($arr, $domain);
                 array_push($arr, $www);
+                array_push($arr, $www_s);
                 array_push($arr, $s3);
             } 
             

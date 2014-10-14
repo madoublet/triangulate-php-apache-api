@@ -95,6 +95,27 @@ class S3
 			
 	}
 	
+	// get file
+	public static function GetFile($site, $filename, $folder = 'files'){
+		
+		// create AWS client
+		$client = Aws\S3\S3Client::factory(array(
+		    'key'    => S3_KEY,
+		    'secret' => S3_SECRET
+		));
+		
+		$bucket = $site['Bucket'];
+		
+		// get object
+		$result = $client->getObject(array(
+		    'Bucket' => $bucket,
+		    'Key'    => $site['FriendlyId'].'/'.$folder.'/'.$filename
+		));
+		
+		return $result;
+			
+	}
+	
 	// saves contents to S3
 	public static function SaveContents($site, $contentType, $filename, $contents, $meta = array(), $folder = 'files'){
 		

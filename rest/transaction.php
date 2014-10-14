@@ -21,20 +21,51 @@ class TransactionTestResource extends Tonic\Resource {
 
 /**
  * This class defines an example resource that is wired into the URI /example
- * @uri /transaction/download/{transactionId}/{sku}
+ * @uri /transaction/download/{transactionId}/{productId}
  */
 class TransactionDownloadResource extends Tonic\Resource {
 
     /**
      * @method GET
      */
-    function get($transactionId, $sku) {
+    function get($transactionId, $productId) {
     
-    	// set sku to be downloaded
-    	$file = '../files/downloads/'.$sku.'.zip';
-
-		// validate transaction
+    	// defaults
+    	$body = '';
+    	$contentType  = 'application/zip';
+    
+    	// get product
+    	$product = Product::GetByProductId($productId);
+    	
+    	// get extension
+        $parts = explode('.', $product['Download']); 
+    	$ext = end($parts);
+    	
+    	// set contenttype
+    	$contentType = Utilities::GetContentTypeFromExtension($ext);
+    	
+    	// validate transaction
 		$transaction = Transaction::GetByTransactionId($transactionId);
+		
+		// get site
+		$site = Site::GetBySiteId($transaction['SiteId']);
+    	
+    	// handle files on S3 and local
+    	if(FILES_ON_S3 == true){
+    	
+    		// http://docs.aws.amazon.com/aws-sdk-php/latest/class-Aws.S3.S3Client.html#_getObject
+    		$result = S3::GetFile($site, $product['Download'], 'downloads');
+    	
+    		$body =  $result['Body'];
+    	
+    	}
+    	else{
+	    	
+	    	$file = SITES_LOCATION.'/'.$site['FriendlyId'].'/downloads/'.$product['Download'];
+	    	
+	    	$body = file_get_contents($file);
+	    	
+    	}
 
 		if(isset($transaction['Items'])){
 			// decode items in the transaction
@@ -44,16 +75,20 @@ class TransactionDownloadResource extends Tonic\Resource {
 
 			// determine if sku is associated with the transaction
 			foreach($items as $item){
-				if($item['SKU'] == $sku){
+			
+				if($item['ProductId'] == $productId){
 					$is_valid = true;
 				}
+				
 			} 
 
 			// return the file for a valid call
 			if($is_valid == true){
 	       		$response = new Tonic\Response(Tonic\Response::OK);
-		   		$response->contentType = 'application/zip';
-		   		$response->body = file_get_contents($file);
+		   		$response->contentType = $contentType;
+		   		//Response.AppendHeader("content-disposition", "attachment; filename='" + fileName +"'");
+		   		$response->contentDisposition = "attachment; filename='".$product['Download']."'";
+		   		$response->body = $body;
 
 		   		return $response;
 	        }
@@ -135,16 +170,24 @@ class TransactionPaypalResource extends Tonic\Resource {
 
 			// line-items (for receipt)
 			$line_items = '';
+			
+			// set static URL
+			$staticUrl = $site['Domain'];
+			
+			if(FILES_ON_S3 == true){
+				$bucket = $site['Bucket'];
+				$staticUrl = str_replace('{{bucket}}', $bucket, S3_URL);
+				$staticUrl = str_replace('{{site}}', $site['FriendlyId'], $staticUrl);
+			}
 
 		    // get items 
 		    for($x=1; $x<=$num_items; $x++){
 
 				if(isset($request['item_number'.$x])){
 
-					// the sku is the last item less the type
-					$item_sku = $request['item_number'.$x];
+					$item_number = $request['item_number'.$x];
 					$item_name = $request['item_name'.$x];
-					$item_sku = iconv("ISO-8859-1","UTF-8", $item_name);
+					$item_number = iconv("ISO-8859-1","UTF-8", $item_number);
 					$item_name = iconv("ISO-8859-1","UTF-8", $item_name);
 
 					$item_quantity = $request['quantity'.$x];
@@ -152,19 +195,23 @@ class TransactionPaypalResource extends Tonic\Resource {
 					$item_price = floatval($item_total) / intval($item_quantity);
 
 			    	$item = array(
-	                    'SKU' => $item_sku,
+	                    'ProductId' => $item_number,
 	                    'Name'  => $item_name,
 	                    'Quantity' => $item_quantity,
 	                    'Price' => $item_price,
 	                    'Total' => $item_total,
 	                );
 
-	                $download_link = '';
+					// get product
+					$product = Product::GetByProductId($item_number);
 
-					/* #todo (check for downloads)
-	                if($item_shipping_type == 'DOWNLOAD'){
-	                	$download_link = '<br><a href="'.$site['Domain'].'/api/transaction/download/{{transactionId}}/'.$item_sku.'">Download</a>';
-	                }*/ 
+					// get download link
+	                $download_link = '';
+	                
+	                // check if there is a downloaded file for the product
+	                if($product['Download'] != '' && $product['Download'] != NULL){
+		                $download_link = '<br><a href="'.API_URL.'/transaction/download/{{transactionId}}/'.$item_number.'">Download</a>';
+		            }
 
 	                // setup currency for line items
 	                $item_total = $item_total.' '.$currency;
@@ -176,7 +223,7 @@ class TransactionPaypalResource extends Tonic\Resource {
 		                $item_price = '$'.$item_price;
 	                }
 
-	                $line_items .= '<tr style="border-bottom: 1px solid #f0f0f0;"><td>'.$item_name.'<br><small>'.$item_sku.'</small>'.$download_link.'</td><td align="right">'.$item_price.'</td><td align="right">'.$item_quantity.'</td><td align="right">'.$item_total.'</td></tr>';
+	                $line_items .= '<tr style="border-bottom: 1px solid #f0f0f0;"><td>'.$item_name.'<br><small>'.$item_number.'</small>'.$download_link.'</td><td align="right">'.$item_price.'</td><td align="right">'.$item_quantity.'</td><td align="right">'.$item_total.'</td></tr>';
 
 				    array_push($items, $item);
 			    }
@@ -187,9 +234,12 @@ class TransactionPaypalResource extends Tonic\Resource {
 		    $items_json = json_encode($items);
 
 		    $data_json = json_encode($_POST);
-
+		    
+		    // create receipt
+		    $receipt = $line_items;
+		    				
 			// add a transaction
-			$transaction = Transaction::Add($site['SiteId'], $processor, $processorTransactionId, $processorStatus, $email, $payerId, $name, $shipping, $fee,$tax, $total, $currency, $items_json, $data_json);
+			$transaction = Transaction::Add($site['SiteId'], $processor, $processorTransactionId, $processorStatus, $email, $payerId, $name, $shipping, $fee,$tax, $total, $currency, $items_json, $data_json, $receipt);
 
 			// replace {{transactionId}} in line_items
 			$line_items = str_replace('{{transactionId}}', $transaction['TransactionId'], $line_items);
@@ -197,7 +247,7 @@ class TransactionPaypalResource extends Tonic\Resource {
 			$site_logo = '';
 
 			if($site['LogoUrl']!='' && $site['LogoUrl']!=NULL){
-				$site_logo = '<img src="'.$site['Domain'].'/files/'.$site['LogoUrl'].'" style="max-height:50px">';
+				$site_logo = '<img src="'.$staticUrl.'/files/'.$site['LogoUrl'].'" style="max-height:50px">';
 			}
 
 			// setup currency for line items
@@ -223,15 +273,24 @@ class TransactionPaypalResource extends Tonic\Resource {
     			'{{total}}' => $total,
     		);
     		
-    		$subject = '['.$site['Name'].'] Receipt for your purchase from '.$site['Name'].' (ID: '.strtoupper($transaction['TransactionId']).')';
+    		$subject = '['.$site['Name'].'] Receipt for your purchase from '.$site['Name'].' (Transaction: '.strtoupper($transaction['TransactionId']).') (Triangulate)';
     		
     		$file = SITES_LOCATION.'/'.$site['FriendlyId'].'/emails/receipt.html';
     		
     		// send email
     		$content = $site['ReceiptEmail'];
     		
+    		// walk through and replace values in associative array
+            foreach ($replace as $key => &$value) {
+			    
+			    $content = str_replace($key, $value, $content);
+			    $subject = str_replace($key, $value, $subject);
+		
+			}
+			
     		// send site email
     		Utilities::SendSiteEmail($site, $email, $site['PrimaryEmail'], $site['Name'], $subject, $content);
+    		
   
 		} else {
 		    // IPN response was "INVALID"\
@@ -256,13 +315,16 @@ class TransactionListResource extends Tonic\Resource {
      */
     function get() {
 
-        // get an authuser
-        $authUser = new AuthUser();
+        // get token
+		$token = Utilities::ValidateJWTToken(apache_request_headers());
 
-        if(isset($authUser->UserUniqId)){ // check if authorized
+		// check if token is not null
+        if($token != NULL){ 
         
+            parse_str($this->request->data, $request); // parse request
+
             // get transactions
-            $list = Transaction::GetTransactions($authUser->SiteId);
+            $list = Transaction::GetTransactions($token->SiteId);
 
             // return a json response
             $response = new Tonic\Response(Tonic\Response::OK);
@@ -273,6 +335,48 @@ class TransactionListResource extends Tonic\Resource {
 
         }
         else{ // unauthorized access
+
+            return new Tonic\Response(Tonic\Response::UNAUTHORIZED);
+        }
+
+    }
+
+}
+
+/**
+ * A protected API call that shows all pages
+ * @uri /transaction/receipt
+ */
+class TransactionReceiptResource extends Tonic\Resource {
+
+    /**
+     * @method POST
+     */
+    function post() {
+    
+    	parse_str($this->request->data, $request); // parse request
+		
+		$processorTransactionId = $request['processorTransactionId'];
+
+		if($processorTransactionId != NULL){
+       
+            // get transactions
+            $transaction = Transaction::GetByProcessorTransactionId($processorTransactionId);
+            
+            $receipt = $transaction['Receipt'];
+            
+            // replace {{transactionId}} in $receipt
+			$receipt = str_replace('{{transactionId}}', $transaction['TransactionId'], $receipt);
+
+            // return a json response
+            $response = new Tonic\Response(Tonic\Response::OK);
+            $response->contentType = 'application/json';
+            $response->body = $receipt;
+
+            return $response;
+            
+		}
+		else{ // unauthorized access
 
             return new Tonic\Response(Tonic\Response::UNAUTHORIZED);
         }

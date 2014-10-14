@@ -4,7 +4,7 @@
 class Transaction{
     
 	// adds a transaction
-	public static function Add($siteId, $processor, $processorTransactionId, $processorStatus, $email, $payerId, $name, $shipping, $fee, $tax, $total, $currency, $items, $data){
+	public static function Add($siteId, $processor, $processorTransactionId, $processorStatus, $email, $payerId, $name, $shipping, $fee, $tax, $total, $currency, $items, $data, $receipt){
 		
         try{
             
@@ -13,8 +13,8 @@ class Transaction{
             $transactionId = uniqid();
             $timestamp = gmdate("Y-m-d H:i:s", time());
     	
-    		$q = "INSERT INTO Transactions (TransactionId, SiteId, Processor, ProcessorTransactionId, ProcessorStatus, Email, PayerId, Name, Shipping, Fee, Tax, Total, Currency, Items, Data, Created) 
-    			    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    		$q = "INSERT INTO Transactions (TransactionId, SiteId, Processor, ProcessorTransactionId, ProcessorStatus, Email, PayerId, Name, Shipping, Fee, Tax, Total, Currency, Items, Data, Receipt, Created) 
+    			    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
             $s = $db->prepare($q);
             $s->bindParam(1, $transactionId);
@@ -32,7 +32,8 @@ class Transaction{
             $s->bindParam(13, $currency);
             $s->bindParam(14, $items);
             $s->bindParam(15, $data);
-            $s->bindParam(16, $timestamp);
+            $s->bindParam(16, $receipt);
+            $s->bindParam(17, $timestamp);
             
             $s->execute();
             
@@ -52,6 +53,7 @@ class Transaction{
                 'Currency' => $currency,
                 'Items' => $items,
                 'Data' => $data,
+                'Receipt' => $receipt,
                 'Created' => $timestamp,
                 );
                 
@@ -67,7 +69,7 @@ class Transaction{
             $db = DB::get();
             
             $q = "SELECT TransactionId, SiteId, Processor, ProcessorTransactionId, ProcessorStatus, 
-            		Email, PayerId, Name, Shipping, Fee, Tax, Total, Currency, Items, Data, Created
+            		Email, PayerId, Name, Shipping, Fee, Tax, Total, Currency, Items, Data, Receipt, Created
 					FROM Transactions WHERE SiteId = ? ORDER BY Created DESC";
                     
             $s = $db->prepare($q);
@@ -96,7 +98,7 @@ class Transaction{
         	$db = DB::get();
             
             $q = "SELECT TransactionId, SiteId, Processor, ProcessorTransactionId, ProcessorStatus, 
-            		Email, PayerId, Name, Shipping, Fee, Tax, Total, Currency, Items, Data, Created
+            		Email, PayerId, Name, Shipping, Fee, Tax, Total, Currency, Items, Data, Receipt, Created
         		 	FROM Transactions WHERE TransactionId = ?";
                     
             $s = $db->prepare($q);
@@ -112,6 +114,34 @@ class Transaction{
         
         } catch(PDOException $e){
             die('[Transaction::GetByTransactionId] PDO Error: '.$e->getMessage());
+        }
+        
+	}
+	
+	// gets a transaction by the $processorTransactionId
+	public static function GetByProcessorTransactionId($processorTransactionId){
+
+        try{
+        
+        	$db = DB::get();
+            
+            $q = "SELECT TransactionId, SiteId, Processor, ProcessorTransactionId, ProcessorStatus, 
+            		Email, PayerId, Name, Shipping, Fee, Tax, Total, Currency, Items, Data, Receipt, Created
+        		 	FROM Transactions WHERE ProcessorTransactionId = ?";
+                    
+            $s = $db->prepare($q);
+            $s->bindParam(1, $processorTransactionId);
+            
+            $s->execute();
+            
+            $row = $s->fetch(PDO::FETCH_ASSOC);        
+    
+    		if($row){
+    			return $row;
+    		}
+        
+        } catch(PDOException $e){
+            die('[Transaction::GetByProcessorTransactionId] PDO Error: '.$e->getMessage());
         }
         
 	}

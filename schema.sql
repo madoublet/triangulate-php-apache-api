@@ -71,6 +71,20 @@ CREATE TABLE IF NOT EXISTS `Versions` (
   KEY `PageId` (`PageId`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
+CREATE TABLE IF NOT EXISTS `Products` (
+  `ProductId` varchar(50) NOT NULL,
+  `SKU` varchar(50) NOT NULL,
+  `PageId` varchar(50) NOT NULL,
+  `Name` varchar(512) NOT NULL,
+  `Price` DECIMAL(15,2) NOT NULL DEFAULT  '0.00',
+  `Shipping` varchar(50) NOT NULL,
+  `Weight` DECIMAL(15,2) NOT NULL DEFAULT  '0.00',
+  `Download` varchar(512),
+  `Created` datetime NOT NULL,
+  PRIMARY KEY (`ProductId`),
+  KEY `PageId` (`PageId`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `PageTypes` (
   `PageTypeId` varchar(50) NOT NULL,
   `FriendlyId` varchar(50) DEFAULT NULL,
@@ -209,5 +223,8 @@ ALTER TABLE `Versions`
   ADD CONSTRAINT `Versions_ibfk_1` FOREIGN KEY (`PageId`) REFERENCES `Pages` (`PageId`) ON DELETE CASCADE ON UPDATE CASCADE; 
   
 ALTER TABLE `Versions`
-  ADD CONSTRAINT `Versions_ibfk_2` FOREIGN KEY (`UserId`) REFERENCES `Users` (`UserId`) ON DELETE CASCADE ON UPDATE CASCADE;  
+  ADD CONSTRAINT `Versions_ibfk_2` FOREIGN KEY (`UserId`) REFERENCES `Users` (`UserId`) ON DELETE CASCADE ON UPDATE CASCADE; 
+  
+ALTER TABLE `Products`
+  ADD CONSTRAINT `Products_ibfk_2` FOREIGN KEY (`PageId`) REFERENCES `Pages` (`PageId`) ON DELETE CASCADE ON UPDATE CASCADE;  
   
