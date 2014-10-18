@@ -135,7 +135,7 @@ CREATE TABLE IF NOT EXISTS `Sites` (
   `SMTPSecure` varchar(255) DEFAULT 'tls',
   `FormPrivateId` VARCHAR(240) DEFAULT '',
   `FormPublicId` VARCHAR(240) DEFAULT '',
-  `Status` varchar(10) DEFAULT '',
+  `Status` varchar(10) DEFAULT 'Trial',
   `Plan` varchar(50) DEFAULT 'Trial',
   `Provider` varchar(50) DEFAULT '',
   `SubscriptionId` varchar(256) DEFAULT '',

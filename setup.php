@@ -3,8 +3,10 @@
 	// define brand
 	define('BRAND', 'Triangulate');
 	define('BRAND_LOGO', '/images/triangulate-icon.png');
+	define('BRAND_ICON', 'http://dev.triangulate.io/images/triangulate-icon.png');
+	define('COPY', 'Made by Matthew Smith in Manchester, MO');
+	define('EMAIL', 'sample@adminemail.com');
 	
-
 	// DB connection parameters
 	define('DB_HOST', 'localhost');
 	define('DB_NAME', 'triangulate');
@@ -31,9 +33,17 @@
 	define('API_URL', 'http://app.mytriangulate.com/api');
 	define('SITES_URL', 'http://sites.mytriangulate.com');
 	define('SITE_URL', 'http://{{friendlyId}}.mytriangulate.com');
+	define('TERMS_URL', 'http://mytriangulate.com/page/terms-of-service');
+	define('PRICING_URL', 'http://mytriangulate.com/page/terms-of-service');
 
 	// default mode (hash, hashbang, html5)
 	define('DEFAULT_URL_MODE', 'html5');
+	
+	// image prefix (the protocol to use for accessing images, prefixes the domain name)
+	define('IMAGE_PREFIX', 'http://');
+	
+	// default mode (hash, hashbang, html5, static)
+	define('DEFAULT_URL_MODE', 'static');
 	
 	// locations
 	define('APP_LOCATION', '../');
@@ -47,6 +57,9 @@
 	
 	// JWT key
 	define('JWT_KEY', 'ilovetriangulate');
+	
+	// paypal
+	define('PAYPAL_EMAIL', '');
 	
 	// stripe keys
 	define('STRIPE_SECRET_KEY', '');
