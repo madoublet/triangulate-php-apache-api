@@ -3,7 +3,7 @@
 	// define brand
 	define('BRAND', 'Triangulate');
 	define('BRAND_LOGO', '/images/triangulate-icon.png');
-	define('BRAND_ICON', 'http://dev.triangulate.io/images/triangulate-icon.png');
+	define('BRAND_ICON', '/images/triangulate-icon.png');
 	define('COPY', 'Made by Matthew Smith in Manchester, MO');
 	define('EMAIL', 'sample@adminemail.com');
 	
@@ -60,10 +60,37 @@
 	
 	// paypal
 	define('PAYPAL_EMAIL', '');
+	define('PAYPAL_USE_SANDBOX', false);
+	define('PAYPAL_CURRENCY', 'USD');
+	define('PAYPAL_LOGO', '');
 	
 	// stripe keys
 	define('STRIPE_SECRET_KEY', '');
 	define('STRIPE_PUBLISHABLE_KEY', '');
+	
+	
+	// plans
+	define ('SUBSCRIPTION_PLANS', serialize (array (
+			array(
+				'id' 		=> 'triangulate-starter',
+				'desc' 		=> 'Starter - $5/mo',
+				'price' 	=> 5,
+				'interval'	=> 'M'  // M = month, D = day, W = week, Y = year
+			),
+			array(
+				'id' 		=> 'triangulate-basic',
+				'desc' 		=> 'Basic - $15/mo',
+				'price' 	=> 15,
+				'interval'	=> 'M'
+			),
+			array(
+				'id' 		=> 'triangulate-pro',
+				'desc' 		=> 'Professional - $30/mo',
+				'price' 	=> 30,
+				'interval'	=> 'M'
+			)
+		
+	    )));
 	
 	// Cross Origin Resource Sharing (CORS)
 	define ('CORS', serialize (array (

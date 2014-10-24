@@ -259,5 +259,90 @@ class ThemePagesListResource extends Tonic\Resource {
     
 }
 
+/**
+ * A protected API call to retrieve a list of pages for a theme
+ * @uri /theme/configurations/list
+ */
+class ThemeConfigurationsListResource extends Tonic\Resource {
+
+    /**
+     * @method GET
+     */
+    function get() {
+        
+        // get token
+		$token = Utilities::ValidateJWTToken(apache_request_headers());
+
+		// check if token is not null
+        if($token != NULL){ 
+            
+            $arr = array();
+            
+            $site = Site::GetBySiteId($token->SiteId);
+
+			// get configuration
+            $file = SITES_LOCATION.'/'.$site['FriendlyId'].'/themes/'.$site['Theme'].'/configure.json';
+ 
+            // return a json response
+            $response = new Tonic\Response(Tonic\Response::OK);
+            $response->contentType = 'application/json';
+            $response->body = file_get_contents($file);
+
+            return $response;
+        }
+        else{
+            // return an unauthorized exception (401)
+            return new Tonic\Response(Tonic\Response::UNAUTHORIZED);
+        }
+    }
+    
+}
+
+/**
+ * A protected API call to retrieve a list of pages for a theme
+ * @uri /theme/configurations/apply
+ */
+class ThemeConfigurationsApplyResource extends Tonic\Resource {
+
+    /**
+     * @method POST
+     */
+    function post() {
+        
+        // get token
+		$token = Utilities::ValidateJWTToken(apache_request_headers());
+
+		// check if token is not null
+        if($token != NULL){ 
+            
+            parse_str($this->request->data, $request); // parse request
+		          
+			$configurations = $request['configurations'];
+            
+            $site = Site::GetBySiteId($token->SiteId);
+
+			// get configuration
+            $configure_file = SITES_LOCATION.'/'.$site['FriendlyId'].'/themes/'.$site['Theme'].'/configure.json';
+            
+            // put contents
+            file_put_contents($configure_file, $configurations);
+            
+            // republish css
+            Publish::PublishAllCSS($token->SiteId);
+ 
+            // return a json response
+            $response = new Tonic\Response(Tonic\Response::OK);
+
+            return $response;
+        }
+        else{
+            // return an unauthorized exception (401)
+            return new Tonic\Response(Tonic\Response::UNAUTHORIZED);
+        }
+    }
+    
+}
+
+
 
 ?>

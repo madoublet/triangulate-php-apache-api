@@ -117,21 +117,21 @@ class Publish
 		}
 		
 		// create directory for layouts
-		$layouts_dir = $theme_dir.'/layouts/';
+		$layouts_dir = $theme_dir.'layouts/';
 		
 		if(!file_exists($layouts_dir)){
 			mkdir($layouts_dir, 0755, true);	
 		}
 		
 		// create directory for styles
-		$styles_dir = $theme_dir.'/styles/';
+		$styles_dir = $theme_dir.'styles/';
 		
 		if(!file_exists($styles_dir)){
 			mkdir($styles_dir, 0755, true);	
 		}
 		
 		// create directory for resources
-		$res_dir = $theme_dir.'/resources/';
+		$res_dir = $theme_dir.'resources/';
 		
 		if(!file_exists($res_dir)){
 			mkdir($res_dir, 0755, true);	
@@ -162,6 +162,14 @@ class Publish
 			$styles_dest = SITES_LOCATION.'/'.$site['FriendlyId'].'/themes/'.$theme.'/styles/';
 		
 			Utilities::CopyDirectory($styles_src, $styles_dest);
+		}
+		
+		// copy the configure.json file
+		$configure_src = APP_LOCATION.'themes/'.$theme.'/configure.json';
+		$configure_dest = SITES_LOCATION.'/'.$site['FriendlyId'].'/themes/'.$theme.'/configure.json';
+		
+		if(file_exists($configure_src)){
+			copy($configure_src, $configure_dest);
 		}
 		
 		// copy files
@@ -383,6 +391,9 @@ class Publish
 		// a list of controllers for the app
 		$ctrls = '';
 		
+		// init pages JSON
+		$pages_json = '{';
+		
 		// walk through pages
 		foreach($pages as $page){
 		
@@ -421,48 +432,57 @@ class Publish
 			
 			// setup state 
 			if($url != ''){
-				$page_json = '{'.PHP_EOL
-						        .'	PageId: \''.$page['PageId'].'\','.PHP_EOL
-						        .'	PageTypeId: \''.$page['PageTypeId'].'\','.PHP_EOL
-						        .'	FriendlyId: \''.$page['FriendlyId'].'\','.PHP_EOL
-						        .'	Url: \''.$pageUrl.'\','.PHP_EOL
-						        .'	Name: \''.htmlentities($page['Name'], ENT_QUOTES).'\','.PHP_EOL
-						        .'	Description: \''.htmlentities($page['Description'], ENT_QUOTES).'\','.PHP_EOL
-						        .'	Keywords: \''.htmlentities($page['Keywords'], ENT_QUOTES).'\','.PHP_EOL
-						        .'	Callout: \''.htmlentities($page['Callout'], ENT_QUOTES).'\','.PHP_EOL
-						        .'	IsSecure: '.$isSecure.','.PHP_EOL
-						        .'	BeginDate: \''.$page['BeginDate'].'\','.PHP_EOL
-						        .'	EndDate: \''.$page['EndDate'].'\','.PHP_EOL
-						        .'	Location: \''.htmlentities($page['Location'], ENT_QUOTES).'\','.PHP_EOL
-						        .'	LatLong: \''.$page['LatLong'].'\','.PHP_EOL
-						        .'	Layout: \''.$page['Layout'].'\','.PHP_EOL
-						        .'	FullStylesheetUrl: \''.$fullStylesheetUrl.'\','.PHP_EOL
-						        .'	Stylesheet: \''.$page['Stylesheet'].'\','.PHP_EOL
-						        .'	Image: \''.$page['Image'].'\','.PHP_EOL
-						        .'	LastModifiedDate: \''.$page['LastModifiedDate'].'\','.PHP_EOL
-						        .'	FirstName: \''.$page['FirstName'].'\','.PHP_EOL
-						        .'	LastName: \''.$page['LastName'].'\','.PHP_EOL
-						        .'	LastModifiedBy: \''.$page['FirstName'].' '.$page['LastName'].'\','.PHP_EOL
-						        .'	PhotoUrl: \''.$page['PhotoUrl'].'\''.PHP_EOL
-						        .'};';
+				$page_json = '"'.$page['PageId'].'":{'
+						        .'"PageId": "'.$page['PageId'].'",'
+						        .'"PageTypeId": "'.$page['PageTypeId'].'",'
+						        .'"FriendlyId": "'.$page['FriendlyId'].'",'
+						        .'"Url": "'.$pageUrl.'",'
+						        .'"Name": "'.htmlentities($page['Name'], ENT_QUOTES).'",'
+						        .'"Description": "'.htmlentities($page['Description'], ENT_QUOTES).'",'
+						        .'"Keywords": "'.htmlentities($page['Keywords'], ENT_QUOTES).'",'
+						        .'"Callout": "'.htmlentities($page['Callout'], ENT_QUOTES).'",'
+						        .'"IsSecure": '.$isSecure.','
+						        .'"BeginDate": "'.$page['BeginDate'].'",'
+						        .'"EndDate": "'.$page['EndDate'].'",'
+						        .'"Location": "'.htmlentities($page['Location'], ENT_QUOTES).'",'
+						        .'"LatLong": "'.$page['LatLong'].'",'
+						        .'"Layout": "'.$page['Layout'].'",'
+						        .'"FullStylesheetUrl": "'.$fullStylesheetUrl.'",'
+						        .'"Stylesheet": "'.$page['Stylesheet'].'",'
+						        .'"Image": "'.$page['Image'].'",'
+						        .'"LastModifiedDate": "'.$page['LastModifiedDate'].'",'
+						        .'"FirstName": "'.$page['FirstName'].'",'
+						        .'"LastName": "'.$page['LastName'].'",'
+						        .'"LastModifiedBy": "'.$page['FirstName'].' '.$page['LastName'].'",'
+						        .'"PhotoUrl": "'.$page['PhotoUrl'].'"'
+						        .'},';
 			}
 			
-			// controller file
-			$ctrl_file = APP_LOCATION.'/site/js/static/triangulate.site.controller.js';
-		
-		
-			if(file_exists($ctrl_file)){
-				$content = file_get_contents($ctrl_file);
-				
-				// replace ctrl
-				$content = str_replace('{{ctrl}}', $ctrl, $content);
-				$content = str_replace('{{page}}', $page_json, $content);
-				$content = str_replace('{{site}}', $site_json, $content);
-				
-				// add controller to the list
-				$ctrls .= $content.PHP_EOL;
-			}
+			$pages_json .= $page_json;
+			
 		}
+		
+		// remove trailing comma
+		$pages_json = rtrim($pages_json, ',');
+		
+		// create json for pages
+		$pages_json = $pages_json.'}';
+		
+		// controller file
+		$ctrl_file = APP_LOCATION.'/site/js/static/triangulate.site.controller.js';
+	
+		// get controller file
+		if(file_exists($ctrl_file)){
+			$content = file_get_contents($ctrl_file);
+			
+			// replace pages, site
+			$content = str_replace('{{pages}}', $pages_json, $content);
+			$content = str_replace('{{site}}', $site_json, $content);
+			
+			// add controller to the list
+			$ctrls .= $content.PHP_EOL;
+		}
+		
 		
 		// site file
         $js_dir = SITES_LOCATION.'/'.$site['FriendlyId'].'/js/';
@@ -472,7 +492,7 @@ class Publish
 		// init content
 		$content = '';
 		
-		// controller file
+		// controllers file
 		$ctrls_file = APP_LOCATION.'/site/js/static/triangulate.site.controllers.js';
 		
 		// update states
@@ -769,6 +789,9 @@ class Publish
 		// get references to file
 	    $lessDir = SITES_LOCATION.'/'.$site['FriendlyId'].'/themes/'.$site['Theme'].'/styles/';
 	    $cssDir = SITES_LOCATION.'/'.$site['FriendlyId'].'/css/';
+	    
+	    // get reference to config file
+	    $configFile = SITES_LOCATION.'/'.$site['FriendlyId'].'/themes/'.$site['Theme'].'/configure.json';
 
 	    $lessFile = $lessDir.$name.'.less';
 	    $cssFile = $cssDir.$name.'.css';
@@ -784,7 +807,12 @@ class Publish
 	    	$less = new lessc;
 
 	    	try{
+	    	
+	    	  // compile less
 			  $less->compileFile($lessFile, $cssFile);
+
+			  // set configurations
+			  Publish::SetConfigurations($configFile, $cssFile);
 
 			  return true;
 			} 
@@ -797,6 +825,61 @@ class Publish
     		return false;
     	}
 
+	}
+	
+	// publish configurations
+	public static function SetConfigurations($configFile, $cssFile){
+		
+		if(file_exists($configFile) && file_exists($cssFile)){
+		
+			// get css
+			$css = file_get_contents($cssFile);
+		
+			// get jsontxt
+			$json = file_get_contents($configFile);
+			
+			// decode json file
+			$configs = json_decode($json, true);
+			
+			// walk through configs
+			foreach($configs as $config){
+			
+				$controls = $config['controls'];
+			
+				// walk through controls
+				foreach($controls as $control){
+				
+					$replace = $control['replace'];
+					$selected = $control['selected'];
+					$prefix = '';
+					$postfix = '';
+					
+					// set prefix
+					if(isset($control['prefix'])){
+						$prefix = $control['prefix'];
+					}
+					
+					// set postfix
+					if(isset($control['postfix'])){
+						$postfix = $control['postfix'];
+					}
+					
+					// add prefix and postfix
+					$selected = $prefix.$selected.$postfix;
+					
+					// replace config with selection
+					$css = str_replace($replace, $selected, $css);
+				
+				}
+				
+			}
+			
+			// replace css with updated configs
+			file_put_contents($cssFile, $css);
+		
+		}
+		
+		
 	}
 
 	// publishes all css
@@ -979,7 +1062,7 @@ class Publish
 		if(file_exists($layout)){
         	$layout_html = file_get_contents($layout);
         
-			$html = str_replace('<body ui-view></body>', '<body ng-controller="'.$ctrl.'Ctrl">'.$layout_html.'</body>', $html);
+			$html = str_replace('<body ui-view></body>', '<body ng-controller="PageCtrl" page="'.$page['PageId'].'">'.$layout_html.'</body>', $html);
         }
 		
 		// get draft/content

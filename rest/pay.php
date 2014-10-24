@@ -51,8 +51,8 @@ class PayStripeSubscriptionResource extends Tonic\Resource {
 			$stripe_plan = $subscription->plan->id;
 			$stripe_planname  = $subscription->plan->name;
 			
-			// subscribe to a paln
-			Site::Subscribe($siteId, $status, $plan, $subscriptionId, $customerId);
+			// subscribe to a plan
+			Site::Subscribe($siteId, $status, $plan, 'stripe', $subscriptionId, $customerId);
         
             // return a json response
             return new Tonic\Response(Tonic\Response::OK); 
