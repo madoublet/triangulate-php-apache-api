@@ -51,6 +51,9 @@ angular.module('triangulate.setup', [])
 	pricingLink:		'<?php print PRICING_URL; ?>',
 	
 	// plans
-	plans: 				<?php print json_encode($plans); ?>
+	plans: 				<?php print json_encode($plans); ?>,
+	
+	// themes 
+	themes:				'<?php print THEMES_FOLDER; ?>'
 	
 });

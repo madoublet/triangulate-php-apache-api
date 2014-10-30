@@ -138,7 +138,7 @@ class Publish
 		}
 		
 		// copy layouts
-		$layouts_src = APP_LOCATION.'/themes/'.$theme.'/layouts/';
+		$layouts_src = APP_LOCATION.'/'.THEMES_FOLDER.'/'.$theme.'/layouts/';
 		
 		if(file_exists($layouts_src)){
 			$layouts_dest = SITES_LOCATION.'/'.$site['FriendlyId'].'/themes/'.$theme.'/layouts/';
@@ -156,7 +156,7 @@ class Publish
 		}
 		
 		// copy styles
-		$styles_src = APP_LOCATION.'themes/'.$theme.'/styles/';
+		$styles_src = APP_LOCATION.THEMES_FOLDER.'/'.$theme.'/styles/';
 		
 		if(file_exists($styles_src)){
 			$styles_dest = SITES_LOCATION.'/'.$site['FriendlyId'].'/themes/'.$theme.'/styles/';
@@ -165,7 +165,7 @@ class Publish
 		}
 		
 		// copy the configure.json file
-		$configure_src = APP_LOCATION.'themes/'.$theme.'/configure.json';
+		$configure_src = APP_LOCATION.THEMES_FOLDER.'/'.$theme.'/configure.json';
 		$configure_dest = SITES_LOCATION.'/'.$site['FriendlyId'].'/themes/'.$theme.'/configure.json';
 		
 		if(file_exists($configure_src)){
@@ -175,7 +175,7 @@ class Publish
 		// copy files
 		if(FILES_ON_S3 == true){  // copy files to S3
 		
-			$files_src = APP_LOCATION.'themes/'.$theme.'/files';
+			$files_src = APP_LOCATION.THEMES_FOLDER.'/'.$theme.'/files';
 			
 			echo '$files_src='.$files_src;
 			
@@ -184,7 +184,7 @@ class Publish
 		
 		}
 		else{ // copy files locally
-			$files_src = APP_LOCATION.'themes/'.$theme.'/files/';
+			$files_src = APP_LOCATION.THEMES_FOLDER.'/'.$theme.'/files/';
 			
 			if(file_exists($files_src)){
 				$files_dest = SITES_LOCATION.'/'.$site['FriendlyId'].'/files/';
@@ -194,7 +194,7 @@ class Publish
 		}
 		
 		// copy resources
-		$res_src = APP_LOCATION.'themes/'.$theme.'/resources/';
+		$res_src = APP_LOCATION.THEMES_FOLDER.'/'.$theme.'/resources/';
 		
 		if(file_exists($res_src)){
 			$res_dest = SITES_LOCATION.'/'.$site['FriendlyId'].'/themes/'.$theme.'/resources/';

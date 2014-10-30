@@ -36,8 +36,8 @@
 	define('TERMS_URL', 'http://mytriangulate.com/page/terms-of-service');
 	define('PRICING_URL', 'http://mytriangulate.com/page/terms-of-service');
 
-	// default mode (hash, hashbang, html5)
-	define('DEFAULT_URL_MODE', 'html5');
+	// default mode (hash, hashbang, html5, static)
+	define('DEFAULT_URL_MODE', 'static');
 	
 	// image prefix (the protocol to use for accessing images, prefixes the domain name)
 	define('IMAGE_PREFIX', 'http://');
@@ -67,7 +67,6 @@
 	// stripe keys
 	define('STRIPE_SECRET_KEY', '');
 	define('STRIPE_PUBLISHABLE_KEY', '');
-	
 	
 	// plans
 	define ('SUBSCRIPTION_PLANS', serialize (array (
@@ -120,4 +119,5 @@
 	
 	// set the default theme (directory name: themes/simple => simple)
 	define('DEFAULT_THEME', 'simple');
+	define('THEMES_FOLDER', 'themes');
 ?>

@@ -215,7 +215,7 @@ class SiteCreateResource extends Tonic\Resource {
             
        
             // read the defaults file
-            $default_json_file = APP_LOCATION.'/themes/'.$theme.'/default.json';
+            $default_json_file = APP_LOCATION.THEMES_FOLDER.'/'.$theme.'/default.json';
             
             // set $siteId
             $siteId = $site['SiteId'];
@@ -285,7 +285,7 @@ class SiteCreateResource extends Tonic\Resource {
 					Page::SetIsActive($page['PageId'], 1);
 					
 					// build the content file
-					$filename = APP_LOCATION.'/themes/'.$theme.'/'.$source;
+					$filename = APP_LOCATION.THEMES_FOLDER.'/'.$theme.'/'.$source;
 					$content = '';
 					
 					// get the content for the page

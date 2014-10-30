@@ -15,7 +15,7 @@ class ThemeResource extends Tonic\Resource {
         $first = true;
         
         // open themes direcotry
-        if($handle = opendir(APP_LOCATION.'/themes')){
+        if($handle = opendir(APP_LOCATION.THEMES_FOLDER)){
         
 		    $blacklist = array('.', '..');
 		    
@@ -25,7 +25,7 @@ class ThemeResource extends Tonic\Resource {
 		        if (!in_array($file, $blacklist)) {
 		            $dir = $file;
 		            
-		            $config = APP_LOCATION.'/themes/'.$dir.'/theme.json';
+		            $config = APP_LOCATION.THEMES_FOLDER.'/'.$dir.'/theme.json';
 		            
 		            if(file_exists($config)){
 		            
@@ -217,7 +217,7 @@ class ThemePagesListResource extends Tonic\Resource {
             
             $site = Site::GetBySiteId($token->SiteId);
 
-            $directory = APP_LOCATION.'/themes/'.$site['Theme'].'/pages/';
+            $directory = APP_LOCATION.THEMES_FOLDER.'/'.$site['Theme'].'/pages/';
             
             //get files with a .html ext
             $files = glob($directory . "*.html");
@@ -237,7 +237,7 @@ class ThemePagesListResource extends Tonic\Resource {
                 $file = array(
                 	'name' => $name,
                     'fileName' => $filename,
-                    'location' => 'themes/'.$site['Theme'].'/pages/'.$filename
+                    'location' => THEMES_FOLDER.'/'.$site['Theme'].'/pages/'.$filename
                 );
                 
                 array_push($arr, $file); 
