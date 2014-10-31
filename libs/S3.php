@@ -70,7 +70,7 @@ class S3
 			
 	}
 	
-	// saves a file to S3
+	// removes a file from S3
 	public static function RemoveFile($site, $filename, $folder = 'files'){
 		
 		// create AWS client
@@ -92,6 +92,59 @@ class S3
 		    'Bucket' => $bucket,
 		    'Key' => $site['FriendlyId'].'/'.$folder.'/thumbs/'.$filename
 		));
+			
+	}
+	
+	// removes a site from S3
+	public static function RemoveSite($site){
+		
+		// create AWS client
+		$client = Aws\S3\S3Client::factory(array(
+		    'key'    => S3_KEY,
+		    'secret' => S3_SECRET
+		));
+		
+		$bucket = $site['Bucket'];
+		
+		// iterate through bucket		
+		$objects = $client->getIterator('ListObjects', array(
+		    'Bucket' => $bucket,
+		    'Prefix' => $site['FriendlyId'].'/'
+		));
+		
+		// walk through objects
+		foreach ($objects as $object) {
+			
+			$key = $object['Key'];
+			
+			$source = $bucket.'/'.$key;
+			$dest = str_replace($site['FriendlyId'].'/', 'removed-'.$site['FriendlyId'].'/', $key);
+			
+			// copy object (rename it)
+			$result = $client->copyObject(array(
+			    'Bucket' => $bucket,
+			    'CopySource' => $source,
+			    'Key' => $dest,
+			));
+			
+			// remove object
+			$result = $client->deleteObject(array(
+			    'Bucket' => $bucket,
+			    'Key' => $key
+			));
+			
+			
+		    echo '$key='.$object['Key'].' CopySource='.$source.' Destination='.$dest;
+		}
+		
+		/*
+		$clear = new Aws\S3\Model\ClearBucket($s3Client, $bucket);
+		
+		// Be sure to set the custom iterator to ensure that you only delete keys with the prefix
+		$clear->setIterator($iterator);
+		
+		// Clear out the matching objects using batches in parallel
+		$clear->clear(); */
 			
 	}
 	

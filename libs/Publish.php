@@ -98,6 +98,144 @@ class Publish
 		}
 		
 	}
+	
+	// publishes default content for a theme
+	public static function PublishDefaultContent($site, $theme, $userId){
+		
+		// read the defaults file
+        $default_json_file = APP_LOCATION.THEMES_FOLDER.'/'.$theme.'/default.json';
+        
+        // set $siteId
+        $siteId = $site['SiteId'];
+        
+        // check to make sure the defaults.json exists
+        if(file_exists($default_json_file)){
+			
+			// get json from the file
+			$json_text = file_get_contents($default_json_file);
+			
+			// decode json
+			$json = json_decode($json_text, true);
+			
+			// pagetypes
+			$pagetypes = array();
+			
+			// menu counts
+			$primaryMenuCount = 0;
+			$footerMenuCount = 0;
+			
+			// clear default types
+			MenuItem::RemoveForType('primary', $siteId);
+			MenuItem::RemoveForType('footer', $siteId);
+			
+			// walk through defaults array
+			foreach($json as &$value){
+			
+				// get values from array
+				$url = $value['url'];
+				$source = $value['source'];
+				$name = $value['name'];
+				$description = $value['description'];
+				$layout = $value['layout'];
+				$stylesheet = $value['stylesheet'];
+				$primaryMenu = $value['primaryMenu'];
+				$footerMenu = $value['footerMenu'];
+				
+				// initialize PT
+				$pageType = NULL;
+				
+				if(strpos($url, '/') !== false){ // the url has a pagetype
+					$arr = explode('/', $url);
+					
+					// get friendly ids from $url
+					$pageTypeFriendlyId = $arr[0];
+					$pageFriendlyId = $arr[1];
+					
+					$pageTypeId = -1;
+					
+					$pageType = PageType::GetByFriendlyId($pageTypeFriendlyId, $siteId);
+					
+					// create a new pagetype
+					if($pageType == NULL){
+						$pageType = PageType::Add($pageTypeFriendlyId, $layout, $stylesheet, 0, $siteId, $userId);
+					}
+					
+					// get newly minted page type
+					$pageTypeId = $pageType['PageTypeId'];
+				
+				}
+				else{ // root, no pagetype
+					$pageFriendlyId = $url;
+					$pageTypeId = -1;
+				}
+				
+				// determine if page is unique
+				$isUnique = Page::IsFriendlyIdUnique($pageFriendlyId, $pageTypeId, $site['SiteId']);
+				
+				// initialize page
+				$page = NULL;
+				
+				// if page has not been created, create a page
+				if($isUnique == true){
+				
+					// create a page
+					$page = Page::Add($pageFriendlyId, $name, $description, 
+										$layout, $stylesheet, $pageTypeId, $site['SiteId'], $userId);
+										
+				}
+				else{
+					
+					// get the page
+					$page = Page::GetByFriendlyId($pageFriendlyId, $pageTypeId, $site['SiteId']);
+					
+				}						
+			
+				// quick check
+				if($page != NULL){
+			
+					// set the page to active							
+					Page::SetIsActive($page['PageId'], 1);
+					
+					// build the content file
+					$filename = APP_LOCATION.THEMES_FOLDER.'/'.$theme.'/'.$source;
+					$content = '';
+					
+					// get the content for the page
+					if(file_exists($filename)){
+		    			$content = file_get_contents($filename);
+		    			
+		    			// fix images
+		    			$content = str_replace('{{site-dir}}', $site['Domain'], $content);
+		    		}
+					
+					// edit the page content
+					Page::EditContent($page['PageId'], $content, $userId);
+					
+					// build the primary menu
+					if($primaryMenu == true){
+						MenuItem::Add($name, '', 'primary', $url, $page['PageId'], 
+										$primaryMenuCount, $site['SiteId'], $userId);
+										
+						$primaryMenuCount++;
+						
+					}
+					
+					// build the footer menu
+					if($footerMenu == true){
+						MenuItem::Add($name, '', 'footer', $url, $page['PageId'], 
+										$footerMenuCount, $site['SiteId'], $userId);
+										
+						$footerMenuCount++;
+					}
+					
+				}
+			
+			}
+		
+		}
+		
+		
+	}
 
 	// publishes a theme
 	public static function PublishTheme($site, $theme){

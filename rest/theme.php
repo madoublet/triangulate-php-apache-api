@@ -84,14 +84,23 @@ class ThemeApplyResource extends Tonic\Resource {
             parse_str($this->request->data, $request); // parse request
 		          
 			$theme = $request['theme'];
+			
+			// convert string to a boolean
+			$replaceContent = ($request['replaceContent'] === 'true');
             
             $site = Site::GetBySiteId($token->SiteId);
-        
+            
             // edits the theme for the site
     		Site::EditTheme($token->SiteId, $theme);
     		
     		// publishes a theme for a site
     		Publish::PublishTheme($site, $theme);
+    		
+    		// publish default content for the theme
+    		if($replaceContent == true){
+	    		echo 'publish default content, $replaceContent='.$replaceContent;
+	    		Publish::PublishDefaultContent($site, $theme, $token->UserId);
+    		}
     		
     		// republish site with the new theme
     		Publish::PublishSite($site['SiteId']);

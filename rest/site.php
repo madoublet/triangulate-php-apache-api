@@ -212,118 +212,15 @@ class SiteCreateResource extends Tonic\Resource {
             	$user = User::Add($email, $password, $firstName, $lastName, 'Admin', $userLanguage, $isActive, $site['SiteId']);
             	$userId = $user['UserId'];
             }
-            
-       
-            // read the defaults file
-            $default_json_file = APP_LOCATION.THEMES_FOLDER.'/'.$theme.'/default.json';
-            
+           
             // set $siteId
             $siteId = $site['SiteId'];
-            
-            // check to make sure the defaults.json exists
-            if(file_exists($default_json_file)){
-    			
-    			// get json from the file
-    			$json_text = file_get_contents($default_json_file);
-    			
-    			// decode json
-    			$json = json_decode($json_text, true);
-    			
-    			// pagetypes
-    			$pagetypes = array();
-    			
-    			// menu counts
-    			$primaryMenuCount = 0;
-    			$footerMenuCount = 0;
-    			
-    			// walk through defaults array
-    			foreach($json as &$value){
-    			
-    				// get values from array
-    				$url = $value['url'];
-    				$source = $value['source'];
-    				$name = $value['name'];
-    				$description = $value['description'];
-    				$layout = $value['layout'];
-    				$stylesheet = $value['stylesheet'];
-    				$primaryMenu = $value['primaryMenu'];
-    				$footerMenu = $value['footerMenu'];
-    				
-    				// initialize PT
-    				$pageType = NULL;
-    				
-    				if(strpos($url, '/') !== false){ // the url has a pagetype
-						$arr = explode('/', $url);
-						
-						// get friendly ids from $url
-						$pageTypeFriendlyId = $arr[0];
-						$pageFriendlyId = $arr[1];
-						
-						$pageTypeId = -1;
-						
-						$pageType = PageType::GetByFriendlyId($pageTypeFriendlyId, $siteId);
-						
-						// create a new pagetype
-						if($pageType == NULL){
-							$pageType = PageType::Add($pageTypeFriendlyId, $layout, $stylesheet, 0, $siteId, $userId);
-						}
-						
-						// get newly minted page type
-						$pageTypeId = $pageType['PageTypeId'];
-					
-					}
-					else{ // root, no pagetype
-						$pageFriendlyId = $url;
-						$pageTypeId = -1;
-					}
-					
-					// create a page
-					$page = Page::Add($pageFriendlyId, $name, $description, 
-											$layout, $stylesheet, $pageTypeId, $site['SiteId'], $userId);
-				
-					// set the page to active							
-					Page::SetIsActive($page['PageId'], 1);
-					
-					// build the content file
-					$filename = APP_LOCATION.THEMES_FOLDER.'/'.$theme.'/'.$source;
-					$content = '';
-					
-					// get the content for the page
-					if(file_exists($filename)){
-		    			$content = file_get_contents($filename);
-		    			
-		    			// fix images
-		    			$content = str_replace('{{site-dir}}', $site['Domain'], $content);
-		    		}
-					
-					Page::EditContent($page['PageId'], $content, $userId);
-					
-					// build the primary menu
-					if($primaryMenu == true){
-						MenuItem::Add($name, '', 'primary', $url, $page['PageId'], 
-										$primaryMenuCount, $site['SiteId'], $userId);
-										
-						$primaryMenuCount++;
-						
-					}
-					
-					// build the footer menu
-					if($footerMenu == true){
-						MenuItem::Add($name, '', 'footer', $url, $page['PageId'], 
-										$footerMenuCount, $site['SiteId'], $userId);
-										
-						$footerMenuCount++;
-					}
-    			
-    			}
-    			
-    		}
-    		else{
-	    		return new Tonic\Response(Tonic\Response::BADREQUEST);
-    		}
-            
+                        
     		// publishes a theme for a site
     		Publish::PublishTheme($site, $theme);
+    		
+    		// publish default content for the theme
+    		Publish::PublishDefaultContent($site, $theme, $user['UserId']);
     		
     		// publish the site
     		Publish::PublishSite($site['SiteId']);
@@ -530,14 +427,24 @@ class SiteRemoveResource extends Tonic\Resource {
 	            // Get the directory name
 				$oldname = SITES_LOCATION.'/'.$site['FriendlyId'];
 				
-				// Replace any special chars with your choice
-				$newname = SITES_LOCATION.'/'.$site['FriendlyId'].'-removed';
+				// Set the directory to be removed
+				$newname = SITES_LOCATION.'/removed-'.$site['FriendlyId'];
 				
 				if(file_exists($oldname)){
 					// Renames the directory
 					rename($oldname, $newname);
 				}
-	
+				
+				// remove site from Amazon S3
+				if(FILES_ON_S3 == true){
+					
+					// get site
+					$site = Site::GetBySiteId($siteId);
+					
+					// remove site
+					S3::RemoveSite($site);
+				}
+				
 				// remove site from DB
 				Site::Remove($siteId);
 	

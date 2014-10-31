@@ -73,7 +73,7 @@ class Page{
 	}
 	
 	// determines whether a friendlyId is unique
-	public static function IsFriendlyIdUnique($friendlyId, $siteId){
+	public static function IsFriendlyIdUnique($friendlyId, $pageTypeId, $siteId){
         
         try{
 
@@ -86,11 +86,12 @@ class Page{
     
         	$count = 0;
     	
-    		$q ="SELECT Count(*) as Count FROM Pages where FriendlyId = ? AND SiteId=?";
+    		$q ="SELECT Count(*) as Count FROM Pages where FriendlyId = ? AND PageTypeId = ? AND SiteId=?";
     
         	$s = $db->prepare($q);
             $s->bindParam(1, $friendlyId);
-            $s->bindParam(2, $siteId);
+            $s->bindParam(2, $pageTypeId);
+            $s->bindParam(3, $siteId);
             
     		$s->execute();
     
